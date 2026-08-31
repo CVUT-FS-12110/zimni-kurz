@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zimní kurz</title>
+<link rel="stylesheet" href="assets/css/styl.css">
+</head>
+<body>
+<main class="stranka">
+
+  <p class="pod-nadpisem">Kurz pro středoškoláky</p>
+  <h1>Zimní kurz</h1>
+
+  <p class="uvod">
+    Sada interaktivních úloh, na kterých si lze osahat problémy z vysokoškolských
+    předmětů. Většina z nich vypadá na první pohled jednoduše. Teprve když si s nimi
+    začnete hrát, ukáže se, kde je zakopaný pes.
+  </p>
+
+  <div id="rozcestnik"></div>
+
+  <p class="paticka">Vyberte lekci a v ní úlohu. Každá úloha je samostatná stránka, dá se procházet v libovolném pořadí.</p>
+
+</main>
+
+<script src="assets/js/ulohy.js"></script>
+<script>
+(function () {
+  const cil = document.getElementById('rozcestnik');
+  let poradi = 0;
+
+  for (const lekce of window.LEKCE) {
+    const blok = document.createElement('section');
+    blok.className = 'lekce';
+
+    const nadpis = document.createElement('h2');
+    nadpis.textContent = lekce.nazev;
+    blok.appendChild(nadpis);
+
+    if (lekce.popis) {
+      const p = document.createElement('p');
+      p.className = 'lekce-popis';
+      p.textContent = lekce.popis;
+      blok.appendChild(p);
+    }
+
+    const seznam = document.createElement('ol');
+    seznam.className = 'seznam-uloh';
+
+    for (const uloha of lekce.ulohy) {
+      poradi += 1;
+      const polozka = document.createElement('li');
+      const odkaz = document.createElement('a');
+      odkaz.href = uloha.soubor;
+
+      const hlavicka = document.createElement('div');
+      const cislo = document.createElement('span');
+      cislo.className = 'uloha-cislo';
+      cislo.textContent = poradi + '.';
+      const nazevUlohy = document.createElement('span');
+      nazevUlohy.className = 'uloha-nazev';
+      nazevUlohy.textContent = uloha.nazev;
+      hlavicka.append(cislo, nazevUlohy);
+      odkaz.appendChild(hlavicka);
+
+      if (uloha.popis) {
+        const popis = document.createElement('p');
+        popis.className = 'uloha-popis';
+        popis.textContent = uloha.popis;
+        odkaz.appendChild(popis);
+      }
+
+      polozka.appendChild(odkaz);
+      seznam.appendChild(polozka);
+    }
+
+    blok.appendChild(seznam);
+    cil.appendChild(blok);
+  }
+})();
+</script>
+</body>
+</html>

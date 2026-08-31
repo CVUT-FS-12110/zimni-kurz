@@ -1,1 +1,0 @@
-# zimni-kurz

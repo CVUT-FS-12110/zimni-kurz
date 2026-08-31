@@ -1,0 +1,154 @@
+<!doctype html>
+<!--
+  ŠABLONA ÚLOHY
+  Zkopírujte tento soubor na ulohy/<nn>-<slug>.html a vyplňte označená místa.
+  Postup a kontrolní seznam „Hotovo, když“ jsou v AGENTS.md.
+-->
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NÁZEV ÚLOHY — Zimní kurz</title>
+<link rel="stylesheet" href="../assets/css/styl.css">
+</head>
+<body>
+<main class="stranka">
+
+  <a class="zpet" href="../index.html">← Zpět na rozcestník</a>
+  <p class="pod-nadpisem">Lekce N — NÁZEV LEKCE</p>
+  <h1>NÁZEV ÚLOHY</h1>
+
+  <section class="sekce">
+    <!-- 2. MOTIVACE: 2–4 věty. Proč je problém zajímavý, kde se v praxi objeví. -->
+    <p class="uvod">
+      MOTIVACE
+    </p>
+
+    <!-- 3. ZADÁNÍ: co se řeší a co znamenají parametry. Bez formalismu. -->
+    <h2>Zadání</h2>
+    <p>
+      ZADÁNÍ
+    </p>
+  </section>
+
+  <div class="dilna">
+
+    <!-- 4. VIZUALIZACE -->
+    <div class="platno-ram">
+      <canvas id="platno" aria-label="POPIS VIZUALIZACE PRO ČTEČKU OBRAZOVKY"></canvas>
+    </div>
+
+    <!-- 5. OVLÁDÁNÍ. Záložky jsou volitelné — u jednodušší úlohy je vynechte
+         a nechte jen jeden .zalozka-obsah. -->
+    <div class="panel" id="panel">
+      <div class="zalozky" role="tablist">
+        <button role="tab" data-zalozka="zal-prvni" aria-selected="true">PRVNÍ</button>
+        <button role="tab" data-zalozka="zal-druha" aria-selected="false">DRUHÁ</button>
+      </div>
+
+      <div class="zalozka-obsah" id="zal-prvni" role="tabpanel">
+        <div class="ovladac">
+          <label for="parametr">Popis parametru <output id="parametr-hodnota"></output></label>
+          <input type="range" id="parametr" min="0" max="100" step="1" value="50">
+        </div>
+
+        <label class="prepinac">
+          <input type="checkbox" id="prepinac-neco" checked> Popis přepínače
+        </label>
+
+        <div class="tlacitka">
+          <button class="akce hlavni" id="spustit">Spustit</button>
+          <button class="akce" id="reset">Reset</button>
+        </div>
+      </div>
+
+      <div class="zalozka-obsah" id="zal-druha" role="tabpanel" hidden>
+        <p class="poznamka">Druhá záložka.</p>
+
+        <div class="stav">
+          <dl>
+            <dt>Veličina</dt><dd id="stav-neco">–</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 6. CO SI ZKUSTE: 2–4 konkrétní pokyny k experimentování. -->
+  <section class="sekce">
+    <h2>Co si zkuste</h2>
+    <ul>
+      <li>POKYN 1</li>
+      <li>POKYN 2</li>
+    </ul>
+  </section>
+
+  <!-- 7. PROČ JE TO TĚŽKÉ: pointa úlohy. Tuhle sekci nevynechávejte. -->
+  <section class="pointa">
+    <h2>Proč je to těžké</h2>
+    <p>
+      POINTA
+    </p>
+  </section>
+
+  <p class="paticka"><a href="../index.html">← Zpět na rozcestník</a></p>
+
+</main>
+
+<script src="../assets/js/spolecne.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  /* ---- stav úlohy ---- */
+  const P = { parametr: 50, neco: true };
+
+  /* ---- výpočet ---- */
+  // Náhoda vždy přes Kurz.generator(seed), aby šel výsledek zopakovat.
+  const rng = Kurz.generator(1);
+
+  function prepocitej() {
+    // VÝPOČET
+  }
+
+  /* ---- vykreslení ---- */
+  const platnoEl = document.getElementById('platno');
+  const plocha = Kurz.platno(platnoEl, () => prekresli());
+
+  function prekresli() {
+    const ctx = plocha.ctx;
+    if (!ctx) return;
+
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, plocha.sirka, plocha.vyska);
+
+    // KRESLENÍ. Barvy shluků/sérií: Kurz.barvy[i]
+  }
+
+  /* ---- ovládání ---- */
+  Kurz.zalozky('panel');
+
+  Kurz.posuvnik('parametr', v => { P.parametr = v; prepocitej(); prekresli(); });
+  Kurz.prvek('prepinac-neco', 'change', e => { P.neco = e.checked; prekresli(); });
+  Kurz.prvek('reset', 'click', () => { prepocitej(); prekresli(); });
+
+  /* ---- animace (pokud ji úloha potřebuje) ---- */
+  const smycka = Kurz.smycka(dt => {
+    // KROK SIMULACE o dt sekund
+    prekresli();
+  });
+
+  Kurz.prvek('spustit', 'click', el => {
+    if (smycka.bezi) { smycka.stop(); el.textContent = 'Spustit'; }
+    else { smycka.start(); el.textContent = 'Zastavit'; }
+  });
+
+  /* ---- start ---- */
+  // Kurz.platno() první vykreslení nevolá, stránka si ho zařídí sama:
+  prepocitej();
+  prekresli();
+})();
+</script>
+</body>
+</html>

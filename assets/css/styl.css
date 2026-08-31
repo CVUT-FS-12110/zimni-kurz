@@ -1,0 +1,410 @@
+/* Zimní kurz — společný vzhled.
+   Světlé, vysoce kontrastní téma navržené pro projekci v učebně. */
+
+:root {
+  --pozadi: #ffffff;
+  --pozadi-panel: #eef1f6;
+  --pozadi-zvyraz: #dfe5ef;
+  --text: #0d1218;
+  --text-slaby: #4a5768;
+  --ram: #aab4c2;
+  --ram-silny: #0d1218;
+  --akcent: #0b46c8;
+  --akcent-text: #ffffff;
+
+  /* Paleta shluků — rozlišitelná i při barvosleposti, tmavá dost na bílém. */
+  --shluk-1: #1145cf;
+  --shluk-2: #cc1233;
+  --shluk-3: #0a7d38;
+  --shluk-4: #d97000;
+  --shluk-5: #7622d6;
+  --shluk-6: #007c86;
+  --shluk-7: #ad0072;
+  --shluk-8: #6a6a00;
+  --shluk-9: #8a4413;
+  --shluk-10: #2a3a4d;
+
+  --mezera: 1rem;
+  --radius: 6px;
+}
+
+* { box-sizing: border-box; }
+
+html { color-scheme: light; }
+
+body {
+  margin: 0;
+  background: var(--pozadi);
+  color: var(--text);
+  font: 17px/1.6 "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  -webkit-text-size-adjust: 100%;
+}
+
+.stranka {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 4rem;
+}
+
+/* ---------- typografie ---------- */
+
+h1 {
+  font-size: 2rem;
+  line-height: 1.2;
+  margin: 0.2em 0 0.4em;
+  letter-spacing: -0.01em;
+}
+
+h2 {
+  font-size: 1.3rem;
+  margin: 2rem 0 0.5rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 2px solid var(--ram);
+}
+
+h3 { font-size: 1.05rem; margin: 1.2rem 0 0.4rem; }
+
+p { margin: 0.6em 0; }
+
+a { color: var(--akcent); }
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid var(--akcent);
+  outline-offset: 2px;
+}
+
+.uvod { font-size: 1.08rem; max-width: 62ch; }
+
+.zpet {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+.zpet:hover { text-decoration: underline; }
+
+.pod-nadpisem {
+  color: var(--text-slaby);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.82rem;
+  margin: 0;
+}
+
+/* ---------- rozcestník ---------- */
+
+.lekce {
+  margin: 2rem 0;
+  border: 2px solid var(--ram-silny);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.lekce > h2 {
+  margin: 0;
+  padding: 0.7rem 1rem;
+  background: var(--ram-silny);
+  color: #fff;
+  border: 0;
+  font-size: 1.2rem;
+}
+
+.lekce-popis {
+  margin: 0;
+  padding: 0.8rem 1rem 0;
+  color: var(--text-slaby);
+  max-width: 68ch;
+}
+
+.seznam-uloh {
+  list-style: none;
+  margin: 0;
+  padding: 1rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.seznam-uloh a {
+  display: block;
+  padding: 0.85rem 1rem;
+  background: var(--pozadi-panel);
+  border: 2px solid var(--ram);
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: inherit;
+}
+.seznam-uloh a:hover {
+  border-color: var(--akcent);
+  background: var(--pozadi-zvyraz);
+}
+
+.uloha-cislo {
+  display: inline-block;
+  min-width: 2.4em;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--akcent);
+}
+.uloha-nazev { font-weight: 700; }
+.uloha-popis { margin: 0.25rem 0 0 2.4em; color: var(--text-slaby); font-size: 0.95rem; }
+
+/* ---------- rozvržení úlohy ---------- */
+
+.dilna {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: var(--mezera);
+  align-items: start;
+  margin: 1.2rem 0;
+}
+
+@media (max-width: 900px) {
+  .dilna { grid-template-columns: minmax(0, 1fr); }
+}
+
+.platno-ram {
+  position: relative;
+  border: 2px solid var(--ram-silny);
+  border-radius: var(--radius);
+  background: var(--pozadi);
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+.platno-ram canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+/* ---------- ovládací panel ---------- */
+
+.panel {
+  border: 2px solid var(--ram-silny);
+  border-radius: var(--radius);
+  background: var(--pozadi-panel);
+  overflow: hidden;
+}
+
+.zalozky {
+  display: flex;
+  border-bottom: 2px solid var(--ram-silny);
+}
+
+.zalozky button {
+  flex: 1;
+  padding: 0.6rem 0.5rem;
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.95rem;
+  background: var(--pozadi-zvyraz);
+  color: var(--text-slaby);
+  border: 0;
+  border-right: 2px solid var(--ram-silny);
+  cursor: pointer;
+}
+.zalozky button:last-child { border-right: 0; }
+.zalozky button[aria-selected="true"] {
+  background: var(--pozadi);
+  color: var(--text);
+}
+
+.zalozka-obsah { padding: 0.9rem 1rem 1.1rem; }
+.zalozka-obsah[hidden] { display: none; }
+
+.ovladac { margin: 0 0 0.9rem; }
+
+.ovladac > label,
+.ovladac > .popisek {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 0.2rem;
+}
+
+.ovladac output {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--akcent);
+}
+
+.ovladac input[type="range"] {
+  width: 100%;
+  accent-color: var(--akcent);
+  margin: 0;
+}
+
+.ovladac select {
+  width: 100%;
+  padding: 0.4rem;
+  font: inherit;
+  border: 2px solid var(--ram);
+  border-radius: 4px;
+  background: var(--pozadi);
+  color: var(--text);
+}
+
+.prepinac {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+}
+.prepinac input { width: 1.15rem; height: 1.15rem; accent-color: var(--akcent); margin: 0; }
+
+.tlacitka {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+}
+
+.akce {
+  flex: 1 1 auto;
+  display: inline-block;
+  text-align: center;
+  padding: 0.55rem 0.8rem;
+  font: inherit;
+  font-weight: 700;
+  color: var(--text);
+  background: var(--pozadi);
+  border: 2px solid var(--ram-silny);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.akce:hover { background: var(--pozadi-zvyraz); }
+.akce.hlavni { background: var(--akcent); border-color: var(--akcent); color: var(--akcent-text); }
+.akce.hlavni:hover { filter: brightness(1.12); }
+.akce:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* vstup pro soubor: nativní prvek schováme, ovládá se popiskem .akce */
+.skryty-vstup {
+  position: absolute;
+  width: 1px; height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+.skryty-vstup:focus-visible + .akce { outline: 3px solid var(--akcent); outline-offset: 2px; }
+
+.stav {
+  margin-top: 0.9rem;
+  padding-top: 0.7rem;
+  border-top: 2px solid var(--ram);
+  font-size: 0.95rem;
+}
+.stav dl { display: grid; grid-template-columns: 1fr auto; gap: 0.15rem 0.5rem; margin: 0; }
+.stav dt { color: var(--text-slaby); }
+.stav dd { margin: 0; font-variant-numeric: tabular-nums; font-weight: 700; }
+
+.oddelovac { border: 0; border-top: 2px solid var(--ram); margin: 1rem 0; }
+
+/* ---------- textové bloky ---------- */
+
+.sekce { max-width: 70ch; }
+.sekce ul, .sekce ol { padding-left: 1.3rem; }
+.sekce li { margin: 0.35em 0; }
+
+.pointa {
+  max-width: 70ch;
+  border-left: 6px solid var(--akcent);
+  background: var(--pozadi-panel);
+  padding: 0.8rem 1rem;
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.pointa h2 { margin-top: 0; border: 0; padding: 0; }
+
+.paticka {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 2px solid var(--ram);
+  color: var(--text-slaby);
+  font-size: 0.9rem;
+}
+
+.poznamka {
+  font-size: 0.9rem;
+  color: var(--text-slaby);
+  margin: 0.2rem 0 0.8rem;
+}
+
+/* ---------- paleta barev (úloha o posterizaci) ---------- */
+
+.paleta-blok { margin-top: var(--mezera); }
+
+.paleta-blok h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.paleta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.vzorek {
+  width: 84px;
+  padding: 0;
+  font: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  text-align: center;
+}
+
+.vzorek .plocha {
+  display: block;
+  height: 46px;
+  border: 2px solid var(--ram-silny);
+  border-radius: 4px;
+  background-color: var(--barva);
+}
+
+/* Vypnutá barva: neutrální jemné šrafování, žádná barevná informace. */
+.vzorek[aria-pressed="false"] .plocha {
+  background-color: var(--pozadi);
+  background-image: repeating-linear-gradient(
+    45deg,
+    #ffffff 0 4px,
+    #d7dbe1 4px 8px
+  );
+}
+
+.vzorek .podil {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-slaby);
+}
+
+.vzorek[aria-pressed="false"] .podil { color: var(--ram); }
+.vzorek:hover .plocha { border-color: var(--akcent); }
+
+/* ---------- přetažení obrázku ---------- */
+
+.platno-ram.prijima {
+  border-color: var(--akcent);
+  box-shadow: inset 0 0 0 6px rgba(11, 70, 200, 0.15);
+}
+
+.chyba {
+  max-width: 70ch;
+  border-left: 6px solid var(--shluk-2);
+  background: #fdf0f2;
+  padding: 0.7rem 1rem;
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.chyba[hidden] { display: none; }
