@@ -3,173 +3,194 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>k-means: hledání shluků — Zimní kurz</title>
+<title>k-means: třídění zásilek — Zimní kurz</title>
 <link rel="stylesheet" href="../assets/css/styl.css">
+<style>
+  .platno-ram { aspect-ratio: 4 / 3; }
+  .dilna + .dilna { margin-top: 2rem; }
+  .tabulka-ram { max-width: 100%; overflow-x: auto; border: 2px solid var(--ram-silny); border-radius: var(--radius); }
+  .data-tabulka { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 0.9rem; }
+  .data-tabulka th, .data-tabulka td { padding: 0.42rem 0.55rem; text-align: right; border-bottom: 1px solid var(--ram); white-space: nowrap; }
+  .data-tabulka th:first-child, .data-tabulka td:first-child { text-align: left; }
+  .data-tabulka th { background: var(--pozadi-panel); }
+  .data-tabulka tr:last-child td { border-bottom: 0; }
+  .data-tabulka tr.divna { background: #fff3dd; }
+  .tecka { display: inline-block; width: 0.8em; height: 0.8em; margin-right: 0.35em; border-radius: 50%; background: var(--barva); border: 1px solid var(--ram-silny); }
+  .stitek-divny { display: inline-block; margin-left: 0.35rem; padding: 0 0.35rem; border: 1px solid var(--shluk-4); border-radius: 999px; font-size: 0.75rem; font-weight: 700; }
+  .souradnice { max-width: 70ch; color: var(--text-slaby); font-size: 0.9rem; }
+  .shrnuti-shluku { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0.65rem; margin: 0.8rem 0 1.2rem; }
+  .karta-shluku { border: 2px solid var(--ram); border-top: 7px solid var(--barva); border-radius: var(--radius); padding: 0.65rem 0.8rem; background: var(--pozadi-panel); }
+  .karta-shluku h4 { margin: 0 0 0.25rem; }
+  .karta-shluku p { margin: 0.15rem 0; font-size: 0.88rem; }
+  .karta-shluku .charakter { font-weight: 700; color: var(--text); }
+  .mini-legenda { margin: 0.4rem 0 0; font-size: 0.85rem; color: var(--text-slaby); }
+  .prazdny-blok { min-height: 5rem; }
+  code { background: var(--pozadi-panel); padding: 0.05em 0.25em; border-radius: 3px; }
+  .zapis { margin: 0.8rem 0; padding: 0.8rem 1rem; overflow-x: auto; border: 2px solid var(--ram); border-radius: var(--radius); background: var(--pozadi-panel); font: 0.9rem/1.55 ui-monospace, "Cascadia Mono", Consolas, monospace; white-space: pre; }
+  @media (max-width: 700px) { .platno-ram { min-height: 400px; } }
+</style>
 </head>
 <body>
 <main class="stranka">
-
   <a class="zpet" href="../index.html">← Zpět na rozcestník</a>
   <p class="pod-nadpisem">Lekce 1 — Třídění neznámých dat</p>
-  <h1>k-means: hledání shluků</h1>
+  <h1>k-means: třídění zásilek</h1>
 
   <section class="sekce">
+    <h2>1. Jak rozdělit neznámé balíky?</h2>
     <p class="uvod">
-      Přístroj naměřil dvě veličiny u několika stovek vzorků. Nikdo neřekl, kolik druhů
-      vzorků vlastně bylo ani který patří kam — na grafu jsou jen body. Úkolem je rozdělit
-      je do skupin, které k sobě patří.
+      Třídicí centrum přijímá zásilky bez informace o jejich typu. Změří jejich hmotnost
+      a rozměry, ale musí samo odhalit, které balíky jsou si podobné. Podle nalezených
+      skupin lze nastavit vhodnou linku — a neobvyklé zásilky poslat na ruční kontrolu.
     </p>
-
-    <h2>Zadání</h2>
     <p>
-      Nejznámější postup se jmenuje <strong>k-means</strong>. Dopředu se mu řekne, kolik
-      skupin má najít, a on pak střídavě opakuje dva jednoduché kroky:
+      Algoritmus nedostane názvy kategorií ani správné odpovědi. Vidí jen čísla a hledá
+      skupiny, jejichž členové jsou si navzájem podobní. Tomu se říká
+      <strong>shlukování</strong> (anglicky <em>clustering</em>).
+    </p>
+  </section>
+
+  <section>
+    <h2>2. Vyzkoušejte shlukování</h2>
+    <div class="sekce">
+      <h3>Úloha A — dva rozměry jsou vidět v grafu</h3>
+      <p>
+        Každá tečka je jedna zásilka. Vodorovně je její objem a svisle hmotnost.
+        Na záložce <strong>Zásilky</strong> jsou vidět skutečné středy a kružnice jedné
+        směrodatné odchylky, podle kterých data vznikla. Na záložce <strong>k-means</strong>
+        se místo nich ukážou středy hledané algoritmem. Tlačítkem <strong>Krok</strong>
+        sledujte jejich pohyb.
+      </p>
+    </div>
+    <div class="dilna">
+      <div>
+        <div class="platno-ram"><canvas id="platno" aria-label="Graf zásilek podle objemu a hmotnosti s nalezenými shluky"></canvas></div>
+        <p class="mini-legenda" id="legenda-2d">Kružnice ukazuje jednu směrodatnou odchylku od skutečného středu skupiny.</p>
+      </div>
+      <div class="panel" id="panel-2d">
+        <div class="zalozky" role="tablist">
+          <button role="tab" data-zalozka="zal-2d-data" aria-selected="true">Zásilky</button>
+          <button role="tab" data-zalozka="zal-2d-alg" aria-selected="false">k-means</button>
+        </div>
+        <div class="zalozka-obsah" id="zal-2d-data" role="tabpanel">
+          <div class="ovladac"><label for="pocet-bodu">Počet zásilek <output id="pocet-bodu-hodnota"></output></label><input type="range" id="pocet-bodu" min="60" max="360" step="20" value="220"></div>
+          <div class="ovladac"><label for="skutecne-typy">Skutečné typy <output id="skutecne-typy-hodnota"></output></label><input type="range" id="skutecne-typy" min="2" max="6" step="1" value="4"></div>
+          <div class="ovladac"><label for="rozptyl">Rozmanitost zásilek <output id="rozptyl-hodnota"></output></label><input type="range" id="rozptyl" min="4" max="22" step="1" value="10"></div>
+          <div class="tlacitka"><button class="akce" id="nova-data">Nové zásilky</button></div>
+        </div>
+        <div class="zalozka-obsah" id="zal-2d-alg" role="tabpanel" hidden>
+          <div class="ovladac"><label for="pocet-shluku">Počet skupin <em>k</em> <output id="pocet-shluku-hodnota"></output></label><input type="range" id="pocet-shluku" min="2" max="7" step="1" value="4"></div>
+          <div class="tlacitka"><button class="akce hlavni" id="spustit">Spustit</button><button class="akce" id="krok">Krok</button></div>
+          <div class="tlacitka"><button class="akce" id="reset">Nové středy</button></div>
+          <div class="stav"><dl><dt>Iterace</dt><dd id="stav-iterace">0</dd><dt>Změněná přiřazení</dt><dd id="stav-zmeny">–</dd><dt>Stav</dt><dd id="stav-konvergence">připraveno</dd></dl></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sekce">
+      <h3>Co si zkuste</h3>
+      <ul>
+        <li>Nastavte stejný počet skupin jako skutečných typů. Několikrát zvolte nové středy — vyjde vždy stejné rozdělení?</li>
+        <li>Zvolte méně skupin než skutečných typů. Které typy zásilek algoritmus spojí?</li>
+        <li>Zvyšte rozmanitost. Kdy přestanou být hranice mezi skupinami zřejmé i okem?</li>
+      </ul>
+    </div>
+
+    <div class="sekce">
+      <h3>Úloha B — skutečné zásilky mají čtyři vlastnosti</h3>
+      <p>
+        Ve skutečnosti měříme hmotnost, délku, šířku a výšku. Čtyřrozměrný graf nakreslit
+        neumíme, algoritmus ale se čtyřmi čísly pracuje stejně. Rozměry jsou generovány
+        tak, aby vždy platilo <strong>délka &gt; šířka &gt; výška</strong>. Tabulka ukazuje
+        jen malý vzorek celé sady; neobvyklé zásilky se do něj doplní po dokončení výpočtu.
+      </p>
+    </div>
+    <div class="dilna">
+      <div>
+        <div class="tabulka-ram">
+          <table class="data-tabulka">
+            <thead><tr><th>Zásilka</th><th>Hmotnost</th><th>Délka</th><th>Šířka</th><th>Výška</th><th>Shluk</th><th>Odchylka</th></tr></thead>
+            <tbody id="tabulka-baliku"></tbody>
+          </table>
+        </div>
+        <p class="souradnice" id="pocet-zobrazenych"></p>
+      </div>
+      <div class="panel">
+        <div class="zalozka-obsah">
+          <div class="ovladac"><label for="pocet-kategorii">Počet kategorií <em>k</em> <output id="pocet-kategorii-hodnota"></output></label><input type="range" id="pocet-kategorii" min="2" max="7" step="1" value="4"></div>
+          <div class="ovladac"><label for="pocet-baliku">Počet zásilek <output id="pocet-baliku-hodnota"></output></label><input type="range" id="pocet-baliku" min="40" max="160" step="10" value="80"></div>
+          <div class="tlacitka"><button class="akce hlavni" id="spustit-balicky">Seskupit</button><button class="akce" id="nova-sada">Nová sada</button></div>
+          <div class="stav"><dl><dt>Iterace</dt><dd id="baliky-iterace">–</dd><dt>Neobvyklé zásilky</dt><dd id="baliky-divne">–</dd><dt>Celková odchylka</dt><dd id="baliky-chyba">–</dd></dl></div>
+        </div>
+      </div>
+    </div>
+    <div class="sekce">
+      <h3>Co mají nalezené skupiny společné</h3>
+      <p>
+        Názvy níže nevstupují do výpočtu. Vzniknou až z průměrných hodnot nalezeného
+        shluku, aby šel číselný výsledek popsat běžným jazykem.
+      </p>
+    </div>
+    <div class="shrnuti-shluku" id="shrnuti-shluku"></div>
+    <div class="sekce">
+      <h3>Co si zkuste</h3>
+      <ul>
+        <li>Měňte počet kategorií. Při malém <em>k</em> se různé druhy balíků sloučí; při velkém se jeden přirozený druh rozdělí na několik skupin.</li>
+        <li>Sledujte oranžově označené zásilky. Zůstávají divné při každém počtu kategorií, nebo jim algoritmus vytvoří vlastní skupinu?</li>
+        <li>Porovnejte průměry skupin při <em>k</em> = 3, 4 a 6. Které dělení by bylo praktické pro nastavení třídicí linky?</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="sekce">
+    <h2>3. Jak k-means zapisujeme</h2>
+    <p>
+      Jednu zásilku zapíšeme jako seznam jejích vlastností. Například
+      <code>x = [2,4 kg; 38 cm; 27 cm; 16 cm]</code>. Celá tabulka je množina takových
+      bodů. k-means hledá předem zadaný počet <em>k</em> středů a opakuje dva kroky:
     </p>
     <ol>
-      <li>Každý bod se přiřadí k nejbližšímu středu skupiny.</li>
-      <li>Každý střed se přesune do těžiště bodů, které mu právě připadly.</li>
+      <li><strong>Přiřazení:</strong> každou zásilku přiřadí k nejbližšímu středu.</li>
+      <li><strong>Nový střed:</strong> pro každý shluk spočítá průměr každé vlastnosti.</li>
     </ol>
+    <pre class="zapis">zásilka:       [2,4 kg; 38 cm; 27 cm; 16 cm]
+střed shluku:  [2,1 kg; 36 cm; 25 cm; 15 cm]
+rozdíl:        [0,3;     2;     2;     1]</pre>
+    <h3>Proč údaje před výpočtem přepočítáváme</h3>
     <p>
-      To se opakuje, dokud se přiřazení mění. Vlevo jsou data, vpravo ovládání:
-      na záložce <em>Generátor dat</em> se nastavuje, jak data vzniknou, na záložce
-      <em>k-means</em> pak samotný algoritmus.
+      Jeden centimetr a jeden kilogram nejsou srovnatelné jednotky. Kdyby se použila
+      přímo čísla z tabulky, délka kolem 80 cm by měla na výsledek mnohem větší vliv než
+      hmotnost kolem 2 kg. Proto každou vlastnost převedeme na společnou stupnici: od
+      hodnoty odečteme průměr a výsledek vydělíme typickou odchylkou daného sloupce.
     </p>
-  </section>
+    <pre class="zapis">standardizovaná hodnota = (hodnota − průměr sloupce) / odchylka sloupce
 
-  <div class="dilna">
+vzdálenost² = rozdíl_hmotnosti² + rozdíl_délky²
+            + rozdíl_šířky² + rozdíl_výšky²</pre>
+    <p>
+      „Divnost“ zásilky měříme její standardizovanou vzdáleností od středu přiřazeného
+      shluku. Oranžově se označí několik nejvzdálenějších kusů a také členové velmi
+      malé skupiny. Nejde o důkaz chyby — jen o rozumný podnět k ruční kontrole.
+    </p>
 
-    <div class="platno-ram">
-      <canvas id="platno" aria-label="Rozptylový graf naměřených bodů s nalezenými shluky"></canvas>
+    <div class="pointa">
+      <h2>Proč je to těžké</h2>
+      <p>
+        k-means vždy vytvoří právě tolik skupin, kolik mu zadáme. Neumí sám říct, zda
+        existují čtyři přirozené typy zásilek, nebo žádné. Při příliš malém <em>k</em>
+        smíchá odlišné balíky, při příliš velkém může běžnou skupinu rozdělit a z
+        neobvyklých kusů vytvořit zdánlivě platnou kategorii.
+      </p>
+      <p>
+        Výsledek závisí také na počátečních středech a na tom, které vlastnosti změříme
+        a jak je převedeme na společnou stupnici. Algoritmus umí přesně optimalizovat
+        vzdálenosti, ale neví, které rozdělení je užitečné pro skutečný provoz.
+      </p>
     </div>
-
-    <div class="panel" id="panel">
-      <div class="zalozky" role="tablist">
-        <button role="tab" data-zalozka="zal-data" aria-selected="true">Generátor dat</button>
-        <button role="tab" data-zalozka="zal-kmeans" aria-selected="false">k-means</button>
-      </div>
-
-      <div class="zalozka-obsah" id="zal-data" role="tabpanel">
-        <div class="ovladac">
-          <label for="pocet-bodu">Počet bodů <output id="pocet-bodu-hodnota"></output></label>
-          <input type="range" id="pocet-bodu" min="50" max="500" step="10" value="240">
-        </div>
-        <div class="ovladac">
-          <label for="pocet-rozdeleni">Počet rozdělení <output id="pocet-rozdeleni-hodnota"></output></label>
-          <input type="range" id="pocet-rozdeleni" min="1" max="10" step="1" value="3">
-        </div>
-        <div class="ovladac">
-          <label for="rozptyl">Rozptyl shluků <output id="rozptyl-hodnota"></output></label>
-          <input type="range" id="rozptyl" min="30" max="220" step="5" value="100">
-        </div>
-
-        <p class="poznamka">
-          Body vznikají z několika nezávislých normálních rozdělení. Každé má svůj náhodný
-          střed a svou šířku — algoritmus o nich ale nic neví.
-        </p>
-
-        <label class="prepinac">
-          <input type="checkbox" id="zobraz-pravdu"> Zobrazit skutečná rozdělení
-        </label>
-
-        <div class="tlacitka">
-          <button class="akce" id="nova-data">Nová data</button>
-        </div>
-      </div>
-
-      <div class="zalozka-obsah" id="zal-kmeans" role="tabpanel" hidden>
-        <div class="ovladac">
-          <label for="pocet-shluku"><span>Počet shluků <em>k</em></span> <output id="pocet-shluku-hodnota"></output></label>
-          <input type="range" id="pocet-shluku" min="1" max="10" step="1" value="3">
-        </div>
-
-        <div class="ovladac">
-          <label for="jadro">Typ jádra</label>
-          <select id="jadro">
-            <option value="linearni">lineární (klasický k-means)</option>
-            <option value="rbf">gaussovské (RBF)</option>
-            <option value="polynomialni">polynomiální</option>
-          </select>
-        </div>
-
-        <div class="ovladac" id="ovladac-gamma" hidden>
-          <label for="gamma">Šířka jádra γ <output id="gamma-hodnota"></output></label>
-          <input type="range" id="gamma" min="5" max="300" step="5" value="60">
-        </div>
-
-        <div class="ovladac" id="ovladac-stupen" hidden>
-          <label for="stupen">Stupeň polynomu <output id="stupen-hodnota"></output></label>
-          <input type="range" id="stupen" min="2" max="5" step="1" value="2">
-        </div>
-
-        <hr class="oddelovac">
-
-        <label class="prepinac">
-          <input type="checkbox" id="obarvit" checked> Obarvit body podle shluku
-        </label>
-        <label class="prepinac">
-          <input type="checkbox" id="zobraz-pole" checked> Vykreslit pole (predikce v mřížce)
-        </label>
-
-        <div class="tlacitka">
-          <button class="akce hlavni" id="spustit">Spustit</button>
-          <button class="akce" id="krok">Krok</button>
-        </div>
-        <div class="tlacitka">
-          <button class="akce" id="reset">Nová inicializace</button>
-        </div>
-
-        <div class="stav">
-          <dl>
-            <dt>Iterace</dt><dd id="stav-iterace">0</dd>
-            <dt>Stav</dt><dd id="stav-konvergence">běží</dd>
-            <dt>Chyba</dt><dd id="stav-chyba">–</dd>
-          </dl>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <section class="sekce">
-    <h2>Co si zkuste</h2>
-    <ul>
-      <li>Nastavte 3 rozdělení a <em>k</em> = 3. Zmáčkněte <strong>Nová inicializace</strong>
-        a pak několikrát <strong>Krok</strong> — je vidět, jak se středy stěhují.
-        Opakujte inicializaci vícekrát. Vyjde vždycky totéž?</li>
-      <li>Nechte 3 rozdělení, ale zadejte <em>k</em> = 5. Algoritmus poslušně najde pět
-        skupin. Rozdělil data špatně — jak by to poznal, kdyby neměl přepínač
-        <em>Zobrazit skutečná rozdělení</em>?</li>
-      <li>Zvyšujte <strong>rozptyl shluků</strong>, dokud se rozdělení nepřekryjí.
-        V kterém okamžiku přestane jít o hranici mezi skupinami rozhodnout i pro vás?</li>
-      <li>Přepněte typ jádra na <strong>gaussovské</strong> a měňte γ. Hranice mezi
-        skupinami přestanou být přímé. Při velkém γ se algoritmus začne chytat
-        jednotlivých bodů — všimněte si, co to udělá s polem.</li>
-    </ul>
   </section>
 
-  <section class="pointa">
-    <h2>Proč je to těžké</h2>
-    <p>
-      k-means vždycky nějaké rozdělení vrátí. Nikdy neřekne „tahle data žádné skupiny
-      nemají“ ani „skupin je ve skutečnosti sedm“. Počet skupin je vstup, ne výsledek —
-      a přitom je to právě to, co bychom u neznámých dat nejvíc potřebovali vědět.
-    </p>
-    <p>
-      Druhý problém je, že výsledek závisí na náhodném začátku. Algoritmus vždy skončí
-      v místě, odkud už žádný jeho krok nevede ke zlepšení, ale takových míst je víc a
-      některá jsou znatelně horší než jiná. Najít prokazatelně nejlepší rozdělení je úloha,
-      pro kterou se nezná žádný rychlý postup — v praxi se proto k-means pouští opakovaně
-      z různých začátků a bere se ten nejlepší pokus.
-    </p>
-    <p>
-      A do třetice: číslo <em>chyba</em> v panelu měří jen, jak blízko jsou body svým
-      středům. S rostoucím <em>k</em> vždycky klesá. Podle něj tedy nikdy nevyjde, že
-      skupin je moc — dobré rozdělení se nedá poznat z toho, co algoritmus optimalizuje.
-    </p>
-  </section>
-
+  <section class="sekce prazdny-blok"><h2>4. Kde se to učí</h2></section>
   <p class="paticka"><a href="../index.html">← Zpět na rozcestník</a></p>
-
 </main>
 
 <script src="../assets/js/spolecne.js"></script>
@@ -177,622 +198,130 @@
 (function () {
   'use strict';
 
-  /* ================= stav ================= */
-
-  const G = { pocetBodu: 240, pocetRozdeleni: 3, rozptyl: 1.0, seed: 12345 };
-  const M = { k: 3, jadro: 'linearni', gamma: 60, stupen: 2 };
-  const Z = { obarvit: true, pole: true, pravda: false };
-
-  let data = null;          // { n, xs, ys, slozky }
-  let K = null;             // matice jádra (jen pro nelineární jádra)
-  let seedInit = 1;
-
-  const shluk = {
-    z: null,                // přiřazení bodů ke shlukům
-    centroidy: [],          // jen pro lineární jádro
-    iterace: 0,
-    konvergovano: false,
-    chyba: 0
-  };
-
-  let poleNeaktualni = true;
-  const poleCanvas = document.createElement('canvas');
-
-  /* ================= generování dat ================= */
-
-  function generujData() {
-    const rng = Kurz.generator(G.seed);
-    const n = G.pocetBodu;
-    const m = G.pocetRozdeleni;
-
-    const slozky = [];
-    for (let c = 0; c < m; c++) {
-      slozky.push({
-        mx: rng.rozsah(0.16, 0.84),
-        my: rng.rozsah(0.16, 0.84),
-        sx: rng.rozsah(0.035, 0.095) * G.rozptyl,
-        sy: rng.rozsah(0.035, 0.095) * G.rozptyl
-      });
+  function kmeansPlus(data, k, seed) {
+    const rng=Kurz.generator(seed), stre=[[...data[rng.cele(0,data.length-1)]]], nej=new Float64Array(data.length).fill(Infinity);
+    while(stre.length<k){
+      let soucet=0;
+      data.forEach((p,i)=>{nej[i]=Math.min(nej[i],vzd2(p,stre[stre.length-1]));soucet+=nej[i];});
+      let cil=rng.r()*soucet, idx=data.length-1;
+      for(let i=0;i<data.length;i++){cil-=nej[i];if(cil<=0){idx=i;break;}}
+      stre.push([...data[idx]]);
     }
-
-    const xs = new Float64Array(n);
-    const ys = new Float64Array(n);
-    const sevri = v => Math.min(0.985, Math.max(0.015, v));
-
-    for (let i = 0; i < n; i++) {
-      const s = slozky[rng.cele(0, m - 1)];
-      xs[i] = sevri(s.mx + rng.gauss() * s.sx);
-      ys[i] = sevri(s.my + rng.gauss() * s.sy);
-    }
-
-    data = { n, xs, ys, slozky };
-    K = null;
+    return stre;
+  }
+  function vzd2(a,b){let s=0;for(let d=0;d<a.length;d++){const x=a[d]-b[d];s+=x*x;}return s;}
+  function prirad(data,stre,predchozi){
+    const z=new Int16Array(data.length);let zmeny=0,chyba=0;
+    data.forEach((p,i)=>{let nej=0,nd=Infinity;stre.forEach((s,c)=>{const d=vzd2(p,s);if(d<nd){nd=d;nej=c;}});z[i]=nej;chyba+=nd;if(!predchozi||predchozi[i]!==nej)zmeny++;});
+    return {z,zmeny,chyba};
+  }
+  function noveStredy(data,z,k,stare){
+    const soucty=Array.from({length:k},()=>Array(data[0].length).fill(0)),pocty=new Int32Array(k);
+    data.forEach((p,i)=>{pocty[z[i]]++;p.forEach((v,d)=>soucty[z[i]][d]+=v);});
+    return soucty.map((s,c)=>pocty[c]?s.map(v=>v/pocty[c]):[...stare[c]]);
   }
 
-  /* ================= jádra ================= */
-
-  function jadroHodnota(ax, ay, bx, by) {
-    if (M.jadro === 'rbf') {
-      const dx = ax - bx, dy = ay - by;
-      return Math.exp(-M.gamma * (dx * dx + dy * dy));
-    }
-    if (M.jadro === 'polynomialni') {
-      return Math.pow(ax * bx + ay * by + 1, M.stupen);
-    }
-    return ax * bx + ay * by;
+  /* ---------- 2D experiment ---------- */
+  const D={n:220,typy:4,rozptyl:10,k:4,seed:1200,init:1};
+  let body2d=[],typ2d=[],pravda2d=[],stav2d,cas2d=0,zalozka2d='data';
+  function generuj2d(){
+    const rng=Kurz.generator(D.seed),stre=[];
+    const sig=D.rozptyl/100;
+    for(let c=0;c<D.typy;c++)stre.push([0.14+(c%3)*0.34+rng.rozsah(-.04,.04),0.18+Math.floor(c/3)*.55+(c%2)*.10+rng.rozsah(-.04,.04)]);
+    pravda2d=stre.map(s=>({stred:s,sigma:sig}));body2d=[];typ2d=[];
+    for(let i=0;i<D.n;i++){const typ=i%D.typy,s=stre[typ];body2d.push([s[0]+rng.gauss()*sig,s[1]+rng.gauss()*sig]);typ2d.push(typ);}
+    inicializuj2d();
   }
-
-  function postavJadro() {
-    if (M.jadro === 'linearni' || !data) { K = null; return; }
-    const n = data.n, xs = data.xs, ys = data.ys;
-    K = new Float64Array(n * n);
-    for (let i = 0; i < n; i++) {
-      for (let j = i; j < n; j++) {
-        const v = jadroHodnota(xs[i], ys[i], xs[j], ys[j]);
-        K[i * n + j] = v;
-        K[j * n + i] = v;
-      }
-    }
+  function inicializuj2d(){zastav2d();stav2d={stre:kmeansPlus(body2d,D.k,D.init++),z:null,iterace:0,hotovo:false,zmeny:null};obnov2d();}
+  function krok2d(){
+    if(stav2d.hotovo)return;const p=prirad(body2d,stav2d.stre,stav2d.z);stav2d.z=p.z;stav2d.zmeny=p.zmeny;stav2d.stre=noveStredy(body2d,p.z,D.k,stav2d.stre);stav2d.iterace++;
+    if(p.zmeny===0||stav2d.iterace>=80){stav2d.hotovo=true;zastav2d();}obnov2d();
   }
-
-  /* ================= inicializace (k-means++) ================= */
-
-  /* Každý další počáteční střed se losuje s pravděpodobností úměrnou druhé
-     mocnině vzdálenosti od nejbližšího už vybraného — začátky se tak rozprostřou
-     po ploše místo aby padly všechny do jednoho hustého místa. */
-  function seedyKmeansPlusPlus(rng) {
-    const n = data.n, xs = data.xs, ys = data.ys;
-    const vybrane = [rng.cele(0, n - 1)];
-    const nejbliz = new Float64Array(n).fill(Infinity);
-
-    while (vybrane.length < M.k) {
-      const p = vybrane[vybrane.length - 1];
-      let soucet = 0;
-      for (let i = 0; i < n; i++) {
-        const dx = xs[i] - xs[p], dy = ys[i] - ys[p];
-        const d = dx * dx + dy * dy;
-        if (d < nejbliz[i]) nejbliz[i] = d;
-        soucet += nejbliz[i];
-      }
-      let cil = rng.r() * soucet, idx = n - 1;
-      for (let i = 0; i < n; i++) {
-        cil -= nejbliz[i];
-        if (cil <= 0) { idx = i; break; }
-      }
-      vybrane.push(idx);
-    }
-    return vybrane;
+  const canvas=document.getElementById('platno'),plocha=Kurz.platno(canvas,kresli2d);
+  function meritko2d(){
+    let xmin=Infinity,xmax=-Infinity,ymin=Infinity,ymax=-Infinity;
+    body2d.forEach(p=>{xmin=Math.min(xmin,p[0]);xmax=Math.max(xmax,p[0]);ymin=Math.min(ymin,p[1]);ymax=Math.max(ymax,p[1]);});
+    pravda2d.forEach(s=>{xmin=Math.min(xmin,s.stred[0]-s.sigma);xmax=Math.max(xmax,s.stred[0]+s.sigma);ymin=Math.min(ymin,s.stred[1]-s.sigma);ymax=Math.max(ymax,s.stred[1]+s.sigma);});
+    const span=Math.max(xmax-xmin,ymax-ymin)*1.12||1,cx=(xmin+xmax)/2,cy=(ymin+ymax)/2;
+    return {xmin:cx-span/2,xmax:cx+span/2,ymin:cy-span/2,ymax:cy+span/2};
   }
-
-  function inicializuj() {
-    const rng = Kurz.generator(seedInit);
-    const n = data.n, xs = data.xs, ys = data.ys;
-    const seedy = seedyKmeansPlusPlus(rng);
-
-    shluk.z = new Int32Array(n);
-    shluk.centroidy = seedy.map(i => ({ x: xs[i], y: ys[i] }));
-
-    for (let i = 0; i < n; i++) {
-      let nej = 0, nejD = Infinity;
-      for (let c = 0; c < M.k; c++) {
-        const dx = xs[i] - xs[seedy[c]], dy = ys[i] - ys[seedy[c]];
-        const d = dx * dx + dy * dy;
-        if (d < nejD) { nejD = d; nej = c; }
-      }
-      shluk.z[i] = nej;
-    }
-
-    shluk.iterace = 0;
-    shluk.konvergovano = false;
-    if (M.jadro !== 'linearni' && !K) postavJadro();
-    spocitejChybu();
-    poleNeaktualni = true;
+  function kresli2d(){
+    const ctx=plocha.ctx,w=plocha.sirka,h=plocha.vyska;if(!ctx||!w||!stav2d)return;ctx.clearRect(0,0,w,h);ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);
+    const size=Math.max(120,Math.min(w-86,h-70)),R={x:58+(w-76-size)/2,y:16,w:size,h:size},M=meritko2d();
+    const px=x=>R.x+(x-M.xmin)/(M.xmax-M.xmin)*R.w,py=y=>R.y+(M.ymax-y)/(M.ymax-M.ymin)*R.h;
+    ctx.strokeStyle='#aab4c2';ctx.lineWidth=1;for(let i=0;i<=4;i++){const t=i/4,x=M.xmin+t*(M.xmax-M.xmin),y=M.ymin+t*(M.ymax-M.ymin);ctx.beginPath();ctx.moveTo(px(x),R.y);ctx.lineTo(px(x),R.y+R.h);ctx.stroke();ctx.beginPath();ctx.moveTo(R.x,py(y));ctx.lineTo(R.x+R.w,py(y));ctx.stroke();ctx.fillStyle='#4a5768';ctx.font='10px Segoe UI';ctx.textAlign='center';ctx.fillText(x.toFixed(1),px(x),R.y+R.h+14);ctx.textAlign='right';ctx.fillText(y.toFixed(1),R.x-5,py(y)+3);}
+    ctx.strokeStyle='#0d1218';ctx.lineWidth=2;ctx.strokeRect(R.x,R.y,R.w,R.h);ctx.fillStyle='#4a5768';ctx.font='12px Segoe UI';ctx.textAlign='center';ctx.fillText('objem zásilky →',R.x+R.w/2,h-10);ctx.save();ctx.translate(15,R.y+R.h/2);ctx.rotate(-Math.PI/2);ctx.fillText('hmotnost →',0,0);ctx.restore();
+    if(zalozka2d==='data')pravda2d.forEach((s,c)=>{const x=px(s.stred[0]),y=py(s.stred[1]),r=s.sigma/(M.xmax-M.xmin)*R.w,barva=Kurz.barvy[c%Kurz.barvy.length];ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=Kurz.svetlejsi(barva,.88);ctx.fill();ctx.strokeStyle=barva;ctx.lineWidth=3;ctx.stroke();});
+    body2d.forEach((p,i)=>{const c=zalozka2d==='data'?typ2d[i]:(stav2d.z?stav2d.z[i]:-1);ctx.beginPath();ctx.arc(px(p[0]),py(p[1]),4,0,Math.PI*2);ctx.fillStyle=c<0?'#778392':Kurz.barvy[c%Kurz.barvy.length];ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=.7;ctx.stroke();});
+    const stre=zalozka2d==='data'?pravda2d.map(s=>s.stred):stav2d.stre;
+    stre.forEach((s,c)=>{const x=px(s[0]),y=py(s[1]),barva=Kurz.barvy[c%Kurz.barvy.length];ctx.strokeStyle='#fff';ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(x-9,y-9);ctx.lineTo(x+9,y+9);ctx.moveTo(x+9,y-9);ctx.lineTo(x-9,y+9);ctx.stroke();ctx.strokeStyle=barva;ctx.lineWidth=4;ctx.stroke();ctx.fillStyle='#0d1218';ctx.font='700 11px Segoe UI';ctx.textAlign='center';ctx.fillText(String(c+1),x,y-14);});
   }
+  function obnov2d(){document.getElementById('stav-iterace').textContent=stav2d.iterace;document.getElementById('stav-zmeny').textContent=stav2d.zmeny===null?'–':stav2d.zmeny;document.getElementById('stav-konvergence').textContent=stav2d.hotovo?'hotovo':(stav2d.iterace?'počítá se':'připraveno');document.getElementById('krok').disabled=stav2d.hotovo;kresli2d();}
+  const smycka2d=Kurz.smycka(dt=>{cas2d+=dt;if(cas2d>.45){cas2d=0;krok2d();}}),tl2d=document.getElementById('spustit');
+  function zastav2d(){if(typeof smycka2d!=='undefined')smycka2d.stop();const b=document.getElementById('spustit');if(b)b.textContent='Spustit';cas2d=0;}
+  tl2d.addEventListener('click',()=>{if(smycka2d.bezi)zastav2d();else{if(stav2d.hotovo)inicializuj2d();smycka2d.start();tl2d.textContent='Zastavit';}});
+  document.getElementById('krok').addEventListener('click',krok2d);document.getElementById('reset').addEventListener('click',inicializuj2d);
+  document.getElementById('nova-data').addEventListener('click',()=>{D.seed++;generuj2d();});
+  Kurz.zalozky('panel-2d');
+  document.querySelectorAll('#panel-2d [role="tab"]').forEach(t=>t.addEventListener('click',()=>{zalozka2d=t.dataset.zalozka==='zal-2d-data'?'data':'alg';document.getElementById('legenda-2d').textContent=zalozka2d==='data'?'Kružnice ukazuje jednu směrodatnou odchylku od skutečného středu skupiny.':'Barva a číslo označují nalezený shluk; křížek označuje střed vypočtený algoritmem.';kresli2d();}));
+  Kurz.posuvnik('pocet-bodu',v=>{D.n=v;generuj2d();});Kurz.posuvnik('skutecne-typy',v=>{D.typy=v;generuj2d();});
+  Kurz.posuvnik('rozptyl',v=>{D.rozptyl=v;generuj2d();},v=>v+' %');Kurz.posuvnik('pocet-shluku',v=>{D.k=v;inicializuj2d();});
 
-  /* ================= krok algoritmu ================= */
-
-  function aktualizujCentroidy() {
-    const n = data.n, xs = data.xs, ys = data.ys;
-    const sx = new Float64Array(M.k), sy = new Float64Array(M.k);
-    const pocty = new Int32Array(M.k);
-    for (let i = 0; i < n; i++) {
-      const c = shluk.z[i];
-      sx[c] += xs[i]; sy[c] += ys[i]; pocty[c]++;
-    }
-    for (let c = 0; c < M.k; c++) {
-      if (pocty[c] > 0) shluk.centroidy[c] = { x: sx[c] / pocty[c], y: sy[c] / pocty[c] };
-      // Prázdný shluk necháme na místě, doplní ho osetriPrazdne().
-    }
+  /* ---------- 4D zásilky ---------- */
+  const B={n:80,k:4,seed:811};let baliky=[],vysledek=null;
+  const TYPY=[
+    {hm:0.45,d:32,s:24,v:3,roz:[.16,3,2,1.2]}, {hm:2.2,d:42,s:30,v:18,roz:[.7,5,4,3]},
+    {hm:8,d:62,s:43,v:31,roz:[2,7,5,4]}, {hm:6,d:98,s:25,v:16,roz:[1.7,10,4,3]}
+  ];
+  function seradRozmery(d,s,v){const a=[d,s,v].sort((x,y)=>y-x);return [Math.max(3,a[0]),Math.max(2,a[1]),Math.max(1,a[2])];}
+  function generujBaliky(){
+    const rng=Kurz.generator(B.seed);baliky=[];
+    for(let i=0;i<B.n;i++){const t=TYPY[i%TYPY.length],r=seradRozmery(t.d+rng.gauss()*t.roz[1],t.s+rng.gauss()*t.roz[2],t.v+rng.gauss()*t.roz[3]);baliky.push({id:'Z'+String(i+1).padStart(3,'0'),hm:Math.max(.08,t.hm+rng.gauss()*t.roz[0]),d:r[0],s:r[1],v:r[2]});}
+    const divne=[{hm:18,d:34,s:26,v:20},{hm:.35,d:112,s:74,v:55},{hm:12,d:88,s:18,v:8},{hm:1.1,d:70,s:58,v:51}];
+    divne.forEach((x,j)=>{if(j<baliky.length){const r=seradRozmery(x.d,x.s,x.v);Object.assign(baliky[(j*19+7)%baliky.length],{hm:x.hm,d:r[0],s:r[1],v:r[2]});}});
+    vysledek=null;vykresliTabulku();vykresliShrnuti();obnovStavBaliku();
   }
-
-  /* Prázdný shluk pohltí bod, který je od svého středu nejdál — jinak by algoritmus
-     tiše pracoval s menším počtem skupin, než kolik jich uživatel zadal.
-     `pripravVzdalenost` se volá až ve chvíli, kdy je opravdu potřeba: u jádrové
-     varianty si uvnitř spočítá statistiky, a to je operace řádu n². */
-  function osetriPrazdne(pripravVzdalenost) {
-    const n = data.n;
-    const pocty = new Int32Array(M.k);
-    for (let i = 0; i < n; i++) pocty[shluk.z[i]]++;
-
-    const prazdne = [];
-    for (let c = 0; c < M.k; c++) if (pocty[c] === 0) prazdne.push(c);
-    if (prazdne.length === 0) return;
-
-    const vzdalenost = pripravVzdalenost();
-    for (const c of prazdne) {
-      let kandidat = -1, nejhorsi = -Infinity;
-      for (let i = 0; i < n; i++) {
-        if (pocty[shluk.z[i]] <= 1) continue;
-        const d = vzdalenost(i, shluk.z[i]);
-        if (d > nejhorsi) { nejhorsi = d; kandidat = i; }
-      }
-      if (kandidat < 0) continue;
-      pocty[shluk.z[kandidat]]--;
-      shluk.z[kandidat] = c;
-      pocty[c]++;
-    }
+  function standardizuj(){
+    const raw=baliky.map(b=>[b.hm,b.d,b.s,b.v]),dim=4,prum=Array(dim).fill(0),sd=Array(dim).fill(0);
+    raw.forEach(p=>p.forEach((x,d)=>prum[d]+=x/raw.length));raw.forEach(p=>p.forEach((x,d)=>sd[d]+=(x-prum[d])**2/raw.length));for(let d=0;d<dim;d++)sd[d]=Math.sqrt(sd[d])||1;
+    return {data:raw.map(p=>p.map((x,d)=>(x-prum[d])/sd[d])),prum,sd};
   }
-
-  function prirazeniLinearni() {
-    const n = data.n, xs = data.xs, ys = data.ys;
-    let zmena = false;
-    for (let i = 0; i < n; i++) {
-      let nej = 0, nejD = Infinity;
-      for (let c = 0; c < M.k; c++) {
-        const dx = xs[i] - shluk.centroidy[c].x, dy = ys[i] - shluk.centroidy[c].y;
-        const d = dx * dx + dy * dy;
-        if (d < nejD) { nejD = d; nej = c; }
-      }
-      if (shluk.z[i] !== nej) { shluk.z[i] = nej; zmena = true; }
-    }
-    osetriPrazdne(() => (i, c) => {
-      const dx = xs[i] - shluk.centroidy[c].x, dy = ys[i] - shluk.centroidy[c].y;
-      return dx * dx + dy * dy;
+  function spustBaliky(){
+    const st=standardizuj(),stre=kmeansPlus(st.data,B.k,B.seed+31*B.k);let z=null,p,iterace=0;
+    do{p=prirad(st.data,stre,z);z=p.z;const ns=noveStredy(st.data,z,B.k,stre);stre.splice(0,stre.length,...ns);iterace++;}while(p.zmeny>0&&iterace<100);
+    const vzd=st.data.map((x,i)=>Math.sqrt(vzd2(x,stre[z[i]]))),poradi=[...vzd.keys()].sort((a,b)=>vzd[b]-vzd[a]);
+    const pocty=new Int32Array(B.k);z.forEach(c=>pocty[c]++);
+    const pocetDivnych=Math.max(3,Math.round(B.n*.05)),divne=new Set(poradi.slice(0,pocetDivnych));
+    z.forEach((c,i)=>{if(pocty[c]<=Math.max(2,Math.floor(B.n*.035)))divne.add(i);});
+    vysledek={z,stre,vzd,divne,iterace,chyba:p.chyba,st};vykresliTabulku();vykresliShrnuti();obnovStavBaliku();
+  }
+  function fmt(x,n=1){return x.toLocaleString('cs-CZ',{minimumFractionDigits:n,maximumFractionDigits:n});}
+  function zobrazeneIndexy(){
+    const zaklad=Array.from({length:Math.min(10,baliky.length)},(_,i)=>i);if(!vysledek)return zaklad;
+    [...vysledek.divne].forEach(i=>{if(!zaklad.includes(i))zaklad.push(i);});return zaklad.slice(0,14);
+  }
+  function vykresliTabulku(){
+    const tbody=document.getElementById('tabulka-baliku'),idx=zobrazeneIndexy();tbody.textContent='';
+    idx.forEach(i=>{const b=baliky[i],tr=document.createElement('tr'),c=vysledek?vysledek.z[i]:null,divna=vysledek&&vysledek.divne.has(i);if(divna)tr.className='divna';
+      const hodnoty=[b.id+(divna?'<span class="stitek-divny">neobvyklá</span>':''),fmt(b.hm,2)+' kg',fmt(b.d)+' cm',fmt(b.s)+' cm',fmt(b.v)+' cm',c===null?'–':'<span class="tecka" style="--barva:'+Kurz.barvy[c%Kurz.barvy.length]+'"></span>'+(c+1),vysledek?fmt(vysledek.vzd[i],2):'–'];
+      hodnoty.forEach((x,j)=>{const td=document.createElement('td');if(j===0||j===5)td.innerHTML=x;else td.textContent=x;tr.appendChild(td);});tbody.appendChild(tr);
     });
-    return zmena;
+    document.getElementById('pocet-zobrazenych').textContent='Zobrazeno '+idx.length+' z '+baliky.length+' zásilek'+(vysledek?' (včetně největších odchylek).':'.');
   }
-
-  /* Statistiky shluků v prostoru jádra:
-       S[i][c]  = součet K(i, j) přes body j ve shluku c
-       treti[c] = průměr K(i, j) přes všechny dvojice uvnitř shluku c
-     Vzdálenost bodu i od shluku c je pak  K(i,i) − 2·S[i][c]/n_c + treti[c].
-     Ve feature prostoru jádra neexistuje střed jako bod v rovině — proto se
-     u nelineárních jader žádné centroidy nekreslí. */
-  function statistikyJadra() {
-    const n = data.n, k = M.k;
-    const S = new Float64Array(n * k);
-    const pocty = new Int32Array(k);
-    for (let i = 0; i < n; i++) pocty[shluk.z[i]]++;
-
-    for (let i = 0; i < n; i++) {
-      const radek = i * n, cil = i * k;
-      for (let j = 0; j < n; j++) S[cil + shluk.z[j]] += K[radek + j];
-    }
-
-    const treti = new Float64Array(k);
-    for (let i = 0; i < n; i++) treti[shluk.z[i]] += S[i * k + shluk.z[i]];
-    for (let c = 0; c < k; c++) treti[c] = pocty[c] > 0 ? treti[c] / (pocty[c] * pocty[c]) : 0;
-
-    return { S, pocty, treti };
+  function popisShluku(pr){
+    const [hm,d,s,v]=pr;if(hm>9)return 'těžké zásilky';if(d>80&&s<35)return 'dlouhé úzké zásilky';if(v<8)return 'ploché zásilky';if(d>55)return 'velké krabice';if(hm<3)return 'malé lehké krabice';return 'střední zásilky';
   }
-
-  function prirazeniJadrove() {
-    const n = data.n, k = M.k;
-    const st = statistikyJadra();
-    let zmena = false;
-
-    for (let i = 0; i < n; i++) {
-      let nej = shluk.z[i], nejD = Infinity;
-      for (let c = 0; c < k; c++) {
-        if (st.pocty[c] === 0) continue;
-        const d = K[i * n + i] - 2 * st.S[i * k + c] / st.pocty[c] + st.treti[c];
-        if (d < nejD) { nejD = d; nej = c; }
-      }
-      if (shluk.z[i] !== nej) { shluk.z[i] = nej; zmena = true; }
-    }
-
-    osetriPrazdne(() => {
-      const s = statistikyJadra();
-      return (i, c) => s.pocty[c] > 0
-        ? K[i * n + i] - 2 * s.S[i * k + c] / s.pocty[c] + s.treti[c]
-        : 0;
-    });
-    return zmena;
+  function vykresliShrnuti(){
+    const el=document.getElementById('shrnuti-shluku');el.textContent='';if(!vysledek){el.innerHTML='<p class="poznamka">Po seskupení se zde zobrazí společné vlastnosti kategorií.</p>';return;}
+    for(let c=0;c<B.k;c++){const ids=baliky.map((_,i)=>i).filter(i=>vysledek.z[i]===c),pr=[0,0,0,0];ids.forEach(i=>{const b=baliky[i];[b.hm,b.d,b.s,b.v].forEach((x,d)=>pr[d]+=x/ids.length);});
+      const mala=ids.length<=Math.max(2,Math.floor(B.n*.035));
+      const karta=document.createElement('article');karta.className='karta-shluku';karta.style.setProperty('--barva',Kurz.barvy[c%Kurz.barvy.length]);karta.innerHTML='<h4>Shluk '+(c+1)+' · '+ids.length+' zásilek</h4><p class="charakter">'+popisShluku(pr)+(mala?' · podezřele malá skupina':'')+'</p><p>průměr '+fmt(pr[0],2)+' kg · '+fmt(pr[1])+' × '+fmt(pr[2])+' × '+fmt(pr[3])+' cm</p>';el.appendChild(karta);}
   }
+  function obnovStavBaliku(){document.getElementById('baliky-iterace').textContent=vysledek?vysledek.iterace:'–';document.getElementById('baliky-divne').textContent=vysledek?vysledek.divne.size:'–';document.getElementById('baliky-chyba').textContent=vysledek?fmt(vysledek.chyba,1):'–';}
+  Kurz.posuvnik('pocet-kategorii',v=>{B.k=v;spustBaliky();});Kurz.posuvnik('pocet-baliku',v=>{B.n=v;generujBaliky();});
+  document.getElementById('spustit-balicky').addEventListener('click',spustBaliky);document.getElementById('nova-sada').addEventListener('click',()=>{B.seed++;generujBaliky();spustBaliky();});
 
-  function krok() {
-    if (shluk.konvergovano) return false;
-    let zmena;
-    if (M.jadro === 'linearni') {
-      aktualizujCentroidy();
-      zmena = prirazeniLinearni();
-    } else {
-      zmena = prirazeniJadrove();
-    }
-    shluk.iterace++;
-    if (!zmena) shluk.konvergovano = true;
-    poleNeaktualni = true;
-    return zmena;
-  }
-
-  /* Chyba se dopočítává až tam, kde se má zobrazit. U jádrových variant stojí
-     stejně jako celá iterace, takže počítat ji po každém kroku dobíhání
-     by výpočet zbytečně zdvojnásobilo. */
-  function dobehni(maxIteraci) {
-    let i = 0;
-    const strop = maxIteraci || 120;
-    while (!shluk.konvergovano && i < strop) { krok(); i++; }
-    spocitejChybu();
-  }
-
-  function spocitejChybu() {
-    const n = data.n, xs = data.xs, ys = data.ys;
-    let soucet = 0;
-    if (M.jadro === 'linearni') {
-      for (let i = 0; i < n; i++) {
-        const c = shluk.centroidy[shluk.z[i]];
-        const dx = xs[i] - c.x, dy = ys[i] - c.y;
-        soucet += dx * dx + dy * dy;
-      }
-    } else {
-      const st = statistikyJadra();
-      for (let i = 0; i < n; i++) {
-        const c = shluk.z[i];
-        if (st.pocty[c] === 0) continue;
-        soucet += Math.max(0, K[i * n + i] - 2 * st.S[i * M.k + c] / st.pocty[c] + st.treti[c]);
-      }
-    }
-    shluk.chyba = soucet;
-  }
-
-  /* ================= pole (predikce v mřížce) ================= */
-
-  /* Pro každý uzel mřížky se spočítá vzdálenost ke všem shlukům a barvy se smíchají
-     vahou exp(−(d − d_min)/T). Teplota T se odvozuje od typické vzdálenosti bodu
-     od vlastního shluku, takže míchání nezávisí na měřítku jádra: u hranice vznikne
-     plynulý přechod, jinde jasně převládne jedna barva. (Prosté vážení 1/d by
-     u gaussovského jádra s velkým γ selhalo — daleko od dat jsou si všechny shluky
-     skoro stejně vzdálené a celé pole by zešedlo smícháním všech barev.)
-     Mřížka se počítá jednou a na plátno se roztáhne s vyhlazením. */
-  function prepocitejPole() {
-    const jeLinearni = M.jadro === 'linearni';
-    const GW = jeLinearni ? 140 : 76;
-    const GH = jeLinearni ? 105 : 57;
-
-    poleCanvas.width = GW;
-    poleCanvas.height = GH;
-    const pctx = poleCanvas.getContext('2d');
-    const obraz = pctx.createImageData(GW, GH);
-    const pix = obraz.data;
-
-    const k = M.k;
-    const palety = [];
-    for (let c = 0; c < k; c++) {
-      const slozky = Kurz.rozlozBarvu(Kurz.barvy[c % Kurz.barvy.length]);
-      const mira = 0.78;
-      palety.push(slozky.map(v => v + (255 - v) * mira));
-    }
-
-    let st = null;
-    if (!jeLinearni) {
-      if (!K) postavJadro();
-      st = statistikyJadra();
-    }
-
-    const n = data.n, xs = data.xs, ys = data.ys;
-    const vzdalenosti = new Float64Array(k);
-    const soucty = new Float64Array(k);
-
-    // Měřítko: průměrná vzdálenost bodu od jeho vlastního shluku.
-    let meritko = 0;
-    for (let i = 0; i < n; i++) {
-      const c = shluk.z[i];
-      if (jeLinearni) {
-        const dx = xs[i] - shluk.centroidy[c].x, dy = ys[i] - shluk.centroidy[c].y;
-        meritko += dx * dx + dy * dy;
-      } else if (st.pocty[c] > 0) {
-        meritko += Math.max(0, K[i * n + i] - 2 * st.S[i * k + c] / st.pocty[c] + st.treti[c]);
-      }
-    }
-    const T = Math.max(meritko / n * 0.2, 1e-9);
-
-    for (let gj = 0; gj < GH; gj++) {
-      const y = 1 - (gj + 0.5) / GH;
-      for (let gi = 0; gi < GW; gi++) {
-        const x = (gi + 0.5) / GW;
-
-        if (jeLinearni) {
-          for (let c = 0; c < k; c++) {
-            const dx = x - shluk.centroidy[c].x, dy = y - shluk.centroidy[c].y;
-            vzdalenosti[c] = dx * dx + dy * dy;
-          }
-        } else {
-          soucty.fill(0);
-          for (let i = 0; i < n; i++) soucty[shluk.z[i]] += jadroHodnota(x, y, xs[i], ys[i]);
-          const vlastni = jadroHodnota(x, y, x, y);
-          for (let c = 0; c < k; c++) {
-            vzdalenosti[c] = st.pocty[c] > 0
-              ? Math.max(0, vlastni - 2 * soucty[c] / st.pocty[c] + st.treti[c])
-              : Infinity;
-          }
-        }
-
-        let nejmensi = Infinity;
-        for (let c = 0; c < k; c++) if (vzdalenosti[c] < nejmensi) nejmensi = vzdalenosti[c];
-
-        let vahaSoucet = 0, r = 0, g = 0, b = 0;
-        for (let c = 0; c < k; c++) {
-          if (!isFinite(vzdalenosti[c])) continue;
-          const w = Math.exp(-(vzdalenosti[c] - nejmensi) / T);
-          vahaSoucet += w;
-          r += palety[c][0] * w; g += palety[c][1] * w; b += palety[c][2] * w;
-        }
-
-        const p = (gj * GW + gi) * 4;
-        pix[p] = r / vahaSoucet;
-        pix[p + 1] = g / vahaSoucet;
-        pix[p + 2] = b / vahaSoucet;
-        pix[p + 3] = 255;
-      }
-    }
-
-    pctx.putImageData(obraz, 0, 0);
-    poleNeaktualni = false;
-  }
-
-  /* ================= vykreslení ================= */
-
-  const platnoEl = document.getElementById('platno');
-  const P = Kurz.platno(platnoEl, () => prekresli());
-
-  const OKRAJ = { vlevo: 46, vpravo: 14, nahore: 14, dole: 38 };
-
-  function obdelnik() {
-    return {
-      x: OKRAJ.vlevo,
-      y: OKRAJ.nahore,
-      w: Math.max(10, P.sirka - OKRAJ.vlevo - OKRAJ.vpravo),
-      h: Math.max(10, P.vyska - OKRAJ.nahore - OKRAJ.dole)
-    };
-  }
-
-  function prekresli() {
-    const ctx = P.ctx;
-    if (!ctx || !data || !shluk.z) return;
-    const R = obdelnik();
-    const px = x => R.x + x * R.w;
-    const py = y => R.y + (1 - y) * R.h;
-
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, P.sirka, P.vyska);
-
-    if (Z.pole) {
-      if (poleNeaktualni) prepocitejPole();
-      ctx.save();
-      ctx.beginPath();
-      ctx.rect(R.x, R.y, R.w, R.h);
-      ctx.clip();
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = 'high';
-      ctx.drawImage(poleCanvas, R.x, R.y, R.w, R.h);
-      ctx.restore();
-    }
-
-    ctx.strokeStyle = Z.pole ? 'rgba(13,18,24,0.12)' : '#dfe5ef';
-    ctx.lineWidth = 1;
-    for (let i = 1; i < 4; i++) {
-      const t = i / 4;
-      ctx.beginPath();
-      ctx.moveTo(Math.round(px(t)) + 0.5, R.y);
-      ctx.lineTo(Math.round(px(t)) + 0.5, R.y + R.h);
-      ctx.moveTo(R.x, Math.round(py(t)) + 0.5);
-      ctx.lineTo(R.x + R.w, Math.round(py(t)) + 0.5);
-      ctx.stroke();
-    }
-
-    if (Z.pravda) {
-      ctx.save();
-      ctx.setLineDash([7, 5]);
-      ctx.strokeStyle = '#0d1218';
-      ctx.lineWidth = 2;
-      for (const s of data.slozky) {
-        ctx.beginPath();
-        ctx.ellipse(px(s.mx), py(s.my), 2 * s.sx * R.w, 2 * s.sy * R.h, 0, 0, Math.PI * 2);
-        ctx.stroke();
-      }
-      ctx.restore();
-    }
-
-    const n = data.n, xs = data.xs, ys = data.ys;
-    ctx.lineWidth = 1.5;
-    ctx.strokeStyle = '#ffffff';
-    for (let i = 0; i < n; i++) {
-      ctx.beginPath();
-      ctx.arc(px(xs[i]), py(ys[i]), 4.5, 0, Math.PI * 2);
-      ctx.fillStyle = Z.obarvit ? Kurz.barvy[shluk.z[i] % Kurz.barvy.length] : '#0d1218';
-      ctx.fill();
-      ctx.stroke();
-    }
-
-    // Střed shluku je bod v rovině jen u lineárního jádra.
-    if (M.jadro === 'linearni') {
-      for (let c = 0; c < M.k; c++) {
-        const cx = px(shluk.centroidy[c].x), cy = py(shluk.centroidy[c].y);
-        ctx.beginPath();
-        ctx.arc(cx, cy, 10, 0, Math.PI * 2);
-        ctx.fillStyle = '#ffffff';
-        ctx.fill();
-        ctx.lineWidth = 3;
-        ctx.strokeStyle = Kurz.barvy[c % Kurz.barvy.length];
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(cx - 5, cy); ctx.lineTo(cx + 5, cy);
-        ctx.moveTo(cx, cy - 5); ctx.lineTo(cx, cy + 5);
-        ctx.lineWidth = 3;
-        ctx.strokeStyle = '#0d1218';
-        ctx.stroke();
-      }
-    }
-
-    ctx.strokeStyle = '#0d1218';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(R.x + 1, R.y + 1, R.w - 2, R.h - 2);
-
-    ctx.fillStyle = '#0d1218';
-    ctx.font = 'bold 15px "Segoe UI", system-ui, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'top';
-    ctx.fillText('veličina X', R.x + R.w / 2, R.y + R.h + 14);
-    ctx.save();
-    ctx.translate(15, R.y + R.h / 2);
-    ctx.rotate(-Math.PI / 2);
-    ctx.fillText('veličina Y', 0, 0);
-    ctx.restore();
-  }
-
-  /* ================= propojení s ovládáním ================= */
-
-  const el = {
-    iterace: document.getElementById('stav-iterace'),
-    konvergence: document.getElementById('stav-konvergence'),
-    chyba: document.getElementById('stav-chyba'),
-    spustit: document.getElementById('spustit'),
-    krok: document.getElementById('krok')
-  };
-
-  function obnovStav() {
-    el.iterace.textContent = shluk.iterace;
-    el.konvergence.textContent = shluk.konvergovano ? 'ustálený' : 'běží';
-    el.chyba.textContent = shluk.chyba.toFixed(3);
-    el.krok.disabled = shluk.konvergovano;
-    el.spustit.disabled = shluk.konvergovano;
-  }
-
-  let nasbirano = 0;
-  const smycka = Kurz.smycka(dt => {
-    nasbirano += dt;
-    if (nasbirano < 0.45) return;
-    nasbirano = 0;
-    krok();
-    spocitejChybu();
-    prekresli();
-    obnovStav();
-    if (shluk.konvergovano) zastav();
-  });
-
-  function zastav() {
-    smycka.stop();
-    el.spustit.textContent = 'Spustit';
-  }
-
-  /* Změna parametru = výpočet od začátku, rovnou doběhnutý do konce, aby byla
-     okamžitě vidět zpětná vazba. Krokovat jde po „Nové inicializaci“. */
-  function znovuADobehni() {
-    zastav();
-    inicializuj();
-    dobehni();
-    prekresli();
-    obnovStav();
-  }
-
-  function znovuAZastav() {
-    zastav();
-    inicializuj();
-    prekresli();
-    obnovStav();
-  }
-
-  /* Tažení posuvníku umí vystřelit desítky událostí za sekundu, kdežto jeden přepočet
-     s jádrem trvá i desítky milisekund. Hodnota parametru se proto uloží hned, ale
-     samotný přepočet se odloží na nejbližší snímek. Zahodí se tím jen mezilehlé
-     hodnoty, ne změny z jiných ovládacích prvků. */
-  let cekaNovaData = false;
-  let naplanovano = false;
-
-  function naplanujPrepocet(potrebaNovaData) {
-    if (potrebaNovaData) cekaNovaData = true;
-    if (naplanovano) return;
-    naplanovano = true;
-    requestAnimationFrame(() => {
-      naplanovano = false;
-      if (cekaNovaData) { cekaNovaData = false; generujData(); }
-      znovuADobehni();
-    });
-  }
-
-  Kurz.zalozky('panel');
-
-  Kurz.posuvnik('pocet-bodu', v => { G.pocetBodu = v; naplanujPrepocet(true); });
-  Kurz.posuvnik('pocet-rozdeleni', v => { G.pocetRozdeleni = v; naplanujPrepocet(true); });
-  Kurz.posuvnik('rozptyl',
-    v => { G.rozptyl = v / 100; naplanujPrepocet(true); },
-    v => (v / 100).toFixed(2) + '×');
-
-  Kurz.prvek('nova-data', 'click', () => {
-    G.seed = (G.seed * 1103515 + 12345) >>> 0;
-    naplanujPrepocet(true);
-  });
-
-  Kurz.prvek('zobraz-pravdu', 'change', e => { Z.pravda = e.checked; prekresli(); });
-  Kurz.prvek('obarvit', 'change', e => { Z.obarvit = e.checked; prekresli(); });
-  Kurz.prvek('zobraz-pole', 'change', e => { Z.pole = e.checked; prekresli(); });
-
-  Kurz.posuvnik('pocet-shluku', v => { M.k = v; naplanujPrepocet(); });
-
-  const gammaOvladac = document.getElementById('ovladac-gamma');
-  const stupenOvladac = document.getElementById('ovladac-stupen');
-
-  /* Matici jádra stačí zahodit — inicializuj() si ji postaví znovu. */
-  Kurz.prvek('jadro', 'change', e => {
-    M.jadro = e.value;
-    gammaOvladac.hidden = M.jadro !== 'rbf';
-    stupenOvladac.hidden = M.jadro !== 'polynomialni';
-    K = null;
-    naplanujPrepocet();
-  });
-
-  Kurz.posuvnik('gamma', v => { M.gamma = v; K = null; naplanujPrepocet(); });
-  Kurz.posuvnik('stupen', v => { M.stupen = v; K = null; naplanujPrepocet(); });
-
-  Kurz.prvek('reset', 'click', () => {
-    seedInit = (seedInit * 48271 + 7) >>> 0;
-    znovuAZastav();
-  });
-
-  Kurz.prvek('krok', 'click', () => { zastav(); krok(); spocitejChybu(); prekresli(); obnovStav(); });
-
-  Kurz.prvek('spustit', 'click', () => {
-    if (smycka.bezi) { zastav(); return; }
-    if (shluk.konvergovano) return;
-    nasbirano = 0;
-    smycka.start();
-    el.spustit.textContent = 'Zastavit';
-  });
-
-  /* ================= start ================= */
-
-  generujData();
-  znovuADobehni();
+  generuj2d();generujBaliky();spustBaliky();
 })();
 </script>
 </body>

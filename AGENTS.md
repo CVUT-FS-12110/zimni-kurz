@@ -3,12 +3,12 @@
 Vytváříme kurz pro SŠ studenty představující VŠ úlohy.
 
 Kurz má podobu statického webu (na GitHub Pages), který:
-- obsahuje hlavní rozcestník (list úloh s pořadím)
-- stránky s úlohama
+- obsahuje hlavní rozcestník se seznamem lekcí
+- obsahuje pro každou lekci právě jednu samostatnou stránku
 
-Každá úloha je jedna podstránka s vlastním odkazem (soubor), ve které je interaktivní
-vizualizace, ve které studenti mohou nastavovat parametry úlohy. Změna parametrů má
-překreslit vizualizaci hned, nebo na daný pokyn (tlačítko).
+Každá lekce je jedna podstránka s vlastním odkazem (soubor). Může obsahovat několik
+navazujících interaktivních úloh, ale na rozcestníku se zobrazuje jako jediná karta.
+Změna parametrů má překreslit vizualizaci hned, nebo na daný pokyn (tlačítko).
 
 Smyslem úloh je ukázat studentům, že zdánlivě jednoduché problémy často nemají snadno
 nalezitelné řešení. Případně řešení jde nastavit při pozorování zpětné vazby, ale je
@@ -52,19 +52,19 @@ Pravidlo pro volbu způsobu načtení:
 ## Struktura repozitáře
 
 ```
-index.html                  # rozcestník — seznam úloh
+index.html                  # rozcestník — seznam lekcí
 ulohy/
-  _sablona.html             # vzor k okopírování při zakládání nové úlohy
-  01-nazev-ulohy.html       # jedna úloha = jeden soubor
+  _sablona.html             # vzor k okopírování při zakládání nové lekce
+  01-nazev-lekce.html       # jedna lekce = jeden soubor
 assets/
   css/styl.css              # společný vzhled celého kurzu
   js/spolecne.js            # sdílené utility (ovládací panel, kreslení, RNG)
-  js/ulohy.js               # seznam lekcí a úloh, ze kterého se generuje rozcestník
+  js/ulohy.js               # seznam lekcí, ze kterého se generuje rozcestník
   vendor/                   # stažené knihovny + PUVOD.md
   obrazky/
 ```
 
-Pojmenování souborů úloh: `<poradi>-<slug>.html`, slug česky **bez diakritiky**,
+Pojmenování souborů lekcí: `<poradi>-<slug>.html`, slug česky **bez diakritiky**,
 malá písmena, pomlčky (`03-obchodni-cestujici.html`).
 
 ## Cesty a odkazy
@@ -73,22 +73,58 @@ Cílová URL na GitHub Pages zatím není známá a web může běžet v podadre
 (`.../zimni-kurz/`). Proto:
 
 - **Všechny odkazy a cesty k assetům jsou relativní.** Nikdy nezačínají `/`.
-- Ze stránky úlohy: `../assets/css/styl.css`, zpět na rozcestník `../index.html`.
+- Ze stránky lekce: `../assets/css/styl.css`, zpět na rozcestník `../index.html`.
 - Žádný kód nesmí předpokládat konkrétní doménu ani kořenovou cestu.
 
-## Anatomie stránky úlohy
+## Anatomie stránky lekce
 
-Každá úloha dodržuje stejnou kostru (viz `ulohy/_sablona.html`), v tomto pořadí:
+Za nadpisem lekce a odkazem zpět na rozcestník následují vždy čtyři části v tomto
+pořadí:
 
-1. **Nadpis** úlohy + odkaz zpět na rozcestník.
-2. **Motivace** — 2–4 věty, proč je problém zajímavý / kde se v praxi vyskytuje.
-3. **Zadání** — co se řeší, co znamenají parametry. Bez formalismu.
-4. **Vizualizace** — plátno/graf, hlavní obsah stránky.
-5. **Ovládání** — parametry (slidery, přepínače) + tlačítka (Spustit / Krok / Reset).
-6. **Co si zkuste** — 2–4 konkrétní pokyny k experimentování.
-7. **Proč je to těžké** — pointa úlohy. Tohle je smysl celého kurzu, nevynechávat.
+### 1. Představení problému
 
-Úloha je **soběstačná**: jeden HTML soubor, veškerý její JS a CSS uvnitř něj
+- Začni konkrétní situací z praxe a 2–4 větami motivace.
+- Vysvětli, co se řeší, běžným jazykem a zatím bez formalismu.
+- Přidej názorný obrázek nebo jednoduché schéma se všemi objekty, o kterých text
+  mluví. Obrázek nemá být jen dekorace; musí z něj být zřejmý problém, vstup a cíl.
+- Pokud to pomůže porozumění, použij stejný příklad i v interaktivní a teoretické
+  části. Student pak nemusí pokaždé poznávat nové prostředí.
+
+### 2. Interaktivní úloha
+
+- Hlavním obsahem je animace nebo jiná interaktivní vizualizace s ovládáním.
+- Student musí mít možnost měnit smysluplné parametry a pozorovat bezprostřední
+  zpětnou vazbu. Použij podle povahy úlohy tlačítka `Spustit`, `Krok`, `Zpět`
+  a `Reset`; ne všechna jsou povinná, ale `Reset` musí vždy vrátit výchozí stav.
+- U postupných algoritmů ukaž nejen výsledek, ale také vnitřní stav důležitý pro
+  pochopení postupu (například frontu, zásobník, aktuální krok nebo mezivýsledky).
+- Výsledky a počítadla přesně pojmenuj. Nezaměňuj například počet kroků výpočtu,
+  počet navštívených prvků a délku výsledného řešení.
+- Jedna stránka může obsahovat více navazujících interaktivních úloh, pokud druhá
+  rozšiřuje první o podstatnou myšlenku. Každá musí mít jasně uvedeno, co ukazuje.
+- Za každou ukázkou nebo společně za jejich blokem přidej 2–4 konkrétní pokyny
+  **Co si zkuste**. Mají vést k pozorování jevu, ne jen k náhodnému posouvání prvků.
+
+### 3. Teoretické vysvětlení
+
+- Pojmenuj pojmy, které student právě viděl, a vysvětli princip použitého postupu.
+- Ukaž, jak se problém zapisuje. Zápis může obsahovat například vstupní data,
+  struktury, značky, jednotky, mezikroky nebo krátký pseudokód. Každý symbol vysvětli.
+- Navaž zápis na konkrétní příklad z předchozích částí a ukaž alespoň jeden celý
+  postup od vstupu k výsledku.
+- Porovnávané metody vysvětli odděleně a nakonec shrň, co která zaručuje, na čem
+  závisí a kdy selhává. Rozlišuj vlastnost algoritmu od náhody konkrétního pokusu.
+- Součástí této části je blok **Proč je to těžké**. Ten vysvětluje hlavní pointu,
+  omezení jednoduchého řešení a případně naznačí navazující složitější metodu.
+  Nejde jen o zopakování výsledku animace.
+
+### 4. Kde se to učí
+
+- Vytvoř samostatný blok s přesně tímto nadpisem.
+- Obsah nech prázdný, dokud jej nedoplní autor kurzu. Nevymýšlej názvy předmětů
+  ani škol bez výslovného požadavku.
+
+Lekce je **soběstačná**: jeden HTML soubor, veškerý její JS a CSS uvnitř něj
 (`<script>`, `<style>`). Do sdílených souborů se přesouvá jen to, co používají
 alespoň dvě úlohy.
 
@@ -98,8 +134,10 @@ alespoň dvě úlohy.
   formulace („Zkuste zvýšit…" / „Při zvýšení parametru se…").
 - Středoškolská úroveň: bez integrálů, bez formální matematické notace,
   bez žargonu. Pojmy se vysvětlují při prvním použití.
-- Krátké odstavce. Text stránky bez vizualizace se má dát přečíst do dvou minut.
-- Zmínka o navazujícím VŠ předmětu je volitelná — nechává se na autorovi úlohy.
+- Krátké odstavce. Představení problému se má dát přečíst do dvou minut;
+  teoretická část může být delší, ale má zůstat členěná a konkrétní.
+- Názvy navazujících VŠ předmětů patří pouze do bloku „Kde se to učí“ a nechávají
+  se na autorovi úlohy.
 
 ## Konvence vizualizací
 
@@ -124,13 +162,14 @@ alespoň dvě úlohy.
   odloží se na nejbližší snímek, aby se mezilehlé hodnoty zahodily
   (viz `naplanuj()` v `ulohy/01-kmeans.html`).
 
-## Přidání nové úlohy
+## Přidání nové lekce
 
 1. Zkopíruj `ulohy/_sablona.html` na `ulohy/<nn>-<slug>.html`.
-2. Vyplň všech sedm sekcí kostry.
-3. Přidej záznam do příslušné lekce v `assets/js/ulohy.js` (soubor, název, krátký
-   popis, okruh) — rozcestník se z něj vykresluje. Novou lekci přidej jako další
-   položku pole `LEKCE`; úlohy se v ní číslují průběžně napříč celým kurzem.
+2. Vyplň čtyři části kostry: představení problému, interaktivní úlohu, teoretické
+   vysvětlení a prázdný blok „Kde se to učí“.
+3. Přidej jednu položku do pole `LEKCE` v `assets/js/ulohy.js`. Položka obsahuje
+   `nazev`, `popis`, `soubor`, `tema` a `okruh`. Nevkládej do ní vnořené pole úloh:
+   jedna položka registru vždy odkazuje na jednu stránku lekce.
 4. Ověř lokálně přes `python -m http.server`.
 
 ### Hotovo, když
@@ -138,14 +177,19 @@ alespoň dvě úlohy.
 - [ ] Stránka funguje po otevření přes lokální HTTP server bez chyb v konzoli.
 - [ ] Všechny cesty jsou relativní, odkaz zpět na rozcestník funguje.
 - [ ] Ovládací prvky mění vizualizaci a `Reset` vrátí výchozí stav.
-- [ ] Úloha je v `ulohy.js` a je vidět na rozcestníku.
+- [ ] Stránka obsahuje všechny čtyři části ve správném pořadí.
+- [ ] Úvodní obrázek skutečně vysvětluje problém a souvisí s dalšími částmi.
+- [ ] U postupného výpočtu jsou vidět důležité mezikroky a jednoznačná počítadla.
+- [ ] Teoretická část vysvětluje pojmy, zápis i celý postup na konkrétním příkladu.
+- [ ] Lekce je v `ulohy.js` a je vidět na rozcestníku jako jedna karta.
 - [ ] Nové knihovny mají záznam v `assets/vendor/PUVOD.md`.
 - [ ] Sekce „Proč je to těžké" skutečně vysvětluje pointu.
+- [ ] Blok „Kde se to učí“ existuje a bez pokynu autora zůstává prázdný.
 
 ## Pro agenty
 
-- Needituj cizí úlohy při práci na jedné konkrétní — úlohy jsou nezávislé.
+- Needituj cizí lekce při práci na jedné konkrétní — lekce jsou nezávislé.
 - Nezaváděj build krok, bundler ani transpilaci; pokud se to zdá nutné,
   nejdřív se zeptej.
 - Nepřidávej analytiku, tracking ani cokoli, co posílá data mimo stránku.
-- Ke commitům přistupuj po jednotlivých úlohách (jedna úloha = jeden commit).
+- Ke commitům přistupuj po jednotlivých lekcích (jedna lekce = jeden commit).

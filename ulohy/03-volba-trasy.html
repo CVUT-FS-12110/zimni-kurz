@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Volba trasy balíku — Zimní kurz</title>
+<link rel="stylesheet" href="../assets/css/styl.css">
+<style>
+  .schema {
+    max-width: 760px;
+    margin: 1rem 0;
+    border: 2px solid var(--ram-silny);
+    border-radius: var(--radius);
+    background: var(--pozadi-panel);
+    padding: 0.8rem;
+  }
+  .schema svg { display: block; width: 100%; height: auto; }
+  .schema .hrana { stroke: var(--ram-silny); stroke-width: 5; }
+  .schema .uzel { fill: #fff; stroke: var(--ram-silny); stroke-width: 3; }
+  .schema .start { fill: #dce7ff; stroke: var(--akcent); }
+  .schema .cil { fill: #e2f4e8; stroke: var(--shluk-3); }
+  .schema text { fill: var(--text); font: 700 18px "Segoe UI", sans-serif; text-anchor: middle; dominant-baseline: central; }
+  .schema .popis { font-size: 14px; font-weight: 600; fill: var(--text-slaby); }
+  .platno-ram { aspect-ratio: 16 / 11; min-height: 430px; }
+  .volba-dvojice { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+  .legenda { display: flex; flex-wrap: wrap; gap: 0.4rem 0.9rem; margin: 0.6rem 0 0; font-size: 0.86rem; }
+  .legenda span::before { content: ""; display: inline-block; width: 0.85em; height: 0.85em; margin-right: 0.3em; border: 2px solid var(--ram-silny); vertical-align: -0.1em; border-radius: 50%; background: #fff; }
+  .legenda .l-navstiveny::before { background: #dce7ff; border-color: var(--akcent); }
+  .legenda .l-ceka::before { border-style: dashed; border-color: var(--shluk-4); }
+  .legenda .l-cil::before { background: #e2f4e8; border-color: var(--shluk-3); }
+  .zapis-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; max-width: 900px; }
+  .zapis {
+    margin: 0;
+    padding: 0.8rem 1rem;
+    overflow-x: auto;
+    border: 2px solid var(--ram);
+    border-radius: var(--radius);
+    background: var(--pozadi-panel);
+    font: 0.9rem/1.55 ui-monospace, "Cascadia Mono", Consolas, monospace;
+    white-space: pre;
+  }
+  .predmety { min-height: 5rem; }
+  .dilna-vaha { margin-top: 1.2rem; }
+  .platno-vaha { aspect-ratio: 16 / 9; min-height: 390px; }
+  .vysledek-vaha {
+    max-width: 900px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.7rem;
+    margin: 0.8rem 0;
+  }
+  .vysledek-vaha > div { border: 2px solid var(--ram); border-radius: var(--radius); padding: 0.6rem 0.8rem; background: var(--pozadi-panel); }
+  .vysledek-vaha strong, .vysledek-vaha span { display: block; }
+  .vysledek-vaha span { color: var(--text-slaby); font-size: 0.9rem; }
+  @media (max-width: 700px) {
+    .zapis-grid { grid-template-columns: 1fr; }
+    .platno-ram { min-height: 540px; aspect-ratio: 4 / 5; }
+    .platno-vaha { min-height: 500px; }
+    .vysledek-vaha { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<main class="stranka">
+
+  <a class="zpet" href="../index.html">← Zpět na rozcestník</a>
+  <p class="pod-nadpisem">Lekce 2 — Hledání cesty v síti</p>
+  <h1>Volba trasy balíku</h1>
+
+  <section class="sekce">
+    <h2>1. Jak dostat balík k cíli?</h2>
+    <p class="uvod">
+      Balík přijel do distribučního centra a musí projít přes několik třídicích
+      zastávek na správnou výstupní linku. Dopravníků je mnoho a některé mohou být
+      zavřené. Jak síť prohledat systematicky — a jak poznat, že nalezená trasa je nejkratší?
+    </p>
+    <div class="schema" role="img" aria-label="Síť zastávek A až G. Balík začíná v A a míří do G.">
+      <svg viewBox="0 0 720 260" aria-hidden="true">
+        <g class="hrana">
+          <line x1="75" y1="130" x2="205" y2="130"/><line x1="205" y1="130" x2="345" y2="55"/>
+          <line x1="205" y1="130" x2="360" y2="130"/><line x1="205" y1="130" x2="345" y2="215"/>
+          <line x1="345" y1="55" x2="510" y2="55"/><line x1="360" y1="130" x2="645" y2="130"/>
+          <line x1="345" y1="215" x2="645" y2="130"/><line x1="510" y1="55" x2="645" y2="130"/>
+        </g>
+        <g><circle class="uzel start" cx="75" cy="130" r="27"/><circle class="uzel" cx="205" cy="130" r="27"/>
+          <circle class="uzel" cx="345" cy="55" r="27"/><circle class="uzel" cx="360" cy="130" r="27"/>
+          <circle class="uzel" cx="345" cy="215" r="27"/><circle class="uzel" cx="510" cy="55" r="27"/>
+          <circle class="uzel cil" cx="645" cy="130" r="27"/></g>
+        <g><text x="75" y="130">A</text><text x="205" y="130">B</text><text x="345" y="55">C</text>
+          <text x="360" y="130">D</text><text x="345" y="215">E</text><text x="510" y="55">F</text><text x="645" y="130">G</text>
+          <text class="popis" x="75" y="176">vstup</text><text class="popis" x="645" y="176">expedice</text></g>
+      </svg>
+    </div>
+    <p>
+      Kružnice představují zastávky a čáry mezi nimi průjezdné dopravníky. V této
+      úloze měříme délku trasy počtem projetých úseků, ne metry ani sekundami.
+    </p>
+  </section>
+
+  <section>
+    <h2>2. Vyzkoušejte prohledávání</h2>
+    <p class="sekce">
+      Spusťte oba postupy vedle sebe nebo je krokujte ručně. Do šířky se síť
+      prohledává ve vlnách, do hloubky se nejprve pokračuje co nejdál jednou větví.
+      Kliknutím na čáru v grafu lze dopravník zavřít nebo znovu otevřít.
+    </p>
+
+    <div class="dilna">
+      <div>
+        <div class="platno-ram">
+          <canvas id="platno" aria-label="Interaktivní porovnání hledání cesty do šířky a do hloubky"></canvas>
+        </div>
+        <div class="legenda" aria-hidden="true">
+          <span class="l-navstiveny">zpracovaný</span><span class="l-ceka">čeká</span><span class="l-cil">cíl</span>
+        </div>
+      </div>
+
+      <div class="panel" id="panel">
+        <div class="zalozky" role="tablist">
+          <button role="tab" data-zalozka="zal-hledani" aria-selected="true">Hledání</button>
+          <button role="tab" data-zalozka="zal-sit" aria-selected="false">Síť</button>
+        </div>
+
+        <div class="zalozka-obsah" id="zal-hledani" role="tabpanel">
+          <div class="ovladac">
+            <label for="rezim">Zobrazení</label>
+            <select id="rezim">
+              <option value="oba">BFS a DFS vedle sebe</option>
+              <option value="bfs">jen hledání do šířky</option>
+              <option value="dfs">jen hledání do hloubky</option>
+            </select>
+          </div>
+          <div class="ovladac">
+            <label for="rychlost">Čas jednoho kroku <output id="rychlost-hodnota"></output></label>
+            <input type="range" id="rychlost" min="250" max="1600" step="50" value="800">
+          </div>
+          <div class="tlacitka">
+            <button class="akce hlavni" id="spustit">Spustit</button>
+            <button class="akce" id="krok">Krok</button>
+          </div>
+          <div class="tlacitka">
+            <button class="akce" id="zpet">Zpět</button>
+            <button class="akce" id="reset">Reset</button>
+          </div>
+          <div class="stav">
+            <dl>
+              <dt>Krok animace</dt><dd id="stav-krok">0</dd>
+              <dt>BFS: zpracováno / trasa</dt><dd id="stav-bfs">0 / –</dd>
+              <dt>DFS: zpracováno / trasa</dt><dd id="stav-dfs">0 / –</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="zalozka-obsah" id="zal-sit" role="tabpanel" hidden>
+          <div class="volba-dvojice">
+            <div class="ovladac"><label for="start">Start</label><select id="start"></select></div>
+            <div class="ovladac"><label for="cil">Cíl</label><select id="cil"></select></div>
+          </div>
+          <div class="ovladac">
+            <label for="hrana">Dopravník</label>
+            <select id="hrana"></select>
+          </div>
+          <button class="akce" id="prepnout-hranu">Zavřít vybraný</button>
+          <p class="poznamka">Uzavřená hrana je v grafu šedá, přerušovaná a označená ×. Sousedé se vždy zkoušejí podle abecedy.</p>
+          <div class="tlacitka"><button class="akce" id="obnovit-sit">Obnovit celou síť</button></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sekce">
+      <h3>Co si zkuste</h3>
+      <ol>
+        <li>Než hledání spustíte, odhadněte, který postup zpracuje méně uzlů a který najde kratší trasu.</li>
+        <li>Krokujte oba postupy. Sledujte frontu BFS a zásobník DFS pod grafy.</li>
+        <li>Zavřete dopravník D—G. Najdou oba postupy cíl? Změní se délka nejkratší trasy?</li>
+        <li>Zvolte jiný start a cíl. Platí stále, že DFS našel horší trasu?</li>
+      </ol>
+    </div>
+
+    <div class="sekce">
+      <h3>Úloha B — když každý úsek trvá jinak dlouho</h3>
+      <p>
+        Počet dopravníků není vždy dobrým měřítkem. U následující sítě je na každé
+        hraně doba průjezdu v sekundách. BFS stále hledá trasu s nejmenším počtem hran,
+        zatímco Dijkstrův algoritmus vybírá dosud nejrychleji dosažitelný uzel a postupně
+        zpřesňuje nejlepší známé časy.
+      </p>
+    </div>
+    <div class="dilna dilna-vaha">
+      <div>
+        <div class="platno-ram platno-vaha">
+          <canvas id="platno-vaha" aria-label="Porovnání nejkratší a nejrychlejší cesty v grafu s časy průjezdu"></canvas>
+        </div>
+        <div class="vysledek-vaha" aria-live="polite">
+          <div><strong id="vaha-bfs-cesta">Nejméně hran: –</strong><span id="vaha-bfs-cas">Celkový čas: –</span></div>
+          <div><strong id="vaha-dijkstra-cesta">Nejkratší čas: –</strong><span id="vaha-dijkstra-cas">Celkový čas: –</span></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="zalozka-obsah">
+          <p class="poznamka">
+            Číslo v bílém štítku udává sekundy. Modře se kreslí trasa s nejmenším počtem
+            hran, zeleně průběžný výsledek Dijkstrova algoritmu.
+          </p>
+          <div class="tlacitka">
+            <button class="akce hlavni" id="vaha-spustit">Spustit</button>
+            <button class="akce" id="vaha-krok">Krok</button>
+          </div>
+          <div class="tlacitka"><button class="akce" id="vaha-reset">Reset</button></div>
+          <div class="stav">
+            <dl>
+              <dt>Zpracovaný uzel</dt><dd id="vaha-uzel">–</dd>
+              <dt>Navštíveno uzlů</dt><dd id="vaha-pocet">0</dd>
+              <dt>Nejmenší známý čas do cíle</dt><dd id="vaha-odhad">∞</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="sekce">
+      <h3>Co si všimnout</h3>
+      <ul>
+        <li>Modrá cesta používá méně hran. Sečtěte její časy a porovnejte je se zelenou cestou.</li>
+        <li>Při krokování sledujte čísla u uzlů. Jde o nejlepší čas známý v daném okamžiku, proto se může ještě snížit.</li>
+        <li>Dijkstrův algoritmus skončí, až když zpracuje cíl. Teprve tehdy je jeho nejmenší čas zaručený.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="sekce">
+    <h2>3. Jak graf a hledání zapisujeme</h2>
+    <p>
+      Síť nazýváme <strong>grafem</strong>. Zastávka je <strong>uzel</strong> (nebo vrchol),
+      dopravník je <strong>hrana</strong> a navazující posloupnost hran je <strong>cesta</strong>.
+      Graf lze zapsat množinou uzlů a hran nebo praktičtěji seznamem sousedů.
+      Následující zápis používá zjednodušenou sedmiuzlovou síť z úvodního obrázku.
+    </p>
+    <div class="zapis-grid">
+      <pre class="zapis" aria-label="Zápis uzlů a hran">Uzly:
+V = {A, B, C, D, E, F, G}
+
+Hrany:
+E = {{A,B}, {B,C}, {B,D}, {B,E},
+     {C,F}, {D,G}, {E,G}, {F,G}}
+
+Cesta:
+A → B → D → G
+délka = 3 hrany</pre>
+      <pre class="zapis" aria-label="Zápis seznamem sousedů">Seznam sousedů:
+A: B
+B: A, C, D, E
+C: B, F
+D: B, G
+E: B, G
+F: C, G
+G: D, E, F</pre>
+    </div>
+
+    <h3>Hledání do šířky — BFS</h3>
+    <p>
+      BFS nejprve prozkoumá všechny uzly vzdálené jednu hranu, potom dvě hrany a tak
+      dále. Používá <strong>frontu</strong>: kdo přišel první, je první zpracován.
+      V neohodnoceném grafu proto najde cestu s nejmenším počtem hran. U každého nového
+      uzlu si zapamatuje předchůdce; z cíle pak podle nich složí cestu zpět ke startu.
+    </p>
+    <pre class="zapis">fronta: [A]
+zpracuj A, přidej B:       [B]
+zpracuj B, přidej C, D, E: [C, D, E]
+zpracuj C, přidej F:       [D, E, F]
+zpracuj D, přidej G:       [E, F, G]
+
+předchůdci cíle: G ← D ← B ← A
+výsledná cesta:   A → B → D → G</pre>
+
+    <h3>Hledání do hloubky — DFS</h3>
+    <p>
+      DFS pokračuje co nejdál jednou větví a teprve potom se vrací. Používá
+      <strong>zásobník</strong>: naposledy přidaný uzel se zpracuje jako první.
+      Cíl najde, pokud je dosažitelný, ale první nalezená cesta nemusí být nejkratší.
+      Výsledek navíc závisí na pořadí, ve kterém zkouší sousedy.
+    </p>
+    <pre class="zapis">postup do hloubky: A → B → C → F → G
+první nalezená cesta má 4 hrany
+
+kratší cesta přitom existuje: A → B → D → G
+ta má pouze 3 hrany</pre>
+
+    <h3>Ohodnocený graf a Dijkstrův algoritmus</h3>
+    <p>
+      Pokud ke každé hraně připíšeme cenu — zde dobu průjezdu — vznikne
+      <strong>ohodnocený graf</strong>. Hranu lze zapsat například jako
+      <code>{A,B}: 2 s</code>. Cena celé cesty je součet cen jejích hran.
+      Dijkstrův algoritmus si u každého uzlu udržuje nejlepší dosud známý čas a vždy
+      zpracuje uzel s nejmenší hodnotou. Přes jeho sousedy pak zkouší, zda k nim právě
+      nenašel rychlejší cestu.
+    </p>
+    <pre class="zapis">ohodnocené hrany:
+{A,B}: 2 s
+{B,D}: 8 s
+{D,G}: 6 s
+
+cena cesty A → B → D → G:
+2 + 8 + 6 = 16 s</pre>
+
+    <div class="pointa">
+      <h2>Proč je to těžké</h2>
+      <p>
+        Rychle najít nějaký cíl není totéž jako najít k němu nejkratší trasu. DFS může
+        mít štěstí a narazit na cíl po několika krocích, ale dojít k němu oklikou. BFS
+        zaručí nejmenší počet hran, může však před cílem zpracovat mnoho jiných uzlů.
+      </p>
+      <p>
+        Ani BFS nestačí, pokud dopravníky mají různé délky nebo rychlosti: tři pomalé
+        úseky mohou trvat déle než čtyři rychlé. Pak už je potřeba jiný postup, který
+        pracuje s cenou hran, například Dijkstrův algoritmus.
+      </p>
+    </div>
+  </section>
+
+  <section class="sekce predmety">
+    <h2>4. Kde se to učí</h2>
+  </section>
+
+  <p class="paticka"><a href="../index.html">← Zpět na rozcestník</a></p>
+</main>
+
+<script src="../assets/js/spolecne.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  const UZLY = {
+    A: [0.04, 0.52], B: [0.16, 0.52], C: [0.29, 0.15], D: [0.29, 0.52], E: [0.29, 0.86],
+    F: [0.43, 0.14], G: [0.43, 0.49], H: [0.43, 0.84], I: [0.57, 0.14], J: [0.57, 0.49],
+    K: [0.57, 0.84], L: [0.70, 0.20], M: [0.80, 0.31], N: [0.94, 0.52]
+  };
+  const HRANY = [
+    ['A','B'], ['B','C'], ['B','D'], ['B','E'], ['C','F'], ['C','G'], ['D','G'], ['D','H'],
+    ['E','H'], ['F','I'], ['F','J'], ['G','J'], ['G','K'], ['H','K'], ['I','L'], ['J','N'],
+    ['K','N'], ['L','M'], ['M','N']
+  ];
+  const P = { start: 'A', cil: 'N', rezim: 'oba', rychlost: 800, zavrene: new Set() };
+  let behy, historie, cisloKroku, cekani = 0;
+
+  function klicHrany(a, b) { return [a, b].sort().join('-'); }
+  function jeOtevrena(a, b) { return !P.zavrene.has(klicHrany(a, b)); }
+  function sousede(v) {
+    return HRANY.filter(h => h.includes(v) && jeOtevrena(h[0], h[1]))
+      .map(h => h[0] === v ? h[1] : h[0]).sort();
+  }
+  function novyBeh(typ) {
+    return { typ, zasobnik: [P.start], objevene: [P.start], zpracovane: [], rodic: {}, aktualni: null, hotovo: false, nalezeno: false };
+  }
+  function kopieBehu(b) {
+    return { typ: b.typ, zasobnik: [...b.zasobnik], objevene: [...b.objevene], zpracovane: [...b.zpracovane],
+      rodic: {...b.rodic}, aktualni: b.aktualni, hotovo: b.hotovo, nalezeno: b.nalezeno };
+  }
+  function ulozHistorii() { historie.push({ bfs: kopieBehu(behy.bfs), dfs: kopieBehu(behy.dfs), cisloKroku }); }
+  function obnovBehy() {
+    smycka.stop(); tlSpustit.textContent = 'Spustit';
+    behy = { bfs: novyBeh('bfs'), dfs: novyBeh('dfs') };
+    historie = []; cisloKroku = 0; cekani = 0;
+    aktualizuj();
+  }
+  function cesta(b) {
+    if (!b.nalezeno) return [];
+    const vysledek = [P.cil];
+    while (vysledek[0] !== P.start) vysledek.unshift(b.rodic[vysledek[0]]);
+    return vysledek;
+  }
+  function provedKrok(b) {
+    if (b.hotovo) return;
+    if (!b.zasobnik.length) { b.hotovo = true; return; }
+    const v = b.typ === 'bfs' ? b.zasobnik.shift() : b.zasobnik.pop();
+    b.aktualni = v; b.zpracovane.push(v);
+    if (v === P.cil) { b.nalezeno = true; b.hotovo = true; return; }
+    const novi = sousede(v).filter(s => !b.objevene.includes(s));
+    const poradi = b.typ === 'dfs' ? [...novi].reverse() : novi;
+    poradi.forEach(s => { b.objevene.push(s); b.rodic[s] = v; b.zasobnik.push(s); });
+    if (!b.zasobnik.length) b.hotovo = true;
+  }
+  function aktivniTypy() { return P.rezim === 'oba' ? ['bfs', 'dfs'] : [P.rezim]; }
+  function krok() {
+    const typy = aktivniTypy();
+    if (typy.every(t => behy[t].hotovo)) { zastav(); return; }
+    ulozHistorii(); typy.forEach(t => provedKrok(behy[t])); cisloKroku++;
+    aktualizuj();
+    if (typy.every(t => behy[t].hotovo)) zastav();
+  }
+  function zpet() {
+    if (!historie.length) return;
+    zastav(); const s = historie.pop(); behy = { bfs: s.bfs, dfs: s.dfs }; cisloKroku = s.cisloKroku; aktualizuj();
+  }
+  function zastav() { smycka.stop(); tlSpustit.textContent = 'Spustit'; cekani = 0; }
+
+  const platnoEl = document.getElementById('platno');
+  const plocha = Kurz.platno(platnoEl, prekresli);
+  let oblasti = [];
+
+  function rozvrzeni(x, y, w, h) {
+    const horni = y + 46, vyskaGrafu = Math.max(150, h - 150);
+    const body = {};
+    Object.keys(UZLY).forEach(k => { body[k] = [x + 20 + UZLY[k][0] * (w - 40), horni + UZLY[k][1] * vyskaGrafu]; });
+    return { x, y, w, h, body, horni, vyskaGrafu };
+  }
+  function zaoblenyObdelnik(ctx, x, y, w, h, r) {
+    ctx.beginPath(); ctx.roundRect(x, y, w, h, r);
+  }
+  function kresliBeh(ctx, b, r, nazev) {
+    ctx.save();
+    ctx.fillStyle = '#eef1f6'; zaoblenyObdelnik(ctx, r.x, r.y, r.w, r.h, 6); ctx.fill();
+    ctx.strokeStyle = '#0d1218'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.fillStyle = '#0d1218'; ctx.font = '700 17px Segoe UI, sans-serif'; ctx.textAlign = 'left'; ctx.fillText(nazev, r.x + 13, r.y + 27);
+    const cestaNalezena = cesta(b), cesty = new Set();
+    for (let i = 1; i < cestaNalezena.length; i++) cesty.add(klicHrany(cestaNalezena[i-1], cestaNalezena[i]));
+    HRANY.forEach(([a, d]) => {
+      const [x1,y1] = r.body[a], [x2,y2] = r.body[d], key = klicHrany(a,d), otevrena = jeOtevrena(a,d);
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+      ctx.strokeStyle = cesty.has(key) ? '#0a7d38' : (otevrena ? '#7b8796' : '#c4cad2');
+      ctx.lineWidth = cesty.has(key) ? 7 : 4; ctx.setLineDash(otevrena ? [] : [8,7]); ctx.stroke(); ctx.setLineDash([]);
+      if (!otevrena) { ctx.fillStyle = '#4a5768'; ctx.font = '700 17px Segoe UI'; ctx.textAlign = 'center'; ctx.fillText('×', (x1+x2)/2, (y1+y2)/2 - 5); }
+      oblasti.push({ x1, y1, x2, y2, key });
+    });
+    Object.keys(UZLY).forEach(v => {
+      const [x,y] = r.body[v], zpracovany = b.zpracovane.includes(v), objeveny = b.objevene.includes(v);
+      ctx.beginPath(); ctx.arc(x,y,20,0,Math.PI*2);
+      ctx.fillStyle = v === P.cil ? '#e2f4e8' : (zpracovany ? '#dce7ff' : '#fff'); ctx.fill();
+      ctx.strokeStyle = v === P.cil ? '#0a7d38' : (objeveny && !zpracovany ? '#d97000' : '#0d1218');
+      ctx.lineWidth = b.aktualni === v ? 5 : 3; ctx.setLineDash(objeveny && !zpracovany ? [4,3] : []); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = '#0d1218'; ctx.font = '700 15px Segoe UI'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(v, x, y);
+      const poradi = b.zpracovane.indexOf(v);
+      if (poradi >= 0) { ctx.fillStyle = '#0b46c8'; ctx.font = '700 11px Segoe UI'; ctx.fillText(String(poradi + 1), x + 18, y - 18); }
+    });
+    const struktura = b.zasobnik.length ? b.zasobnik.join(', ') : 'prázdná';
+    const label = b.typ === 'bfs' ? 'Fronta' : 'Zásobník (vrchol vpravo)';
+    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'; ctx.fillStyle = '#4a5768'; ctx.font = '600 12px Segoe UI';
+    ctx.fillText(label + ':', r.x + 13, r.y + r.h - 53);
+    ctx.fillStyle = '#0d1218'; ctx.font = '700 14px ui-monospace, Consolas, monospace'; ctx.fillText('[' + struktura + ']', r.x + 13, r.y + r.h - 32);
+    const vysledek = b.nalezeno ? cestaNalezena.join(' → ') : (b.hotovo ? 'cíl není dosažitelný' : 'hledání probíhá');
+    ctx.fillStyle = b.nalezeno ? '#0a7d38' : '#4a5768'; ctx.font = '600 12px Segoe UI'; ctx.fillText(vysledek, r.x + 13, r.y + r.h - 10);
+    ctx.restore();
+  }
+  function prekresli() {
+    const ctx = plocha.ctx, w = plocha.sirka, h = plocha.vyska; if (!ctx || !w) return;
+    ctx.clearRect(0,0,w,h); ctx.fillStyle = '#fff'; ctx.fillRect(0,0,w,h); oblasti = [];
+    const mezera = 10;
+    if (P.rezim === 'oba' && w >= 620) {
+      const sw = (w - mezera) / 2; kresliBeh(ctx, behy.bfs, rozvrzeni(0,0,sw,h), 'BFS — do šířky');
+      kresliBeh(ctx, behy.dfs, rozvrzeni(sw+mezera,0,sw,h), 'DFS — do hloubky');
+    } else if (P.rezim === 'oba') {
+      const sh = (h - mezera) / 2; kresliBeh(ctx, behy.bfs, rozvrzeni(0,0,w,sh), 'BFS — do šířky');
+      kresliBeh(ctx, behy.dfs, rozvrzeni(0,sh+mezera,w,sh), 'DFS — do hloubky');
+    } else {
+      const b = behy[P.rezim], n = P.rezim === 'bfs' ? 'BFS — do šířky' : 'DFS — do hloubky';
+      kresliBeh(ctx, b, rozvrzeni(0,0,w,h), n);
+    }
+  }
+  function vzdalenostUsecky(px, py, o) {
+    const dx=o.x2-o.x1, dy=o.y2-o.y1, l2=dx*dx+dy*dy;
+    const t=Math.max(0,Math.min(1,((px-o.x1)*dx+(py-o.y1)*dy)/l2));
+    return Math.hypot(px-(o.x1+t*dx),py-(o.y1+t*dy));
+  }
+  platnoEl.addEventListener('click', e => {
+    const r=platnoEl.getBoundingClientRect(), x=e.clientX-r.left, y=e.clientY-r.top;
+    const nalezena=oblasti.reduce((best,o) => vzdalenostUsecky(x,y,o)<vzdalenostUsecky(x,y,best)?o:best, oblasti[0]);
+    if (nalezena && vzdalenostUsecky(x,y,nalezena)<12) prepniHranu(nalezena.key);
+  });
+
+  function aktualizuj() {
+    document.getElementById('stav-krok').textContent = cisloKroku;
+    ['bfs','dfs'].forEach(t => {
+      const b=behy[t], c=cesta(b);
+      document.getElementById('stav-'+t).textContent = b.zpracovane.length + ' / ' + (c.length ? (c.length-1)+' hran' : '–');
+    });
+    document.getElementById('zpet').disabled = !historie.length;
+    document.getElementById('krok').disabled = aktivniTypy().every(t => behy[t].hotovo);
+    obnovPopisHrany(); prekresli();
+  }
+  function prepniHranu(key) { P.zavrene.has(key) ? P.zavrene.delete(key) : P.zavrene.add(key); obnovBehy(); }
+  function obnovPopisHrany() {
+    const key=document.getElementById('hrana').value, zavrena=P.zavrene.has(key);
+    document.getElementById('prepnout-hranu').textContent = zavrena ? 'Otevřít vybraný' : 'Zavřít vybraný';
+    [...document.getElementById('hrana').options].forEach(o => { o.textContent=o.value.replace('-', '—')+(P.zavrene.has(o.value)?' (zavřený)':''); });
+  }
+
+  Kurz.zalozky('panel');
+  const startEl=document.getElementById('start'), cilEl=document.getElementById('cil'), hranaEl=document.getElementById('hrana');
+  Object.keys(UZLY).forEach(v => { startEl.add(new Option(v,v)); cilEl.add(new Option(v,v)); });
+  HRANY.forEach(h => hranaEl.add(new Option(h.join('—'),klicHrany(h[0],h[1]))));
+  startEl.value=P.start; cilEl.value=P.cil;
+  startEl.addEventListener('change', () => { P.start=startEl.value; if(P.start===P.cil){P.cil=Object.keys(UZLY).find(v=>v!==P.start);cilEl.value=P.cil;} obnovBehy(); });
+  cilEl.addEventListener('change', () => { P.cil=cilEl.value; if(P.cil===P.start){P.start=Object.keys(UZLY).find(v=>v!==P.cil);startEl.value=P.start;} obnovBehy(); });
+  document.getElementById('rezim').addEventListener('change', e => { P.rezim=e.target.value; obnovBehy(); });
+  hranaEl.addEventListener('change', obnovPopisHrany);
+  document.getElementById('prepnout-hranu').addEventListener('click', () => prepniHranu(hranaEl.value));
+  document.getElementById('obnovit-sit').addEventListener('click', () => { P.zavrene.clear(); obnovBehy(); });
+  document.getElementById('krok').addEventListener('click', krok);
+  document.getElementById('zpet').addEventListener('click', zpet);
+  document.getElementById('reset').addEventListener('click', obnovBehy);
+  Kurz.posuvnik('rychlost', v => { P.rychlost=v; }, v => (v/1000).toLocaleString('cs-CZ',{maximumFractionDigits:2})+' s');
+
+  const tlSpustit=document.getElementById('spustit');
+  const smycka=Kurz.smycka(dt => { cekani += dt*1000; if(cekani>=P.rychlost){cekani=0;krok();} });
+  tlSpustit.addEventListener('click', () => {
+    if(smycka.bezi) zastav(); else { if(aktivniTypy().every(t=>behy[t].hotovo)) obnovBehy(); smycka.start(); tlSpustit.textContent='Zastavit'; }
+  });
+
+  /* ================= úloha B: ohodnocený graf ================= */
+  const V_UZLY = {
+    A: [0.08,0.52], B: [0.25,0.52], C: [0.43,0.18], D: [0.47,0.52],
+    E: [0.43,0.84], F: [0.68,0.18], G: [0.90,0.52]
+  };
+  const V_HRANY = [
+    ['A','B',2], ['B','C',2], ['B','D',8], ['B','E',3],
+    ['C','F',2], ['D','G',6], ['E','G',9], ['F','G',2]
+  ];
+  const V_START='A', V_CIL='G';
+  let vahaStav, vahaCekani=0;
+
+  function vahaSousede(v) {
+    return V_HRANY.filter(h=>h[0]===v||h[1]===v).map(h=>({v:h[0]===v?h[1]:h[0], cena:h[2]}));
+  }
+  function vahaCesta(rodic, cil) {
+    if(cil!==V_START && rodic[cil]===undefined) return [];
+    const c=[cil]; while(c[0]!==V_START)c.unshift(rodic[c[0]]); return c;
+  }
+  function cestaNejmeneHran() {
+    const fronta=[V_START], rodic={}, videne=new Set([V_START]);
+    while(fronta.length){const v=fronta.shift();if(v===V_CIL)break;vahaSousede(v).map(x=>x.v).sort().forEach(s=>{if(!videne.has(s)){videne.add(s);rodic[s]=v;fronta.push(s);}});}
+    return vahaCesta(rodic,V_CIL);
+  }
+  function cenaCesty(c) {
+    let soucet=0; for(let i=1;i<c.length;i++){const h=V_HRANY.find(e=>e.includes(c[i-1])&&e.includes(c[i]));soucet+=h[2];} return soucet;
+  }
+  const V_BFS_CESTA=cestaNejmeneHran();
+
+  function resetVahy() {
+    vahaStop();
+    const vzd={}; Object.keys(V_UZLY).forEach(v=>vzd[v]=Infinity); vzd[V_START]=0;
+    vahaStav={vzd,rodic:{},hotove:[],aktualni:null,dokonceno:false};
+    vahaAktualizuj();
+  }
+  function vahaKrok() {
+    if(vahaStav.dokonceno)return;
+    const kandidati=Object.keys(V_UZLY).filter(v=>!vahaStav.hotove.includes(v)&&Number.isFinite(vahaStav.vzd[v]));
+    if(!kandidati.length){vahaStav.dokonceno=true;vahaAktualizuj();vahaStop();return;}
+    kandidati.sort((a,b)=>vahaStav.vzd[a]-vahaStav.vzd[b]||a.localeCompare(b));
+    const v=kandidati[0]; vahaStav.aktualni=v; vahaStav.hotove.push(v);
+    if(v===V_CIL){vahaStav.dokonceno=true;vahaAktualizuj();vahaStop();return;}
+    vahaSousede(v).forEach(({v:s,cena})=>{
+      if(vahaStav.hotove.includes(s))return;
+      const navrh=vahaStav.vzd[v]+cena;
+      if(navrh<vahaStav.vzd[s]){vahaStav.vzd[s]=navrh;vahaStav.rodic[s]=v;}
+    });
+    vahaAktualizuj();
+  }
+  function vahaStop(){if(typeof vahaSmycka!=='undefined')vahaSmycka.stop();const b=document.getElementById('vaha-spustit');if(b)b.textContent='Spustit';vahaCekani=0;}
+
+  const vahaPlatnoEl=document.getElementById('platno-vaha');
+  const vahaPlocha=Kurz.platno(vahaPlatnoEl,vahaKresli);
+  function vahaBody(w,h){const body={};Object.keys(V_UZLY).forEach(v=>body[v]=[28+V_UZLY[v][0]*(w-56),42+V_UZLY[v][1]*(h-88)]);return body;}
+  function mnozinaHranCesty(c){const s=new Set();for(let i=1;i<c.length;i++)s.add(klicHrany(c[i-1],c[i]));return s;}
+  function vahaKresli(){
+    const ctx=vahaPlocha.ctx,w=vahaPlocha.sirka,h=vahaPlocha.vyska;if(!ctx||!w||!vahaStav)return;
+    const body=vahaBody(w,h),bfsHrany=mnozinaHranCesty(V_BFS_CESTA);
+    const dijCesta=vahaCesta(vahaStav.rodic,V_CIL),dijHrany=mnozinaHranCesty(dijCesta);
+    ctx.clearRect(0,0,w,h);ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);
+    V_HRANY.forEach(([a,b,cena])=>{
+      const [x1,y1]=body[a],[x2,y2]=body[b],key=klicHrany(a,b),jeBfs=bfsHrany.has(key),jeDij=dijHrany.has(key);
+      ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.strokeStyle=jeDij?'#0a7d38':(jeBfs?'#0b46c8':'#8b96a5');ctx.lineWidth=jeDij?7:(jeBfs?6:4);ctx.stroke();
+      if(jeBfs&&jeDij){ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.strokeStyle='#0b46c8';ctx.lineWidth=3;ctx.setLineDash([8,6]);ctx.stroke();ctx.setLineDash([]);}
+      const mx=(x1+x2)/2,my=(y1+y2)/2;ctx.font='700 13px Segoe UI';const text=cena+' s',tw=ctx.measureText(text).width+12;
+      ctx.fillStyle='#fff';ctx.fillRect(mx-tw/2,my-12,tw,22);ctx.strokeStyle='#aab4c2';ctx.lineWidth=1;ctx.strokeRect(mx-tw/2,my-12,tw,22);
+      ctx.fillStyle='#0d1218';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(text,mx,my-1);
+    });
+    Object.keys(V_UZLY).forEach(v=>{
+      const [x,y]=body[v],hotovy=vahaStav.hotove.includes(v),znamy=Number.isFinite(vahaStav.vzd[v]);
+      ctx.beginPath();ctx.arc(x,y,22,0,Math.PI*2);ctx.fillStyle=v===V_CIL?'#e2f4e8':(hotovy?'#dce7ff':'#fff');ctx.fill();
+      ctx.strokeStyle=v===V_CIL?'#0a7d38':(znamy?'#0b46c8':'#0d1218');ctx.lineWidth=vahaStav.aktualni===v?5:3;ctx.stroke();
+      ctx.fillStyle='#0d1218';ctx.font='700 15px Segoe UI';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(v,x,y-3);
+      ctx.font='700 10px Segoe UI';ctx.fillStyle='#4a5768';ctx.fillText(znamy?vahaStav.vzd[v]+' s':'∞',x,y+12);
+    });
+    ctx.textAlign='left';ctx.textBaseline='alphabetic';ctx.font='600 12px Segoe UI';ctx.fillStyle='#0b46c8';ctx.fillText('— nejméně hran',12,20);
+    ctx.fillStyle='#0a7d38';ctx.fillText('— nejkratší čas',145,20);
+  }
+  function vahaAktualizuj(){
+    const hotova=vahaStav.dokonceno?vahaCesta(vahaStav.rodic,V_CIL):[];
+    document.getElementById('vaha-uzel').textContent=vahaStav.aktualni||'–';
+    document.getElementById('vaha-pocet').textContent=vahaStav.hotove.length;
+    document.getElementById('vaha-odhad').textContent=Number.isFinite(vahaStav.vzd[V_CIL])?vahaStav.vzd[V_CIL]+' s':'∞';
+    document.getElementById('vaha-bfs-cesta').textContent='Nejméně hran: '+V_BFS_CESTA.join(' → ');
+    document.getElementById('vaha-bfs-cas').textContent='Celkový čas: '+cenaCesty(V_BFS_CESTA)+' s';
+    document.getElementById('vaha-dijkstra-cesta').textContent='Nejkratší čas: '+(hotova.length?hotova.join(' → '):'zatím neznámý');
+    document.getElementById('vaha-dijkstra-cas').textContent='Celkový čas: '+(hotova.length?vahaStav.vzd[V_CIL]+' s':'–');
+    document.getElementById('vaha-krok').disabled=vahaStav.dokonceno;vahaKresli();
+  }
+  const vahaSmycka=Kurz.smycka(dt=>{vahaCekani+=dt*1000;if(vahaCekani>=800){vahaCekani=0;vahaKrok();}});
+  document.getElementById('vaha-krok').addEventListener('click',vahaKrok);
+  document.getElementById('vaha-reset').addEventListener('click',resetVahy);
+  document.getElementById('vaha-spustit').addEventListener('click',e=>{if(vahaSmycka.bezi)vahaStop();else{if(vahaStav.dokonceno)resetVahy();vahaSmycka.start();e.currentTarget.textContent='Zastavit';}});
+
+  obnovBehy();
+  resetVahy();
+})();
+</script>
+</body>
+</html>

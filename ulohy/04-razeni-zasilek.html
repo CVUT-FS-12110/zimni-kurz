@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Řazení zásilek — Zimní kurz</title>
+<link rel="stylesheet" href="../assets/css/styl.css">
+<style>
+  .pas-schema { display: flex; align-items: end; gap: 0.5rem; max-width: 720px; min-height: 150px; margin: 1rem 0; padding: 1rem 1rem 1.5rem; border: 2px solid var(--ram-silny); border-radius: var(--radius); background: linear-gradient(to bottom, #fff 0 68%, var(--pozadi-zvyraz) 68% 83%, var(--ram-silny) 83% 87%, #fff 87%); overflow: hidden; }
+  .balik-schema { flex: 1; min-width: 42px; max-width: 90px; height: var(--vyska); display: grid; place-items: center; color: #fff; background: var(--barva); border: 2px solid var(--ram-silny); border-radius: 4px 4px 1px 1px; font-weight: 800; box-shadow: inset 0 -8px rgba(0,0,0,.08); }
+  .pas-sipka { align-self: center; color: var(--akcent); font-size: 2rem; font-weight: 800; }
+  .porovnani { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+  .algoritmus { min-width: 0; }
+  .algoritmus h3 { margin: 0 0 0.35rem; }
+  .algoritmus .platno-ram { aspect-ratio: 4 / 3; min-height: 280px; }
+  .metriky { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.3rem; margin-top: 0.4rem; }
+  .metrika { padding: 0.35rem 0.45rem; text-align: center; background: var(--pozadi-panel); border: 1px solid var(--ram); border-radius: 4px; }
+  .metrika span, .metrika strong { display: block; }
+  .metrika span { color: var(--text-slaby); font-size: 0.72rem; }
+  .metrika strong { font-variant-numeric: tabular-nums; }
+  .stav-radek { margin: 0.35rem 0 0; min-height: 1.5em; color: var(--text-slaby); font-size: 0.86rem; }
+  .zapis { margin: 0.8rem 0; padding: 0.8rem 1rem; overflow-x: auto; border: 2px solid var(--ram); border-radius: var(--radius); background: var(--pozadi-panel); font: 0.9rem/1.55 ui-monospace, "Cascadia Mono", Consolas, monospace; white-space: pre; }
+  .slozitost { width: 100%; max-width: 720px; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  .slozitost th, .slozitost td { padding: 0.5rem 0.65rem; border: 1px solid var(--ram); text-align: right; }
+  .slozitost th:first-child, .slozitost td:first-child { text-align: left; }
+  .slozitost thead { background: var(--pozadi-panel); }
+  .prazdny-blok { min-height: 5rem; }
+  @media (max-width: 760px) {
+    .porovnani { grid-template-columns: 1fr; }
+    .algoritmus .platno-ram { min-height: 320px; }
+    .pas-schema { gap: 0.25rem; }
+  }
+</style>
+</head>
+<body>
+<main class="stranka">
+  <a class="zpet" href="../index.html">← Zpět na rozcestník</a>
+  <p class="pod-nadpisem">Lekce 3 — Řazení dat</p>
+  <h1>Řazení zásilek</h1>
+
+  <section class="sekce">
+    <h2>1. V jakém pořadí mají balíky odjet?</h2>
+    <p class="uvod">
+      Zásilky přijely na dopravník v náhodném pořadí, ale do auta se mají naložit od
+      nejlehčí po nejtěžší. Počítač proto musí porovnávat dvojice balíků a přesouvat je.
+      U deseti kusů je téměř jedno, jaký postup použije. U milionu zásilek už ne.
+    </p>
+    <div class="pas-schema" role="img" aria-label="Neuspořádané zásilky o hmotnostech 7, 2, 9 a 4 kilogramy se mají seřadit od nejlehčí po nejtěžší.">
+      <div class="balik-schema" style="--vyska:82px;--barva:var(--shluk-1)">7 kg</div>
+      <div class="balik-schema" style="--vyska:48px;--barva:var(--shluk-2)">2 kg</div>
+      <div class="balik-schema" style="--vyska:105px;--barva:var(--shluk-3)">9 kg</div>
+      <div class="balik-schema" style="--vyska:62px;--barva:var(--shluk-4)">4 kg</div>
+      <div class="pas-sipka" aria-hidden="true">→</div>
+    </div>
+    <p>
+      Cílem je získat pořadí <strong>2, 4, 7, 9 kg</strong>. Porovnáme jednoduchý
+      bublinkový algoritmus s rychlejším merge sortem. Oba vrátí stejný výsledek,
+      ale dojdou k němu velmi odlišným počtem kroků.
+    </p>
+  </section>
+
+  <section>
+    <h2>2. Sledujte dva algoritmy na stejných datech</h2>
+    <p class="sekce">
+      Výška sloupce představuje hmotnost zásilky. Červený rámeček označuje právě
+      porovnávané balíky nebo slučované bloky, zelená část je už na definitivním místě.
+      Jeden krok ukáže u bublinkového řazení jedno sousední porovnání, u merge sortu
+      jedno sloučení dvou seřazených bloků. Pro férové srovnání proto sledujte hlavně
+      samostatná počítadla porovnání a přesunů.
+    </p>
+
+    <div class="dilna">
+      <div class="porovnani">
+        <article class="algoritmus">
+          <h3>Bublinkové řazení</h3>
+          <div class="platno-ram"><canvas id="platno-bubliny" aria-label="Animace bublinkového řazení zásilek"></canvas></div>
+          <div class="metriky">
+            <div class="metrika"><span>kroky</span><strong id="b-kroky">0</strong></div>
+            <div class="metrika"><span>porovnání</span><strong id="b-porovnani">0</strong></div>
+            <div class="metrika"><span>přesuny</span><strong id="b-presuny">0</strong></div>
+          </div>
+          <p class="stav-radek" id="b-stav">Připraveno.</p>
+        </article>
+        <article class="algoritmus">
+          <h3>Merge sort</h3>
+          <div class="platno-ram"><canvas id="platno-merge" aria-label="Animace řazení zásilek algoritmem merge sort"></canvas></div>
+          <div class="metriky">
+            <div class="metrika"><span>kroky</span><strong id="m-kroky">0</strong></div>
+            <div class="metrika"><span>porovnání</span><strong id="m-porovnani">0</strong></div>
+            <div class="metrika"><span>přesuny</span><strong id="m-presuny">0</strong></div>
+          </div>
+          <p class="stav-radek" id="m-stav">Připraveno.</p>
+        </article>
+      </div>
+
+      <div class="panel">
+        <div class="zalozka-obsah">
+          <div class="ovladac"><label for="pocet">Počet zásilek <output id="pocet-hodnota"></output></label><input type="range" id="pocet" min="8" max="64" step="4" value="24"></div>
+          <div class="ovladac"><label for="usporadani">Výchozí pořadí</label><select id="usporadani"><option value="nahodne">náhodné</option><option value="temer">téměř seřazené</option><option value="opacne">obrácené</option></select></div>
+          <div class="ovladac"><label for="rychlost-razeni">Čas kroku <output id="rychlost-razeni-hodnota"></output></label><input type="range" id="rychlost-razeni" min="30" max="700" step="10" value="180"></div>
+          <div class="tlacitka"><button class="akce hlavni" id="spustit-razeni">Spustit</button><button class="akce" id="krok-razeni">Krok</button></div>
+          <div class="tlacitka"><button class="akce" id="reset-razeni">Reset</button><button class="akce" id="nova-posloupnost">Nové zásilky</button></div>
+          <p class="poznamka">Oba algoritmy vždy dostanou přesně stejnou posloupnost.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="sekce">
+      <h3>Co si zkuste</h3>
+      <ul>
+        <li>Začněte s 12 zásilkami a krokujte ručně. Který algoritmus jako první vytvoří viditelně seřazenou část?</li>
+        <li>Nastavte obrácené pořadí a potom téměř seřazené. Jak se změní bublinkové řazení a jak merge sort?</li>
+        <li>Zdvojnásobte počet zásilek z 16 na 32. Sledujte hlavně počet porovnání, ne délku animace.</li>
+        <li>Zkuste 64 zásilek. Merge sort už bude hotový, zatímco bublinkový algoritmus může stále pracovat.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="sekce">
+    <h2>3. Proč je jeden postup rychlejší</h2>
+    <h3>Bublinkové řazení: jednoduché sousední výměny</h3>
+    <p>
+      Bublinkové řazení opakovaně prochází celou řadu. Vždy porovná dva sousední balíky
+      a prohodí je, pokud jsou v nesprávném pořadí. Po prvním průchodu je nejtěžší balík
+      úplně vpravo, po druhém jsou správně poslední dva a tak dále.
+    </p>
+    <pre class="zapis">[7, 2, 9, 4]
+ 7 > 2  → [2, 7, 9, 4]
+ 7 < 9  → [2, 7, 9, 4]
+ 9 > 4  → [2, 7, 4, 9]  největší je na konci
+ 7 > 4  → [2, 4, 7, 9]</pre>
+    <p>
+      Postup se snadno programuje a u téměř seřazených dat může skončit brzy. V nejhorším
+      případě ale udělá přibližně <em>n</em> průchodů, v každém až <em>n</em> porovnání.
+      Časová náročnost se proto zapisuje <strong>O(n²)</strong>.
+    </p>
+
+    <h3>Merge sort: rozděl a panuj</h3>
+    <p>
+      Merge sort řadu stále půlí, dokud nezůstanou jednotlivé balíky. Jednoprvková řada
+      už je seřazená. Potom vždy dvě seřazené části sloučí: porovnává jejich první dosud
+      nepoužité prvky a menší z nich zapisuje do výsledku.
+    </p>
+    <pre class="zapis">rozdělení: [7, 2, 9, 4]
+           [7, 2]  [9, 4]
+           [7] [2] [9] [4]
+
+slučování: [2, 7]  [4, 9]
+           [2, 4, 7, 9]</pre>
+    <p>
+      Na každé úrovni projde dohromady všech <em>n</em> prvků. Úrovní je jen tolik,
+      kolikrát lze počet prvků rozpůlit, tedy přibližně <em>log₂ n</em>. Proto má merge
+      sort časovou náročnost <strong>O(n log n)</strong>. Platí za to pomocnou pamětí,
+      do které při slučování dočasně ukládá prvky.
+    </p>
+
+    <h3>Co znamená časová náročnost</h3>
+    <p>
+      Zápis O neříká přesný počet milisekund. Popisuje, jak rychle roste množství práce,
+      když zvětšujeme vstup. Konstantní drobnosti zanedbáváme, protože u velkých dat
+      rozhoduje hlavně tvar růstu.
+    </p>
+    <table class="slozitost">
+      <thead><tr><th>Počet zásilek <em>n</em></th><th><em>n²</em></th><th><em>n log₂ n</em></th></tr></thead>
+      <tbody><tr><td>10</td><td>100</td><td>asi 33</td></tr><tr><td>100</td><td>10 000</td><td>asi 664</td></tr><tr><td>1 000</td><td>1 000 000</td><td>asi 9 966</td></tr><tr><td>1 000 000</td><td>1 000 000 000 000</td><td>asi 19 931 569</td></tr></tbody>
+    </table>
+
+    <div class="pointa">
+      <h2>Proč je to těžké</h2>
+      <p>
+        Správný výsledek nestačí. Dva algoritmy mohou seřadit tutéž řadu bez chyby,
+        ale jeden potřebuje při velkém vstupu tisíckrát více práce. Na malém příkladu
+        tento rozdíl skoro není vidět, takže špatná volba může dlouho působit rozumně.
+      </p>
+      <p>
+        Neexistuje ani jediný nejlepší algoritmus pro všechny situace. Záleží na velikosti
+        dat, jejich původním pořadí, dostupné paměti a na tom, zda musí zůstat zachováno
+        pořadí stejně těžkých zásilek. Časová náročnost je způsob, jak o těchto rozdílech
+        uvažovat dřív, než program spustíme na milionu položek.
+      </p>
+    </div>
+  </section>
+
+  <section class="sekce prazdny-blok"><h2>4. Kde se to učí</h2></section>
+  <p class="paticka"><a href="../index.html">← Zpět na rozcestník</a></p>
+</main>
+
+<script src="../assets/js/spolecne.js"></script>
+<script>
+(function () {
+  'use strict';
+  const P={n:24,usporadani:'nahodne',rychlost:180,seed:4021};
+  let puvodni=[],bubliny,merge,cekani=0;
+
+  function novaData(){
+    const rng=Kurz.generator(P.seed),a=Array.from({length:P.n},(_,i)=>({v:Math.round(5+rng.r()*94),id:i}));
+    if(P.usporadani==='opacne')a.sort((x,y)=>y.v-x.v);
+    if(P.usporadani==='temer'){
+      a.sort((x,y)=>x.v-y.v);
+      const prohozeni=Math.max(1,Math.round(P.n/8));
+      for(let i=0;i<prohozeni;i++){const j=rng.cele(0,P.n-2);[a[j],a[j+1]]=[a[j+1],a[j]];}
+    }
+    puvodni=a;reset();
+  }
+  function pripravBubliny(){return {a:puvodni.map(x=>({...x})),i:0,j:0,kroky:0,porovnani:0,presuny:0,aktivni:[],hotovo:false,bezVymeny:true,serazenoOd:P.n};}
+  function akceMerge(){
+    const a=puvodni.map(x=>({...x})),akce=[];
+    function serad(lo,hi){
+      if(hi-lo<=1)return;const mid=Math.floor((lo+hi)/2);serad(lo,mid);serad(mid,hi);
+      const leva=a.slice(lo,mid),prava=a.slice(mid,hi),vys=[];let i=0,j=0,porovnani=0;
+      while(i<leva.length&&j<prava.length){porovnani++;vys.push(leva[i].v<=prava[j].v?leva[i++]:prava[j++]);}
+      vys.push(...leva.slice(i),...prava.slice(j));for(let k=0;k<vys.length;k++)a[lo+k]=vys[k];
+      akce.push({lo,mid,hi,porovnani,snapshot:a.map(x=>({...x}))});
+    }
+    serad(0,a.length);return akce;
+  }
+  function pripravMerge(){return {a:puvodni.map(x=>({...x})),akce:akceMerge(),index:0,kroky:0,porovnani:0,presuny:0,aktivni:[],hranice:null,hotovo:false};}
+  function reset(){zastav();bubliny=pripravBubliny();merge=pripravMerge();obnov();}
+  function krokBubliny(){
+    const s=bubliny;if(s.hotovo)return;s.aktivni=[s.j,s.j+1];s.kroky++;s.porovnani++;
+    if(s.a[s.j].v>s.a[s.j+1].v){[s.a[s.j],s.a[s.j+1]]=[s.a[s.j+1],s.a[s.j]];s.presuny+=2;s.bezVymeny=false;}
+    s.j++;if(s.j>=s.a.length-s.i-1){s.i++;s.serazenoOd=s.a.length-s.i;if(s.bezVymeny||s.i>=s.a.length-1){s.hotovo=true;s.aktivni=[];s.serazenoOd=0;}else{s.j=0;s.bezVymeny=true;}}
+  }
+  function krokMerge(){
+    const s=merge;if(s.hotovo)return;const a=s.akce[s.index++];s.a=a.snapshot.map(x=>({...x}));s.aktivni=[];for(let i=a.lo;i<a.hi;i++)s.aktivni.push(i);s.hranice=a.mid;s.kroky++;s.porovnani+=a.porovnani;s.presuny+=a.hi-a.lo;if(s.index>=s.akce.length){s.hotovo=true;s.aktivni=[];s.hranice=null;}
+  }
+  function krok(){if(bubliny.hotovo&&merge.hotovo){zastav();return;}krokBubliny();krokMerge();obnov();if(bubliny.hotovo&&merge.hotovo)zastav();}
+
+  const bCanvas=document.getElementById('platno-bubliny'),mCanvas=document.getElementById('platno-merge');
+  const bPlocha=Kurz.platno(bCanvas,()=>kresli(bPlocha,bubliny,'bubliny'));
+  const mPlocha=Kurz.platno(mCanvas,()=>kresli(mPlocha,merge,'merge'));
+  function barva(v){const t=(v-5)/94;return t<.5?Kurz.svetlejsi('#1145cf',t*1.0):Kurz.svetlejsi('#cc1233',(1-t)*.9);}
+  function kresli(plocha,s,typ){
+    const ctx=plocha.ctx,w=plocha.sirka,h=plocha.vyska;if(!ctx||!w||!s)return;ctx.clearRect(0,0,w,h);ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);
+    const R={x:12,y:22,w:w-24,h:h-55},bw=R.w/s.a.length;
+    ctx.strokeStyle='#d7dce4';ctx.lineWidth=1;for(let i=0;i<=4;i++){const y=R.y+R.h*i/4;ctx.beginPath();ctx.moveTo(R.x,y);ctx.lineTo(R.x+R.w,y);ctx.stroke();}
+    s.a.forEach((p,i)=>{const bh=Math.max(5,p.v/100*R.h),x=R.x+i*bw+1,y=R.y+R.h-bh,aktivni=s.aktivni.includes(i),hotovy=typ==='bubliny'&&i>=s.serazenoOd;
+      ctx.fillStyle=hotovy?'#69b77e':barva(p.v);ctx.fillRect(x,y,Math.max(1,bw-2),bh);if(aktivni){ctx.strokeStyle='#cc1233';ctx.lineWidth=3;ctx.strokeRect(x-1,y-2,Math.max(2,bw),bh+3);}
+      if(s.a.length<=20){ctx.fillStyle='#0d1218';ctx.font='700 9px Segoe UI';ctx.textAlign='center';ctx.fillText(p.v, x+(bw-2)/2, h-18);}
+    });
+    if(typ==='merge'&&s.hranice!==null){const x=R.x+s.hranice*bw;ctx.strokeStyle='#0d1218';ctx.lineWidth=2;ctx.setLineDash([5,4]);ctx.beginPath();ctx.moveTo(x,R.y);ctx.lineTo(x,R.y+R.h);ctx.stroke();ctx.setLineDash([]);}
+    ctx.fillStyle='#4a5768';ctx.font='11px Segoe UI';ctx.textAlign='left';ctx.fillText('lehčí',R.x,h-5);ctx.textAlign='right';ctx.fillText('těžší',R.x+R.w,h-5);
+  }
+  function obnov(){
+    [['b',bubliny],['m',merge]].forEach(([p,s])=>{document.getElementById(p+'-kroky').textContent=s.kroky;document.getElementById(p+'-porovnani').textContent=s.porovnani;document.getElementById(p+'-presuny').textContent=s.presuny;});
+    document.getElementById('b-stav').textContent=bubliny.hotovo?'Hotovo.':(bubliny.kroky?'Průchod '+(bubliny.i+1)+', porovnání '+(bubliny.j+1)+'.':'Připraveno.');
+    document.getElementById('m-stav').textContent=merge.hotovo?'Hotovo.':(merge.index?'Slučuje seřazené bloky.':'Čeká na první sloučení.');
+    document.getElementById('krok-razeni').disabled=bubliny.hotovo&&merge.hotovo;kresli(bPlocha,bubliny,'bubliny');kresli(mPlocha,merge,'merge');
+  }
+  const tl=document.getElementById('spustit-razeni'),smycka=Kurz.smycka(dt=>{cekani+=dt*1000;if(cekani>=P.rychlost){cekani=0;krok();}});
+  function zastav(){if(typeof smycka!=='undefined')smycka.stop();const b=document.getElementById('spustit-razeni');if(b)b.textContent='Spustit';cekani=0;}
+  tl.addEventListener('click',()=>{if(smycka.bezi)zastav();else{if(bubliny.hotovo&&merge.hotovo)reset();smycka.start();tl.textContent='Zastavit';}});
+  document.getElementById('krok-razeni').addEventListener('click',krok);document.getElementById('reset-razeni').addEventListener('click',reset);
+  document.getElementById('nova-posloupnost').addEventListener('click',()=>{P.seed++;novaData();});
+  document.getElementById('usporadani').addEventListener('change',e=>{P.usporadani=e.target.value;novaData();});
+  Kurz.posuvnik('pocet',v=>{P.n=v;novaData();});Kurz.posuvnik('rychlost-razeni',v=>{P.rychlost=v;},v=>(v/1000).toLocaleString('cs-CZ',{maximumFractionDigits:2})+' s');
+  novaData();
+})();
+</script>
+</body>
+</html>

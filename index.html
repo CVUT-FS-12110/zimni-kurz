@@ -13,14 +13,14 @@
   <h1>Zimní kurz</h1>
 
   <p class="uvod">
-    Sada interaktivních úloh, na kterých si lze osahat problémy z vysokoškolských
-    předmětů. Většina z nich vypadá na první pohled jednoduše. Teprve když si s nimi
-    začnete hrát, ukáže se, kde je zakopaný pes.
+    Interaktivní lekce, na kterých si lze osahat problémy z vysokoškolských předmětů.
+    Každá začíná konkrétní situací, pokračuje experimentem a nakonec vysvětlí teorii.
+    Procházet je lze v libovolném pořadí.
   </p>
 
-  <div id="rozcestnik"></div>
+  <nav id="rozcestnik" class="seznam-lekci" aria-label="Lekce kurzu"></nav>
 
-  <p class="paticka">Vyberte lekci a v ní úlohu. Každá úloha je samostatná stránka, dá se procházet v libovolném pořadí.</p>
+  <p class="paticka">Vyberte lekci. Každá lekce je jedna samostatná stránka.</p>
 
 </main>
 
@@ -28,56 +28,38 @@
 <script>
 (function () {
   const cil = document.getElementById('rozcestnik');
-  let poradi = 0;
+  window.LEKCE.forEach((lekce, i) => {
+    const odkaz = document.createElement('a');
+    odkaz.className = 'lekce-karta';
+    odkaz.href = lekce.soubor;
 
-  for (const lekce of window.LEKCE) {
-    const blok = document.createElement('section');
-    blok.className = 'lekce';
+    const cislo = document.createElement('span');
+    cislo.className = 'lekce-cislo';
+    cislo.textContent = String(i + 1).padStart(2, '0');
 
-    const nadpis = document.createElement('h2');
-    nadpis.textContent = lekce.nazev;
-    blok.appendChild(nadpis);
+    const obsah = document.createElement('span');
+    obsah.className = 'lekce-obsah';
+    const nazev = document.createElement('strong');
+    nazev.className = 'lekce-nazev';
+    nazev.textContent = lekce.nazev;
+    const tema = document.createElement('span');
+    tema.className = 'lekce-tema';
+    tema.textContent = lekce.tema;
+    const popis = document.createElement('span');
+    popis.className = 'lekce-popis';
+    popis.textContent = lekce.popis;
+    const okruh = document.createElement('span');
+    okruh.className = 'lekce-okruh';
+    okruh.textContent = lekce.okruh;
+    obsah.append(nazev, tema, popis, okruh);
 
-    if (lekce.popis) {
-      const p = document.createElement('p');
-      p.className = 'lekce-popis';
-      p.textContent = lekce.popis;
-      blok.appendChild(p);
-    }
-
-    const seznam = document.createElement('ol');
-    seznam.className = 'seznam-uloh';
-
-    for (const uloha of lekce.ulohy) {
-      poradi += 1;
-      const polozka = document.createElement('li');
-      const odkaz = document.createElement('a');
-      odkaz.href = uloha.soubor;
-
-      const hlavicka = document.createElement('div');
-      const cislo = document.createElement('span');
-      cislo.className = 'uloha-cislo';
-      cislo.textContent = poradi + '.';
-      const nazevUlohy = document.createElement('span');
-      nazevUlohy.className = 'uloha-nazev';
-      nazevUlohy.textContent = uloha.nazev;
-      hlavicka.append(cislo, nazevUlohy);
-      odkaz.appendChild(hlavicka);
-
-      if (uloha.popis) {
-        const popis = document.createElement('p');
-        popis.className = 'uloha-popis';
-        popis.textContent = uloha.popis;
-        odkaz.appendChild(popis);
-      }
-
-      polozka.appendChild(odkaz);
-      seznam.appendChild(polozka);
-    }
-
-    blok.appendChild(seznam);
-    cil.appendChild(blok);
-  }
+    const sipka = document.createElement('span');
+    sipka.className = 'lekce-sipka';
+    sipka.setAttribute('aria-hidden', 'true');
+    sipka.textContent = '→';
+    odkaz.append(cislo, obsah, sipka);
+    cil.appendChild(odkaz);
+  });
 })();
 </script>
 </body>

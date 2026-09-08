@@ -96,60 +96,34 @@ select:focus-visible {
 
 /* ---------- rozcestník ---------- */
 
-.lekce {
-  margin: 2rem 0;
+.seznam-lekci { display: grid; gap: 1rem; margin: 2rem 0; }
+
+.lekce-karta {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.1rem 1.2rem;
+  color: inherit;
+  text-decoration: none;
+  background: var(--pozadi-panel);
   border: 2px solid var(--ram-silny);
   border-radius: var(--radius);
-  overflow: hidden;
 }
+.lekce-karta:hover { border-color: var(--akcent); background: var(--pozadi-zvyraz); }
+.lekce-cislo { color: var(--akcent); font-size: 1.5rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.lekce-obsah, .lekce-nazev, .lekce-tema, .lekce-popis, .lekce-okruh { display: block; }
+.lekce-nazev { font-size: 1.1rem; }
+.lekce-tema { margin-top: 0.1rem; font-weight: 700; }
+.lekce-popis { margin-top: 0.3rem; color: var(--text-slaby); max-width: 68ch; font-size: 0.95rem; }
+.lekce-okruh { margin-top: 0.45rem; color: var(--akcent); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+.lekce-sipka { color: var(--akcent); font-size: 1.8rem; font-weight: 700; transition: transform 120ms ease; }
+.lekce-karta:hover .lekce-sipka { transform: translateX(4px); }
 
-.lekce > h2 {
-  margin: 0;
-  padding: 0.7rem 1rem;
-  background: var(--ram-silny);
-  color: #fff;
-  border: 0;
-  font-size: 1.2rem;
+@media (max-width: 560px) {
+  .lekce-karta { grid-template-columns: auto minmax(0, 1fr); align-items: start; }
+  .lekce-sipka { display: none; }
 }
-
-.lekce-popis {
-  margin: 0;
-  padding: 0.8rem 1rem 0;
-  color: var(--text-slaby);
-  max-width: 68ch;
-}
-
-.seznam-uloh {
-  list-style: none;
-  margin: 0;
-  padding: 1rem;
-  display: grid;
-  gap: 0.75rem;
-}
-
-.seznam-uloh a {
-  display: block;
-  padding: 0.85rem 1rem;
-  background: var(--pozadi-panel);
-  border: 2px solid var(--ram);
-  border-radius: var(--radius);
-  text-decoration: none;
-  color: inherit;
-}
-.seznam-uloh a:hover {
-  border-color: var(--akcent);
-  background: var(--pozadi-zvyraz);
-}
-
-.uloha-cislo {
-  display: inline-block;
-  min-width: 2.4em;
-  font-variant-numeric: tabular-nums;
-  font-weight: 700;
-  color: var(--akcent);
-}
-.uloha-nazev { font-weight: 700; }
-.uloha-popis { margin: 0.25rem 0 0 2.4em; color: var(--text-slaby); font-size: 0.95rem; }
 
 /* ---------- rozvržení úlohy ---------- */
 
