@@ -3,25 +3,24 @@
 
 window.LEKCE = [
   {
-    nazev: 'Lekce 1 — Třídění neznámých dat',
-    popis: 'Máme naměřená data, ale nikdo nám neřekl, do jakých skupin patří. ' +
-           'Jak je rozdělit — a jak poznáme, že jsme se netrefili?',
-    soubor: 'ulohy/01-kmeans.html',
-    tema: 'k-means: třídění zásilek',
-    okruh: 'strojové učení'
-  },
-  {
-    nazev: 'Lekce 2 — Hledání cesty v síti',
-    popis: 'Balík musí projít sítí dopravníků. Jak systematicky najít cíl — a který postup zaručí nejkratší trasu?',
+    nazev: 'Lekce 1 — Cesta do balíkového centra',
+    popis: 'Balíček s přihláškou vyráží na cestu. Jak projít sítí křižovatek a měst — a který postup zaručí nejkratší trasu?',
     soubor: 'ulohy/03-volba-trasy.html',
-    tema: 'Volba trasy balíku',
+    tema: 'Volba trasy zásilky',
     okruh: 'programování a algoritmy'
   },
   {
-    nazev: 'Lekce 3 — Řazení dat',
-    popis: 'Dva postupy seřadí stejné zásilky správně. Proč jednomu začne s rostoucím počtem dat docházet dech?',
+    nazev: 'Lekce 2 — Třídění zásilek',
+    popis: 'V centru se smíchaly různé zásilky. Lze z jejich naměřených vlastností odhadnout skupinu, ve které budou přihlášky ke studiu?',
+    soubor: 'ulohy/01-kmeans.html',
+    tema: 'k-means: hledání podobných zásilek',
+    okruh: 'strojové učení'
+  },
+  {
+    nazev: 'Lekce 3 — Která zásilka přišla první?',
+    popis: 'Zásilky je potřeba vyřídit podle času příchodu. Dva postupy je seřadí správně, ale proč jednomu s rostoucím počtem dat dochází dech?',
     soubor: 'ulohy/04-razeni-zasilek.html',
-    tema: 'Bublinkové řazení a merge sort',
+    tema: 'Řazení podle času příchodu',
     okruh: 'programování a algoritmy'
   }
 ];

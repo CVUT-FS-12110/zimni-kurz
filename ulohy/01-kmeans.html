@@ -33,15 +33,15 @@
 <body>
 <main class="stranka">
   <a class="zpet" href="../index.html">← Zpět na rozcestník</a>
-  <p class="pod-nadpisem">Lekce 1 — Třídění neznámých dat</p>
+  <p class="pod-nadpisem">Lekce 2 — Zásilka v balíkovém centru</p>
   <h1>k-means: třídění zásilek</h1>
 
   <section class="sekce">
-    <h2>1. Jak rozdělit neznámé balíky?</h2>
+    <h2>1. Ve které skupině jsou přihlášky?</h2>
     <p class="uvod">
-      Třídicí centrum přijímá zásilky bez informace o jejich typu. Změří jejich hmotnost
-      a rozměry, ale musí samo odhalit, které balíky jsou si podobné. Podle nalezených
-      skupin lze nastavit vhodnou linku — a neobvyklé zásilky poslat na ruční kontrolu.
+      Balíček s přihláškou dorazil do balíkového centra a smíchal se s ostatními zásilkami.
+      Centrum zná jejich hmotnost a rozměry, ale ne obsah. Dokáže z těchto údajů najít
+      skupinu plochých obálek, ve které budou pravděpodobně přihlášky a jiné dokumenty?
     </p>
     <p>
       Algoritmus nedostane názvy kategorií ani správné odpovědi. Vidí jen čísla a hledá
@@ -128,7 +128,8 @@
       <h3>Co mají nalezené skupiny společné</h3>
       <p>
         Názvy níže nevstupují do výpočtu. Vzniknou až z průměrných hodnot nalezeného
-        shluku, aby šel číselný výsledek popsat běžným jazykem.
+        shluku, aby šel číselný výsledek popsat běžným jazykem. Skupina plochých zásilek
+        je kandidátem na dokumenty a přihlášky, samotné rozměry však obsah nepotvrdí.
       </p>
     </div>
     <div class="shrnuti-shluku" id="shrnuti-shluku"></div>
@@ -137,7 +138,7 @@
       <ul>
         <li>Měňte počet kategorií. Při malém <em>k</em> se různé druhy balíků sloučí; při velkém se jeden přirozený druh rozdělí na několik skupin.</li>
         <li>Sledujte oranžově označené zásilky. Zůstávají divné při každém počtu kategorií, nebo jim algoritmus vytvoří vlastní skupinu?</li>
-        <li>Porovnejte průměry skupin při <em>k</em> = 3, 4 a 6. Které dělení by bylo praktické pro nastavení třídicí linky?</li>
+        <li>Porovnejte průměry skupin při <em>k</em> = 3, 4 a 6. Ve které skupině byste hledali přihlášky a co z měření stále nelze zjistit?</li>
       </ul>
     </div>
   </section>
@@ -185,6 +186,8 @@ vzdálenost² = rozdíl_hmotnosti² + rozdíl_délky²
         Výsledek závisí také na počátečních středech a na tom, které vlastnosti změříme
         a jak je převedeme na společnou stupnici. Algoritmus umí přesně optimalizovat
         vzdálenosti, ale neví, které rozdělení je užitečné pro skutečný provoz.
+        Ani dokonale nalezený shluk proto nedokazuje, že zásilka opravdu obsahuje přihlášku;
+        popisuje pouze podobnost hodnot, které jsme algoritmu poskytli.
       </p>
     </div>
   </section>

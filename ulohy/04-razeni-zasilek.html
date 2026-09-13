@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Řazení zásilek — Zimní kurz</title>
+<title>Řazení podle času příchodu — Zimní kurz</title>
 <link rel="stylesheet" href="../assets/css/styl.css">
 <style>
   .pas-schema { display: flex; align-items: end; gap: 0.5rem; max-width: 720px; min-height: 150px; margin: 1rem 0; padding: 1rem 1rem 1.5rem; border: 2px solid var(--ram-silny); border-radius: var(--radius); background: linear-gradient(to bottom, #fff 0 68%, var(--pozadi-zvyraz) 68% 83%, var(--ram-silny) 83% 87%, #fff 87%); overflow: hidden; }
@@ -35,25 +35,26 @@
 <body>
 <main class="stranka">
   <a class="zpet" href="../index.html">← Zpět na rozcestník</a>
-  <p class="pod-nadpisem">Lekce 3 — Řazení dat</p>
-  <h1>Řazení zásilek</h1>
+  <p class="pod-nadpisem">Lekce 3 — Zásilky čekají na zpracování</p>
+  <h1>Řazení podle času příchodu</h1>
 
   <section class="sekce">
-    <h2>1. V jakém pořadí mají balíky odjet?</h2>
+    <h2>1. Kterou zásilku vyřídit nejdříve?</h2>
     <p class="uvod">
-      Zásilky přijely na dopravník v náhodném pořadí, ale do auta se mají naložit od
-      nejlehčí po nejtěžší. Počítač proto musí porovnávat dvojice balíků a přesouvat je.
+      Po roztřídění čekají zásilky na zpracování, včetně balíčku s přihláškou na FS ČVUT.
+      Na pracovní místo však přicházejí promíchané a mají se vyřídit od nejstarší po
+      nejnovější. Počítač proto musí porovnávat časy příchodu a přesouvat záznamy.
       U deseti kusů je téměř jedno, jaký postup použije. U milionu zásilek už ne.
     </p>
-    <div class="pas-schema" role="img" aria-label="Neuspořádané zásilky o hmotnostech 7, 2, 9 a 4 kilogramy se mají seřadit od nejlehčí po nejtěžší.">
-      <div class="balik-schema" style="--vyska:82px;--barva:var(--shluk-1)">7 kg</div>
-      <div class="balik-schema" style="--vyska:48px;--barva:var(--shluk-2)">2 kg</div>
-      <div class="balik-schema" style="--vyska:105px;--barva:var(--shluk-3)">9 kg</div>
-      <div class="balik-schema" style="--vyska:62px;--barva:var(--shluk-4)">4 kg</div>
+    <div class="pas-schema" role="img" aria-label="Neuspořádané zásilky s časy příchodu 7:42, 7:15, 7:55 a 7:28 se mají seřadit od nejstarší po nejnovější.">
+      <div class="balik-schema" style="--vyska:82px;--barva:var(--shluk-1)">7:42</div>
+      <div class="balik-schema" style="--vyska:48px;--barva:var(--shluk-2)">7:15</div>
+      <div class="balik-schema" style="--vyska:105px;--barva:var(--shluk-3)">7:55</div>
+      <div class="balik-schema" style="--vyska:62px;--barva:var(--shluk-4)">7:28</div>
       <div class="pas-sipka" aria-hidden="true">→</div>
     </div>
     <p>
-      Cílem je získat pořadí <strong>2, 4, 7, 9 kg</strong>. Porovnáme jednoduchý
+      Cílem je získat pořadí <strong>7:15, 7:28, 7:42, 7:55</strong>. Porovnáme jednoduchý
       bublinkový algoritmus s rychlejším merge sortem. Oba vrátí stejný výsledek,
       ale dojdou k němu velmi odlišným počtem kroků.
     </p>
@@ -62,7 +63,8 @@
   <section>
     <h2>2. Sledujte dva algoritmy na stejných datech</h2>
     <p class="sekce">
-      Výška sloupce představuje hmotnost zásilky. Červený rámeček označuje právě
+      Výška sloupce představuje čas příchodu zásilky: nižší sloupec dorazil dříve.
+      Červený rámeček označuje právě
       porovnávané balíky nebo slučované bloky, zelená část je už na definitivním místě.
       Jeden krok ukáže u bublinkového řazení jedno sousední porovnání, u merge sortu
       jedno sloučení dvou seřazených bloků. Pro férové srovnání proto sledujte hlavně
@@ -100,7 +102,7 @@
           <div class="ovladac"><label for="rychlost-razeni">Čas kroku <output id="rychlost-razeni-hodnota"></output></label><input type="range" id="rychlost-razeni" min="30" max="700" step="10" value="180"></div>
           <div class="tlacitka"><button class="akce hlavni" id="spustit-razeni">Spustit</button><button class="akce" id="krok-razeni">Krok</button></div>
           <div class="tlacitka"><button class="akce" id="reset-razeni">Reset</button><button class="akce" id="nova-posloupnost">Nové zásilky</button></div>
-          <p class="poznamka">Oba algoritmy vždy dostanou přesně stejnou posloupnost.</p>
+          <p class="poznamka">Číslo u zásilky udává minuty od začátku směny. Oba algoritmy vždy dostanou přesně stejnou posloupnost.</p>
         </div>
       </div>
     </div>
@@ -120,15 +122,15 @@
     <h2>3. Proč je jeden postup rychlejší</h2>
     <h3>Bublinkové řazení: jednoduché sousední výměny</h3>
     <p>
-      Bublinkové řazení opakovaně prochází celou řadu. Vždy porovná dva sousední balíky
-      a prohodí je, pokud jsou v nesprávném pořadí. Po prvním průchodu je nejtěžší balík
-      úplně vpravo, po druhém jsou správně poslední dva a tak dále.
+      Bublinkové řazení opakovaně prochází celou řadu. Vždy porovná časy dvou sousedních
+      zásilek a prohodí jejich záznamy, pokud jsou v nesprávném pořadí. Po prvním průchodu
+      je nejpozději přijatá zásilka úplně vpravo, po druhém jsou správně poslední dvě.
     </p>
-    <pre class="zapis">[7, 2, 9, 4]
- 7 > 2  → [2, 7, 9, 4]
- 7 < 9  → [2, 7, 9, 4]
- 9 > 4  → [2, 7, 4, 9]  největší je na konci
- 7 > 4  → [2, 4, 7, 9]</pre>
+    <pre class="zapis">[7:42, 7:15, 7:55, 7:28]
+7:42 > 7:15  → [7:15, 7:42, 7:55, 7:28]
+7:42 < 7:55  → [7:15, 7:42, 7:55, 7:28]
+7:55 > 7:28  → [7:15, 7:42, 7:28, 7:55]
+7:42 > 7:28  → [7:15, 7:28, 7:42, 7:55]</pre>
     <p>
       Postup se snadno programuje a u téměř seřazených dat může skončit brzy. V nejhorším
       případě ale udělá přibližně <em>n</em> průchodů, v každém až <em>n</em> porovnání.
@@ -137,16 +139,16 @@
 
     <h3>Merge sort: rozděl a panuj</h3>
     <p>
-      Merge sort řadu stále půlí, dokud nezůstanou jednotlivé balíky. Jednoprvková řada
+      Merge sort řadu stále půlí, dokud nezůstanou jednotlivé záznamy. Jednoprvková řada
       už je seřazená. Potom vždy dvě seřazené části sloučí: porovnává jejich první dosud
       nepoužité prvky a menší z nich zapisuje do výsledku.
     </p>
-    <pre class="zapis">rozdělení: [7, 2, 9, 4]
-           [7, 2]  [9, 4]
-           [7] [2] [9] [4]
+    <pre class="zapis">rozdělení: [42, 15, 55, 28] minut po 7:00
+           [42, 15]  [55, 28]
+           [42] [15] [55] [28]
 
-slučování: [2, 7]  [4, 9]
-           [2, 4, 7, 9]</pre>
+slučování: [15, 42]  [28, 55]
+           [15, 28, 42, 55]</pre>
     <p>
       Na každé úrovni projde dohromady všech <em>n</em> prvků. Úrovní je jen tolik,
       kolikrát lze počet prvků rozpůlit, tedy přibližně <em>log₂ n</em>. Proto má merge
@@ -175,7 +177,7 @@ slučování: [2, 7]  [4, 9]
       <p>
         Neexistuje ani jediný nejlepší algoritmus pro všechny situace. Záleží na velikosti
         dat, jejich původním pořadí, dostupné paměti a na tom, zda musí zůstat zachováno
-        pořadí stejně těžkých zásilek. Časová náročnost je způsob, jak o těchto rozdílech
+        pořadí zásilek se stejným časem příchodu. Časová náročnost je způsob, jak o těchto rozdílech
         uvažovat dřív, než program spustíme na milionu položek.
       </p>
     </div>
@@ -239,7 +241,7 @@ slučování: [2, 7]  [4, 9]
       if(s.a.length<=20){ctx.fillStyle='#0d1218';ctx.font='700 9px Segoe UI';ctx.textAlign='center';ctx.fillText(p.v, x+(bw-2)/2, h-18);}
     });
     if(typ==='merge'&&s.hranice!==null){const x=R.x+s.hranice*bw;ctx.strokeStyle='#0d1218';ctx.lineWidth=2;ctx.setLineDash([5,4]);ctx.beginPath();ctx.moveTo(x,R.y);ctx.lineTo(x,R.y+R.h);ctx.stroke();ctx.setLineDash([]);}
-    ctx.fillStyle='#4a5768';ctx.font='11px Segoe UI';ctx.textAlign='left';ctx.fillText('lehčí',R.x,h-5);ctx.textAlign='right';ctx.fillText('těžší',R.x+R.w,h-5);
+    ctx.fillStyle='#4a5768';ctx.font='11px Segoe UI';ctx.textAlign='left';ctx.fillText('dříve',R.x,h-5);ctx.textAlign='right';ctx.fillText('později',R.x+R.w,h-5);
   }
   function obnov(){
     [['b',bubliny],['m',merge]].forEach(([p,s])=>{document.getElementById(p+'-kroky').textContent=s.kroky;document.getElementById(p+'-porovnani').textContent=s.porovnani;document.getElementById(p+'-presuny').textContent=s.presuny;});

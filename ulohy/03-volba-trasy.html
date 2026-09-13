@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Volba trasy balíku — Zimní kurz</title>
+<title>Volba trasy zásilky — Zimní kurz</title>
 <link rel="stylesheet" href="../assets/css/styl.css">
 <style>
   .schema {
@@ -64,15 +64,16 @@
 <main class="stranka">
 
   <a class="zpet" href="../index.html">← Zpět na rozcestník</a>
-  <p class="pod-nadpisem">Lekce 2 — Hledání cesty v síti</p>
-  <h1>Volba trasy balíku</h1>
+  <p class="pod-nadpisem">Lekce 1 — Balíček vyráží</p>
+  <h1>Volba trasy zásilky</h1>
 
   <section class="sekce">
     <h2>1. Jak dostat balík k cíli?</h2>
     <p class="uvod">
-      Balík přijel do distribučního centra a musí projít přes několik třídicích
-      zastávek na správnou výstupní linku. Dopravníků je mnoho a některé mohou být
-      zavřené. Jak síť prohledat systematicky — a jak poznat, že nalezená trasa je nejkratší?
+      Odesíláte balíček s přihláškou na Fakultu strojní ČVUT. Než se bude v centru
+      třídit a zpracovávat, musí se přes síť křižovatek a měst dostat na správné depo.
+      Některé silnice mohou být uzavřené. Jak najít trasu systematicky — a jak poznat,
+      že nalezená cesta je nejkratší?
     </p>
     <div class="schema" role="img" aria-label="Síť zastávek A až G. Balík začíná v A a míří do G.">
       <svg viewBox="0 0 720 260" aria-hidden="true">
@@ -88,12 +89,12 @@
           <circle class="uzel cil" cx="645" cy="130" r="27"/></g>
         <g><text x="75" y="130">A</text><text x="205" y="130">B</text><text x="345" y="55">C</text>
           <text x="360" y="130">D</text><text x="345" y="215">E</text><text x="510" y="55">F</text><text x="645" y="130">G</text>
-          <text class="popis" x="75" y="176">vstup</text><text class="popis" x="645" y="176">expedice</text></g>
+          <text class="popis" x="75" y="176">podací místo</text><text class="popis" x="645" y="176">depo</text></g>
       </svg>
     </div>
     <p>
-      Kružnice představují zastávky a čáry mezi nimi průjezdné dopravníky. V této
-      úloze měříme délku trasy počtem projetých úseků, ne metry ani sekundami.
+      Kružnice představují navigační uzly — města nebo křižovatky — a čáry průjezdné
+      silniční úseky. V této úloze měříme délku trasy počtem projetých úseků, ne kilometry.
     </p>
   </section>
 
@@ -102,7 +103,7 @@
     <p class="sekce">
       Spusťte oba postupy vedle sebe nebo je krokujte ručně. Do šířky se síť
       prohledává ve vlnách, do hloubky se nejprve pokračuje co nejdál jednou větví.
-      Kliknutím na čáru v grafu lze dopravník zavřít nebo znovu otevřít.
+      Kliknutím na čáru v grafu lze silniční úsek uzavřít nebo znovu otevřít.
     </p>
 
     <div class="dilna">
@@ -157,7 +158,7 @@
             <div class="ovladac"><label for="cil">Cíl</label><select id="cil"></select></div>
           </div>
           <div class="ovladac">
-            <label for="hrana">Dopravník</label>
+            <label for="hrana">Silniční úsek</label>
             <select id="hrana"></select>
           </div>
           <button class="akce" id="prepnout-hranu">Zavřít vybraný</button>
@@ -172,7 +173,7 @@
       <ol>
         <li>Než hledání spustíte, odhadněte, který postup zpracuje méně uzlů a který najde kratší trasu.</li>
         <li>Krokujte oba postupy. Sledujte frontu BFS a zásobník DFS pod grafy.</li>
-        <li>Zavřete dopravník D—G. Najdou oba postupy cíl? Změní se délka nejkratší trasy?</li>
+        <li>Uzavřete silnici D—G. Najdou oba postupy depo? Změní se délka nejkratší trasy?</li>
         <li>Zvolte jiný start a cíl. Platí stále, že DFS našel horší trasu?</li>
       </ol>
     </div>
@@ -180,8 +181,8 @@
     <div class="sekce">
       <h3>Úloha B — když každý úsek trvá jinak dlouho</h3>
       <p>
-        Počet dopravníků není vždy dobrým měřítkem. U následující sítě je na každé
-        hraně doba průjezdu v sekundách. BFS stále hledá trasu s nejmenším počtem hran,
+        Počet silničních úseků není vždy dobrým měřítkem. U následující sítě je na každé
+        hraně doba průjezdu v minutách. BFS stále hledá trasu s nejmenším počtem hran,
         zatímco Dijkstrův algoritmus vybírá dosud nejrychleji dosažitelný uzel a postupně
         zpřesňuje nejlepší známé časy.
       </p>
@@ -199,7 +200,7 @@
       <div class="panel">
         <div class="zalozka-obsah">
           <p class="poznamka">
-            Číslo v bílém štítku udává sekundy. Modře se kreslí trasa s nejmenším počtem
+            Číslo v bílém štítku udává minuty. Modře se kreslí trasa s nejmenším počtem
             hran, zeleně průběžný výsledek Dijkstrova algoritmu.
           </p>
           <div class="tlacitka">
@@ -231,7 +232,7 @@
     <h2>3. Jak graf a hledání zapisujeme</h2>
     <p>
       Síť nazýváme <strong>grafem</strong>. Zastávka je <strong>uzel</strong> (nebo vrchol),
-      dopravník je <strong>hrana</strong> a navazující posloupnost hran je <strong>cesta</strong>.
+      silniční úsek je <strong>hrana</strong> a navazující posloupnost hran je <strong>cesta</strong>.
       Graf lze zapsat množinou uzlů a hran nebo praktičtěji seznamem sousedů.
       Následující zápis používá zjednodušenou sedmiuzlovou síť z úvodního obrázku.
     </p>
@@ -287,20 +288,20 @@ ta má pouze 3 hrany</pre>
 
     <h3>Ohodnocený graf a Dijkstrův algoritmus</h3>
     <p>
-      Pokud ke každé hraně připíšeme cenu — zde dobu průjezdu — vznikne
+      Pokud ke každé hraně připíšeme cenu — zde dobu jízdy — vznikne
       <strong>ohodnocený graf</strong>. Hranu lze zapsat například jako
-      <code>{A,B}: 2 s</code>. Cena celé cesty je součet cen jejích hran.
+      <code>{A,B}: 2 min</code>. Cena celé cesty je součet cen jejích hran.
       Dijkstrův algoritmus si u každého uzlu udržuje nejlepší dosud známý čas a vždy
       zpracuje uzel s nejmenší hodnotou. Přes jeho sousedy pak zkouší, zda k nim právě
       nenašel rychlejší cestu.
     </p>
     <pre class="zapis">ohodnocené hrany:
-{A,B}: 2 s
-{B,D}: 8 s
-{D,G}: 6 s
+{A,B}: 2 min
+{B,D}: 8 min
+{D,G}: 6 min
 
 cena cesty A → B → D → G:
-2 + 8 + 6 = 16 s</pre>
+2 + 8 + 6 = 16 min</pre>
 
     <div class="pointa">
       <h2>Proč je to těžké</h2>
@@ -310,7 +311,7 @@ cena cesty A → B → D → G:
         zaručí nejmenší počet hran, může však před cílem zpracovat mnoho jiných uzlů.
       </p>
       <p>
-        Ani BFS nestačí, pokud dopravníky mají různé délky nebo rychlosti: tři pomalé
+        Ani BFS nestačí, pokud silnice mají různé délky nebo průjezdnost: tři pomalé
         úseky mohou trvat déle než čtyři rychlé. Pak už je potřeba jiný postup, který
         pracuje s cenou hran, například Dijkstrův algoritmus.
       </p>
@@ -569,7 +570,7 @@ cena cesty A → B → D → G:
       const [x1,y1]=body[a],[x2,y2]=body[b],key=klicHrany(a,b),jeBfs=bfsHrany.has(key),jeDij=dijHrany.has(key);
       ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.strokeStyle=jeDij?'#0a7d38':(jeBfs?'#0b46c8':'#8b96a5');ctx.lineWidth=jeDij?7:(jeBfs?6:4);ctx.stroke();
       if(jeBfs&&jeDij){ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.strokeStyle='#0b46c8';ctx.lineWidth=3;ctx.setLineDash([8,6]);ctx.stroke();ctx.setLineDash([]);}
-      const mx=(x1+x2)/2,my=(y1+y2)/2;ctx.font='700 13px Segoe UI';const text=cena+' s',tw=ctx.measureText(text).width+12;
+      const mx=(x1+x2)/2,my=(y1+y2)/2;ctx.font='700 13px Segoe UI';const text=cena+' min',tw=ctx.measureText(text).width+12;
       ctx.fillStyle='#fff';ctx.fillRect(mx-tw/2,my-12,tw,22);ctx.strokeStyle='#aab4c2';ctx.lineWidth=1;ctx.strokeRect(mx-tw/2,my-12,tw,22);
       ctx.fillStyle='#0d1218';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(text,mx,my-1);
     });
@@ -578,7 +579,7 @@ cena cesty A → B → D → G:
       ctx.beginPath();ctx.arc(x,y,22,0,Math.PI*2);ctx.fillStyle=v===V_CIL?'#e2f4e8':(hotovy?'#dce7ff':'#fff');ctx.fill();
       ctx.strokeStyle=v===V_CIL?'#0a7d38':(znamy?'#0b46c8':'#0d1218');ctx.lineWidth=vahaStav.aktualni===v?5:3;ctx.stroke();
       ctx.fillStyle='#0d1218';ctx.font='700 15px Segoe UI';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(v,x,y-3);
-      ctx.font='700 10px Segoe UI';ctx.fillStyle='#4a5768';ctx.fillText(znamy?vahaStav.vzd[v]+' s':'∞',x,y+12);
+      ctx.font='700 10px Segoe UI';ctx.fillStyle='#4a5768';ctx.fillText(znamy?vahaStav.vzd[v]+' min':'∞',x,y+12);
     });
     ctx.textAlign='left';ctx.textBaseline='alphabetic';ctx.font='600 12px Segoe UI';ctx.fillStyle='#0b46c8';ctx.fillText('— nejméně hran',12,20);
     ctx.fillStyle='#0a7d38';ctx.fillText('— nejkratší čas',145,20);
@@ -587,11 +588,11 @@ cena cesty A → B → D → G:
     const hotova=vahaStav.dokonceno?vahaCesta(vahaStav.rodic,V_CIL):[];
     document.getElementById('vaha-uzel').textContent=vahaStav.aktualni||'–';
     document.getElementById('vaha-pocet').textContent=vahaStav.hotove.length;
-    document.getElementById('vaha-odhad').textContent=Number.isFinite(vahaStav.vzd[V_CIL])?vahaStav.vzd[V_CIL]+' s':'∞';
+    document.getElementById('vaha-odhad').textContent=Number.isFinite(vahaStav.vzd[V_CIL])?vahaStav.vzd[V_CIL]+' min':'∞';
     document.getElementById('vaha-bfs-cesta').textContent='Nejméně hran: '+V_BFS_CESTA.join(' → ');
-    document.getElementById('vaha-bfs-cas').textContent='Celkový čas: '+cenaCesty(V_BFS_CESTA)+' s';
+    document.getElementById('vaha-bfs-cas').textContent='Celkový čas: '+cenaCesty(V_BFS_CESTA)+' min';
     document.getElementById('vaha-dijkstra-cesta').textContent='Nejkratší čas: '+(hotova.length?hotova.join(' → '):'zatím neznámý');
-    document.getElementById('vaha-dijkstra-cas').textContent='Celkový čas: '+(hotova.length?vahaStav.vzd[V_CIL]+' s':'–');
+    document.getElementById('vaha-dijkstra-cas').textContent='Celkový čas: '+(hotova.length?vahaStav.vzd[V_CIL]+' min':'–');
     document.getElementById('vaha-krok').disabled=vahaStav.dokonceno;vahaKresli();
   }
   const vahaSmycka=Kurz.smycka(dt=>{vahaCekani+=dt*1000;if(vahaCekani>=800){vahaCekani=0;vahaKrok();}});
