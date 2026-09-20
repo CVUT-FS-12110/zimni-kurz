@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Přihláška ke studiu — Zimní kurz</title>
+<link rel="stylesheet" href="../assets/css/styl.css">
+<style>
+  .schema { max-width: 760px; margin: 1rem 0; padding: 1rem; border: 2px solid var(--ram-silny); border-radius: var(--radius); background: var(--pozadi-panel); }
+  .schema-rada { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: .7rem; align-items: center; text-align: center; }
+  .schema-prvek { min-height: 92px; display: grid; place-content: center; padding: .7rem; border: 2px solid var(--ram-silny); border-radius: var(--radius); background: var(--pozadi); font-weight: 700; }
+  .schema-prvek span { display: block; color: var(--text-slaby); font-size: .8rem; font-weight: 400; }
+  .schema-sipka { color: var(--akcent); font-size: 1.7rem; font-weight: 800; }
+  .prihlaska-dilna { display: grid; grid-template-columns: minmax(300px, 430px) minmax(0, 1fr); gap: var(--mezera); align-items: start; margin: 1.2rem 0; }
+  .formular { padding: 1rem; border: 2px solid var(--ram-silny); border-radius: var(--radius); background: var(--pozadi-panel); }
+  .formular fieldset { margin: 0 0 1rem; padding: 0; border: 0; }
+  .formular legend { margin-bottom: .45rem; font-weight: 800; }
+  .formular label:not(.volba) { display: block; margin-bottom: .2rem; font-weight: 600; }
+  .formular input[type="text"], .formular select { width: 100%; padding: .5rem; font: inherit; color: var(--text); background: var(--pozadi); border: 2px solid var(--ram); border-radius: 4px; }
+  .volby { display: grid; gap: .35rem; }
+  .volba { display: grid; grid-template-columns: auto 1fr auto; gap: .55rem; align-items: center; padding: .45rem .55rem; background: var(--pozadi); border: 2px solid var(--ram); border-radius: 4px; cursor: pointer; }
+  .volba:has(input:checked) { border-color: var(--akcent); }
+  .volba small { color: var(--text-slaby); }
+  .vysledek { border: 2px solid var(--ram-silny); border-radius: var(--radius); overflow: hidden; }
+  .nahled { min-height: 270px; display: grid; place-items: center; padding: 1.2rem; background: repeating-linear-gradient(45deg, #fff 0 12px, var(--pozadi-panel) 12px 13px); }
+  .balik { position: relative; display: grid; place-items: center; min-width: 150px; min-height: 95px; max-width: 90%; padding: 1.4rem; border: 3px solid var(--ram-silny); background: #fff; box-shadow: inset 0 0 0 var(--vypln, 8px) var(--pozadi-zvyraz); text-align: center; font-size: 2rem; }
+  .balik span { display: block; margin-top: .25rem; color: var(--text); font-size: .8rem; font-weight: 700; }
+  .souhrn { padding: 1rem; background: var(--pozadi-panel); border-top: 2px solid var(--ram-silny); }
+  .souhrn dl { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .3rem 1rem; margin: 0; }
+  .souhrn dt { color: var(--text-slaby); }
+  .souhrn dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
+  .odolnosti { display: grid; grid-template-columns: repeat(4, 1fr); gap: .55rem; margin-top: 1rem; }
+  .odolnost { padding: .55rem; border: 2px solid var(--ram); border-radius: 4px; background: #fff; text-align: center; }
+  .odolnost strong, .odolnost span { display: block; }
+  .odolnost span { color: var(--text-slaby); font-size: .8rem; }
+  .vystup { margin-top: 1rem; }
+  .vystup textarea { width: 100%; min-height: 21rem; padding: .8rem; resize: vertical; border: 2px solid var(--ram-silny); border-radius: 4px; background: #10151d; color: #f4f6fa; font: .88rem/1.45 ui-monospace, SFMono-Regular, Consolas, monospace; }
+  .potvrzeni { padding: .7rem 1rem; border-left: 6px solid var(--shluk-3); background: #edf8f0; }
+  .tabulka-parametru { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  .tabulka-parametru th, .tabulka-parametru td { padding: .4rem .55rem; border: 1px solid var(--ram); text-align: left; }
+  @media (max-width: 820px) { .prihlaska-dilna { grid-template-columns: 1fr; } }
+  @media (max-width: 580px) { .schema-rada { grid-template-columns: 1fr; } .schema-sipka { transform: rotate(90deg); } .odolnosti { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<main class="stranka">
+  <a class="zpet" href="../index.html">← Zpět na rozcestník</a>
+  <p class="pod-nadpisem">Lekce 1 — Vaše zásilka vzniká</p>
+  <h1>Přihláška ke studiu</h1>
+
+  <section class="sekce">
+    <h2>1. Jak pošlete svou přihlášku?</h2>
+    <p class="uvod">Přihláška musí přežít cestu do přijímacího centra. Může být lehká jako list papíru, ale také vyrytá do kamene. Zvolené médium, výplň a obal určí rozměry, hmotnost i odolnost zásilky — a tato data vás budou provázet dalšími lekcemi.</p>
+    <div class="schema" role="img" aria-label="Médium přihlášky se obalí ochrannou výplní, vloží do vnějšího obalu a vznikne zásilka s měřitelnými vlastnostmi.">
+      <div class="schema-rada">
+        <div class="schema-prvek">📄 Médium<span>nese přihlášku</span></div><div class="schema-sipka">+</div>
+        <div class="schema-prvek">🫧 Ochrana<span>tlumí poškození</span></div><div class="schema-sipka">→</div>
+        <div class="schema-prvek">📦 Zásilka<span>rozměry, hmotnost, odolnost</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>2. Sestavte svou zásilku</h2>
+    <div class="prihlaska-dilna">
+      <form class="formular" id="formular">
+        <div class="ovladac">
+          <label for="student-id">Vaše ID</label>
+          <input id="student-id" type="text" value="A01" maxlength="24" pattern="[A-Za-z0-9_-]+" aria-describedby="id-napoveda" required>
+          <p class="poznamka" id="id-napoveda">Použijte přidělené ID, ne jméno.</p>
+        </div>
+        <fieldset><legend>1. Médium přihlášky</legend><div class="volby" id="media-volby"></div></fieldset>
+        <div class="ovladac">
+          <label for="vypln">2. Typ výplně</label>
+          <select id="vypln"></select>
+        </div>
+        <div class="ovladac">
+          <label for="tloustka">Množství výplně <output id="tloustka-hodnota">20 mm</output></label>
+          <input id="tloustka" type="range" min="0" max="50" step="5" value="20">
+        </div>
+        <div class="ovladac">
+          <label for="obal">3. Vnější obal</label>
+          <select id="obal"></select>
+          <p class="poznamka" id="obal-napoveda"></p>
+        </div>
+        <div class="tlacitka">
+          <button class="akce hlavni" type="submit">Potvrdit přihlášku</button>
+          <button class="akce" id="reset" type="button">Reset</button>
+        </div>
+      </form>
+
+      <div>
+        <div class="vysledek" aria-live="polite">
+          <div class="nahled"><div class="balik" id="balik"><b id="ikona">📄</b><span id="balik-popis"></span></div></div>
+          <div class="souhrn">
+            <dl>
+              <dt>Obsah s výplní</dt><dd id="rozmery-obsahu"></dd>
+              <dt>Vnější rozměry zásilky</dt><dd id="rozmery"></dd>
+              <dt>Objem zásilky</dt><dd id="objem"></dd>
+              <dt>Celková hmotnost</dt><dd id="hmotnost"></dd>
+            </dl>
+            <div class="odolnosti">
+              <div class="odolnost"><strong id="mechanicka"></strong><span>nárazům</span></div>
+              <div class="odolnost"><strong id="voda"></strong><span>vodě</span></div>
+              <div class="odolnost"><strong id="em"></strong><span>elmag. poli</span></div>
+              <div class="odolnost"><strong id="teplo"></strong><span>teplu</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="vystup" id="vystup" hidden>
+          <p class="potvrzeni">Přihláška je připravena. Zkopírujte celý zápis a odešlete jej podle pokynů vyučujícího. Další změna formuláře vytvoří nový návrh.</p>
+          <label for="yaml"><strong>Výstup YAML</strong></label>
+          <textarea id="yaml" readonly spellcheck="false"></textarea>
+          <div class="tlacitka"><button class="akce hlavni" id="kopirovat" type="button">Kopírovat YAML</button></div>
+          <p class="poznamka" id="kopie-stav" role="status"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sekce">
+    <h3>Co si zkuste</h3>
+    <ul>
+      <li>Posouvejte množství výplně po 5 mm a sledujte, kdy přestane stačit menší obal. Co se v tom okamžiku skokově změní?</li>
+      <li>Porovnejte papír s 50 mm pěny a hliněnou destičku bez výplně. Která zásilka je menší a která spíš přežije náraz?</li>
+      <li>Najděte nejlehčí kombinaci, která má odolnost proti nárazům alespoň 60 ze 100.</li>
+      <li>Vyzkoušejte magnetickou pásku a DVD. Která ochrana pomůže proti elektromagnetickému poškození a která nikoli?</li>
+    </ul>
+  </section>
+
+  <section class="sekce">
+    <h2>3. Jak se vlastnosti počítají</h2>
+    <p>Médium popisují tři rozměry <strong>w, h, d</strong> v milimetrech a hmotnost v gramech. Při vrstvě výplně <strong>p</strong> na každé straně vznikne obsah o rozměrech <strong>W = w + 2p</strong>, <strong>H = h + 2p</strong> a <strong>D = d + 2p</strong>. Zvolený vnější obal musí být ve všech třech směrech alespoň tak velký.</p>
+    <p>Objem uvedený ve výsledku patří celému obalu: jeho tři vnější rozměry se vynásobí a převedou z mm³ na litry. Hmotnost je součtem média, výplně a obalu. Výplň zabírá prostor kolem média; každý její typ má jinou přibližnou hustotu.</p>
+    <table class="tabulka-parametru">
+      <thead><tr><th>Vlastnost</th><th>Co znamená hodnota 0</th><th>Co znamená hodnota 100</th></tr></thead>
+      <tbody>
+        <tr><td>Odolnost nárazům</td><td>poškodí ji i slabý náraz</td><td>velmi odolná zásilka</td></tr>
+        <tr><td>Odolnost vodě</td><td>krátké namočení ji zničí</td><td>velmi dobře chráněna</td></tr>
+        <tr><td>Odolnost elmag. poli</td><td>citlivá na silné pole</td><td>pole obsah nepoškodí</td></tr>
+        <tr><td>Odolnost teplu</td><td>poškodí ji mírné zahřátí</td><td>snese vysokou teplotu</td></tr>
+      </tbody>
+    </table>
+    <p>Například DVD má rozměry 120 × 120 × 1,2 mm. S 20 mm bublinkové fólie potřebuje prostor 160 × 160 × 41,2 mm. Do polstrované obálky se nevejde kvůli tloušťce, proto formulář jako nejmenší možnost nabídne malou krabici. Výsledný objem se pak počítá z rozměrů celé krabice, ne pouze z DVD.</p>
+  </section>
+
+  <section class="pointa">
+    <h2>Proč je to těžké</h2>
+    <p>Neexistuje jedna zásilka, která je nejlepší ve všem. Přidání výplně zvyšuje ochranu, ale současně rozměry a hmotnost. Navíc obaly mají jen několik pevných velikostí: jediných 5 mm navíc může vynutit větší krabici a způsobit náhlý skok objemu. Odolnost také není jedna vlastnost — řešení výborné proti nárazu nemusí chránit před vodou, teplem nebo elektromagnetickým polem. Návrh je proto hledáním kompromisu mezi několika měřitelnými cíli.</p>
+  </section>
+
+  <section class="sekce"><h2>4. Kde se to učí</h2></section>
+  <p class="paticka"><a href="../index.html">← Zpět na rozcestník</a></p>
+</main>
+
+<script>
+(function () {
+  'use strict';
+  const media = [
+    { id:'papir', nazev:'Papír A4', ikona:'📄', rozm:[210,297,1], hmotnost:15, mech:18, voda:5, em:100, teplo:35 },
+    { id:'papyrus', nazev:'Papyrus', ikona:'📜', rozm:[250,350,3], hmotnost:30, mech:28, voda:8, em:100, teplo:45 },
+    { id:'dvd', nazev:'DVD', ikona:'💿', rozm:[120,120,1.2], hmotnost:16, mech:20, voda:70, em:75, teplo:20 },
+    { id:'paska', nazev:'Magnetická páska', ikona:'📼', rozm:[110,70,25], hmotnost:150, mech:45, voda:35, em:5, teplo:18 },
+    { id:'hlina', nazev:'Hliněná destička', ikona:'🧱', rozm:[200,150,20], hmotnost:900, mech:8, voda:75, em:100, teplo:88 },
+    { id:'kamen', nazev:'Kamenná deska', ikona:'🪨', rozm:[300,220,30], hmotnost:4500, mech:82, voda:95, em:100, teplo:100 }
+  ];
+  const vyplne = [
+    { id:'zadna', nazev:'Bez výplně', hustota:0, mech:0, voda:0, em:0, teplo:0 },
+    { id:'papir', nazev:'Zmačkaný papír', hustota:.025, mech:.65, voda:.02, em:0, teplo:.12 },
+    { id:'bubliny', nazev:'Bublinková fólie', hustota:.012, mech:.9, voda:.45, em:0, teplo:.08 },
+    { id:'pena', nazev:'Pěnová výplň', hustota:.035, mech:1.05, voda:.3, em:0, teplo:.28 },
+    { id:'polystyren', nazev:'Polystyren', hustota:.02, mech:.8, voda:.35, em:0, teplo:.38 },
+    { id:'stinic', nazev:'Stínicí fólie', hustota:.08, mech:.25, voda:.5, em:1.4, teplo:.18 }
+  ];
+  const obaly = [
+    { id:'obalka', nazev:'Obálka', vnitrni:[240,340,8], vnejsi:[245,345,10], hmotnost:18, mech:2, voda:2, em:0, teplo:0 },
+    { id:'polstrovana-obalka', nazev:'Polstrovaná obálka', vnitrni:[270,360,30], vnejsi:[280,370,35], hmotnost:45, mech:10, voda:10, em:0, teplo:2 },
+    { id:'mala-krabice', nazev:'Malá krabice', vnitrni:[250,200,100], vnejsi:[260,210,110], hmotnost:120, mech:14, voda:4, em:0, teplo:4 },
+    { id:'stredni-krabice', nazev:'Střední krabice', vnitrni:[400,300,200], vnejsi:[415,315,215], hmotnost:260, mech:18, voda:4, em:0, teplo:5 },
+    { id:'velka-krabice', nazev:'Velká krabice', vnitrni:[600,400,300], vnejsi:[620,420,320], hmotnost:520, mech:22, voda:4, em:0, teplo:6 }
+  ];
+  const $ = id => document.getElementById(id);
+  const mediaVolby = $('media-volby');
+  mediaVolby.innerHTML = media.map((m,i) => `<label class="volba"><input type="radio" name="medium" value="${m.id}" ${i===0?'checked':''}><span>${m.ikona} ${m.nazev}</span><small>${m.rozm.join(' × ')} mm · ${m.hmotnost} g</small></label>`).join('');
+  $('vypln').innerHTML = vyplne.map(v => `<option value="${v.id}">${v.nazev}</option>`).join('');
+  $('vypln').value = 'bubliny';
+  let stav;
+  const omez = x => Math.max(0, Math.min(100, Math.round(x)));
+  const cislo = x => Number.isInteger(x) ? String(x) : x.toFixed(1).replace('.', ',');
+  const yamlText = x => `"${String(x).replace(/\\/g,'\\\\').replace(/"/g,'\\"')}"`;
+  function vejdeSe(rozm, obal) {
+    const r = [...rozm].sort((a,b)=>b-a), v = [...obal.vnitrni].sort((a,b)=>b-a);
+    return r.every((x,i) => x <= v[i]);
+  }
+  function prepocitej(zachovatObal) {
+    const m = media.find(x => x.id === document.querySelector('[name="medium"]:checked').value);
+    const v = vyplne.find(x => x.id === $('vypln').value);
+    let p = Number($('tloustka').value);
+    if (v.id === 'zadna') { p = 0; $('tloustka').value = 0; $('tloustka').disabled = true; } else $('tloustka').disabled = false;
+    $('tloustka-hodnota').textContent = p + ' mm';
+    const obsah = m.rozm.map(x => x + 2*p);
+    const dostupne = obaly.filter(o => vejdeSe(obsah,o));
+    const predchozi = $('obal').value;
+    $('obal').innerHTML = dostupne.map((o,i) => `<option value="${o.id}">${o.nazev}${i===0?' — nejmenší vhodný':''}</option>`).join('');
+    if (zachovatObal && dostupne.some(o => o.id === predchozi)) $('obal').value = predchozi;
+    const o = obaly.find(x => x.id === $('obal').value);
+    if (!o) { $('obal-napoveda').textContent = 'Kombinace se nevejde ani do největšího obalu.'; return; }
+    $('obal-napoveda').textContent = dostupne.length > 1 ? 'Lze zvolit i zbytečně větší obal.' : 'Toto je jediný obal, do kterého se obsah vejde.';
+    const objemMedia = m.rozm.reduce((a,b)=>a*b,1);
+    const objemObsahu = obsah.reduce((a,b)=>a*b,1);
+    const hmotnostVyplne = (objemObsahu-objemMedia)/1000*v.hustota;
+    const hmotnost = m.hmotnost + hmotnostVyplne + o.hmotnost;
+    const objem = o.vnejsi.reduce((a,b)=>a*b,1)/1000000;
+    const bonus = Math.sqrt(p) * 7;
+    const mech = omez(m.mech + bonus*v.mech + o.mech);
+    const voda = omez(m.voda + bonus*v.voda + o.voda);
+    const em = omez(m.em + bonus*v.em + o.em);
+    const teplo = omez(m.teplo + bonus*v.teplo + o.teplo);
+    stav = { m,v,p,o,obsah,hmotnost,objem,odolnost:{ mech,voda,em,teplo } };
+    $('ikona').textContent=m.ikona; $('balik-popis').textContent=o.nazev;
+    $('balik').style.setProperty('--vypln', Math.min(24,4+p/3)+'px');
+    $('rozmery-obsahu').textContent=obsah.map(cislo).join(' × ')+' mm';
+    $('rozmery').textContent=o.vnejsi.join(' × ')+' mm';
+    $('objem').textContent=cislo(Math.round(objem*100)/100)+' l';
+    $('hmotnost').textContent=hmotnost < 1000 ? Math.round(hmotnost)+' g' : cislo(Math.round(hmotnost)/1000)+' kg';
+    $('mechanicka').textContent=mech+' / 100'; $('voda').textContent=voda+' / 100'; $('em').textContent=em+' / 100'; $('teplo').textContent=teplo+' / 100';
+    if (!$('vystup').hidden) $('vystup').hidden=true;
+  }
+  function vytvorYaml() {
+    const id = $('student-id').value.trim();
+    if (!$('student-id').checkValidity()) { $('student-id').reportValidity(); return; }
+    const s=stav, r=s.o.vnejsi;
+    $('yaml').value = [
+      'verze: 1', `student_id: ${yamlText(id)}`,
+      'prihlaska:', `  medium: ${s.m.id}`, `  medium_nazev: ${yamlText(s.m.nazev)}`,
+      `  vypln: ${s.v.id}`, `  vypln_nazev: ${yamlText(s.v.nazev)}`, `  vypln_mm: ${s.p}`,
+      `  obal: ${s.o.id}`, `  obal_nazev: ${yamlText(s.o.nazev)}`,
+      'zasilka:', `  sirka_mm: ${r[0]}`, `  vyska_mm: ${r[1]}`, `  hloubka_mm: ${r[2]}`,
+      `  objem_l: ${s.objem.toFixed(3)}`, `  hmotnost_g: ${Math.round(s.hmotnost)}`,
+      '  odolnost_0_100:', `    naraz: ${s.odolnost.mech}`, `    voda: ${s.odolnost.voda}`,
+      `    elektromagneticke_pole: ${s.odolnost.em}`, `    teplo: ${s.odolnost.teplo}`
+    ].join('\n')+'\n';
+    $('vystup').hidden=false; $('kopie-stav').textContent=''; $('vystup').scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
+  $('formular').addEventListener('input', e => prepocitej(e.target.id === 'obal'));
+  $('obal').addEventListener('change', () => prepocitej(true));
+  $('formular').addEventListener('submit', e => { e.preventDefault(); vytvorYaml(); });
+  $('reset').addEventListener('click', () => { $('formular').reset(); $('vypln').value='bubliny'; $('tloustka').value=20; $('vystup').hidden=true; prepocitej(false); });
+  $('kopirovat').addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText($('yaml').value); $('kopie-stav').textContent='Zkopírováno do schránky.'; }
+    catch (_) { $('yaml').select(); document.execCommand('copy'); $('kopie-stav').textContent='Zkopírováno do schránky.'; }
+  });
+  prepocitej(false);
+})();
+</script>
+</body>
+</html>

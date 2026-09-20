@@ -21,6 +21,30 @@
   .schema .cil { fill: #e2f4e8; stroke: var(--shluk-3); }
   .schema text { fill: var(--text); font: 700 18px "Segoe UI", sans-serif; text-anchor: middle; dominant-baseline: central; }
   .schema .popis { font-size: 14px; font-weight: 600; fill: var(--text-slaby); }
+  .priklad-mapy { max-width: 960px; margin: 1.2rem 0 1.8rem; }
+  .priklad-mapy h3 { margin-bottom: 0.25rem; }
+  .priklad-mapy > p { max-width: 70ch; }
+  .mapa-dvojice { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 0.8rem; margin-top: 0.8rem; }
+  .mapa-karta { margin: 0; border: 2px solid var(--ram-silny); border-radius: var(--radius); background: var(--pozadi-panel); overflow: hidden; }
+  .mapa-karta svg { display: block; width: 100%; height: auto; background: #fff; }
+  .mapa-karta figcaption { min-height: 3.8rem; padding: 0.55rem 0.7rem; border-top: 2px solid var(--ram); font-size: 0.86rem; color: var(--text-slaby); }
+  .mapa-karta strong { color: var(--text); }
+  .ulice { stroke: #c6ced9; stroke-width: 18; }
+  .ulice-okraj { stroke: #fff; stroke-width: 12; }
+  .trasa { fill: none; stroke: var(--akcent); stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; }
+  .trasa-druha { fill: none; stroke: var(--shluk-4); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 10 7; }
+  .mapa-budova { fill: var(--pozadi-zvyraz); stroke: var(--ram); stroke-width: 1.5; }
+  .mapa-voda { fill: #dcecf4; }
+  .graf-hrana { stroke: var(--ram-silny); stroke-width: 4; }
+  .graf-uzel { fill: #fff; stroke: var(--ram-silny); stroke-width: 3; }
+  .graf-start { fill: #dce7ff; stroke: var(--akcent); }
+  .graf-cil { fill: #e2f4e8; stroke: var(--shluk-3); }
+  .mapa-popisek { fill: var(--text); font: 700 14px "Segoe UI", sans-serif; text-anchor: middle; paint-order: stroke; stroke: #fff; stroke-width: 5; stroke-linejoin: round; }
+  .mapa-drobnym { fill: var(--text-slaby); font: 600 12px "Segoe UI", sans-serif; text-anchor: middle; paint-order: stroke; stroke: #fff; stroke-width: 4; }
+  .vlastnosti-hran { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; max-width: 960px; margin: 0.8rem 0; }
+  .vlastnost-hrany { padding: 0.65rem 0.75rem; border: 2px solid var(--ram); border-radius: var(--radius); background: var(--pozadi-panel); }
+  .vlastnost-hrany strong, .vlastnost-hrany span { display: block; }
+  .vlastnost-hrany span { color: var(--text-slaby); font-size: 0.86rem; }
   .platno-ram { aspect-ratio: 16 / 11; min-height: 430px; }
   .volba-dvojice { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
   .legenda { display: flex; flex-wrap: wrap; gap: 0.4rem 0.9rem; margin: 0.6rem 0 0; font-size: 0.86rem; }
@@ -53,6 +77,8 @@
   .vysledek-vaha strong, .vysledek-vaha span { display: block; }
   .vysledek-vaha span { color: var(--text-slaby); font-size: 0.9rem; }
   @media (max-width: 700px) {
+    .mapa-dvojice { grid-template-columns: 1fr; }
+    .vlastnosti-hran { grid-template-columns: 1fr; }
     .zapis-grid { grid-template-columns: 1fr; }
     .platno-ram { min-height: 540px; aspect-ratio: 4 / 5; }
     .platno-vaha { min-height: 500px; }
@@ -64,7 +90,7 @@
 <main class="stranka">
 
   <a class="zpet" href="../index.html">← Zpět na rozcestník</a>
-  <p class="pod-nadpisem">Lekce 1 — Balíček vyráží</p>
+  <p class="pod-nadpisem">Lekce 2 — Balíček vyráží</p>
   <h1>Volba trasy zásilky</h1>
 
   <section class="sekce">
@@ -75,27 +101,55 @@
       Některé silnice mohou být uzavřené. Jak najít trasu systematicky — a jak poznat,
       že nalezená cesta je nejkratší?
     </p>
-    <div class="schema" role="img" aria-label="Síť zastávek A až G. Balík začíná v A a míří do G.">
-      <svg viewBox="0 0 720 260" aria-hidden="true">
-        <g class="hrana">
-          <line x1="75" y1="130" x2="205" y2="130"/><line x1="205" y1="130" x2="345" y2="55"/>
-          <line x1="205" y1="130" x2="360" y2="130"/><line x1="205" y1="130" x2="345" y2="215"/>
-          <line x1="345" y1="55" x2="510" y2="55"/><line x1="360" y1="130" x2="645" y2="130"/>
-          <line x1="345" y1="215" x2="645" y2="130"/><line x1="510" y1="55" x2="645" y2="130"/>
-        </g>
-        <g><circle class="uzel start" cx="75" cy="130" r="27"/><circle class="uzel" cx="205" cy="130" r="27"/>
-          <circle class="uzel" cx="345" cy="55" r="27"/><circle class="uzel" cx="360" cy="130" r="27"/>
-          <circle class="uzel" cx="345" cy="215" r="27"/><circle class="uzel" cx="510" cy="55" r="27"/>
-          <circle class="uzel cil" cx="645" cy="130" r="27"/></g>
-        <g><text x="75" y="130">A</text><text x="205" y="130">B</text><text x="345" y="55">C</text>
-          <text x="360" y="130">D</text><text x="345" y="215">E</text><text x="510" y="55">F</text><text x="645" y="130">G</text>
-          <text class="popis" x="75" y="176">podací místo</text><text class="popis" x="645" y="176">depo</text></g>
-      </svg>
+  </section>
+
+  <section class="priklad-mapy">
+    <h3>Od mapy ulic ke grafu</h3>
+    <p>Pro navigaci není důležitý tvar každého domu. Potřebujeme vědět hlavně to, <strong>kde lze změnit směr</strong> a <strong>která místa jsou přímo propojena</strong>. Křižovatku proto nahradíme bodem — <strong>uzlem</strong>. Úsek ulice mezi dvěma křižovatkami nahradíme čárou — <strong>hranou</strong>.</p>
+    <div class="mapa-dvojice">
+      <figure class="mapa-karta">
+        <svg viewBox="0 0 560 330" role="img" aria-labelledby="ulice-title ulice-desc">
+          <title id="ulice-title">Kousek pravidelné městské uliční sítě</title>
+          <desc id="ulice-desc">Balík jede z podacího místa vlevo dole do depa vpravo nahoře. Modrá trasa vede po ulicích přes čtyři bloky.</desc>
+          <g><rect class="mapa-budova" x="55" y="45" width="75" height="45"/><rect class="mapa-budova" x="175" y="45" width="75" height="45"/><rect class="mapa-budova" x="295" y="45" width="75" height="45"/><rect class="mapa-budova" x="415" y="45" width="75" height="45"/><rect class="mapa-budova" x="55" y="135" width="75" height="45"/><rect class="mapa-budova" x="175" y="135" width="75" height="45"/><rect class="mapa-budova" x="295" y="135" width="75" height="45"/><rect class="mapa-budova" x="415" y="135" width="75" height="45"/><rect class="mapa-budova" x="55" y="225" width="75" height="45"/><rect class="mapa-budova" x="175" y="225" width="75" height="45"/><rect class="mapa-budova" x="295" y="225" width="75" height="45"/><rect class="mapa-budova" x="415" y="225" width="75" height="45"/></g>
+          <g class="ulice"><line x1="30" y1="112" x2="530" y2="112"/><line x1="30" y1="202" x2="530" y2="202"/><line x1="152" y1="20" x2="152" y2="305"/><line x1="272" y1="20" x2="272" y2="305"/><line x1="392" y1="20" x2="392" y2="305"/></g>
+          <g class="ulice-okraj"><line x1="30" y1="112" x2="530" y2="112"/><line x1="30" y1="202" x2="530" y2="202"/><line x1="152" y1="20" x2="152" y2="305"/><line x1="272" y1="20" x2="272" y2="305"/><line x1="392" y1="20" x2="392" y2="305"/></g>
+          <polyline class="trasa-druha" points="32,202 152,202 152,112 272,112 272,202 392,202 392,112"/>
+          <polyline class="trasa" points="32,202 152,202 272,202 392,202 392,112"/>
+          <circle class="graf-uzel graf-start" cx="32" cy="202" r="15"/><circle class="graf-uzel graf-cil" cx="392" cy="112" r="15"/>
+          <text class="mapa-popisek" x="54" y="232">podání</text><text class="mapa-popisek" x="430" y="88">depo</text><text class="mapa-drobnym" x="280" y="306">3 bloky doprava + 1 nahoru = 4 bloky</text>
+        </svg>
+        <figcaption><strong>Mapa ulic:</strong> domy a skutečná šířka silnic pomáhají orientaci, ale pro výběr trasy jsou zbytečně podrobné.</figcaption>
+      </figure>
+      <figure class="mapa-karta">
+        <svg viewBox="0 0 430 330" role="img" aria-labelledby="mrizka-title mrizka-desc">
+          <title id="mrizka-title">Stejná síť převedená na graf</title><desc id="mrizka-desc">Křižovatky jsou uzly a úseky ulic jsou hrany. Modrá cesta má čtyři hrany.</desc>
+          <g class="graf-hrana"><line x1="45" y1="100" x2="155" y2="100"/><line x1="155" y1="100" x2="265" y2="100"/><line x1="265" y1="100" x2="375" y2="100"/><line x1="45" y1="230" x2="155" y2="230"/><line x1="155" y1="230" x2="265" y2="230"/><line x1="265" y1="230" x2="375" y2="230"/><line x1="45" y1="100" x2="45" y2="230"/><line x1="155" y1="100" x2="155" y2="230"/><line x1="265" y1="100" x2="265" y2="230"/><line x1="375" y1="100" x2="375" y2="230"/></g>
+          <polyline class="trasa" points="45,230 155,230 265,230 375,230 375,100"/>
+          <g><circle class="graf-uzel" cx="45" cy="100" r="16"/><circle class="graf-uzel" cx="155" cy="100" r="16"/><circle class="graf-uzel" cx="265" cy="100" r="16"/><circle class="graf-uzel graf-cil" cx="375" cy="100" r="20"/><circle class="graf-uzel graf-start" cx="45" cy="230" r="20"/><circle class="graf-uzel" cx="155" cy="230" r="16"/><circle class="graf-uzel" cx="265" cy="230" r="16"/><circle class="graf-uzel" cx="375" cy="230" r="16"/></g>
+          <text class="mapa-popisek" x="45" y="268">start</text><text class="mapa-popisek" x="375" y="62">cíl</text><text class="mapa-drobnym" x="210" y="306">uzel = křižovatka · hrana = úsek ulice</text>
+        </svg>
+        <figcaption><strong>Graf:</strong> stejný problém zůstane zachován, i když odstraníme domy a narovnáme ulice.</figcaption>
+      </figure>
     </div>
-    <p>
-      Kružnice představují navigační uzly — města nebo křižovatky — a čáry průjezdné
-      silniční úseky. V této úloze měříme délku trasy počtem projetých úseků, ne kilometry.
-    </p>
+    <p>V pravidelné síti se vzdálenost často počítá jako počet bloků ve vodorovném směru plus počet bloků ve svislém směru. Této hodnotě se říká <strong>Manhattan vzdálenost</strong>. Zde je to 3 + 1 = 4 bloky. Šikmá čára přes domy by byla kratší na pravítku, ale balíček po ní projet nemůže.</p>
+  </section>
+
+  <section class="priklad-mapy">
+    <h3>Skutečná síť pravidelná být nemusí</h3>
+    <p>Za městem se silnice stáčejí podle terénu, některé vedou přes most a jiné jsou pomalé. Graf si s tím poradí: vzhled čáry není důležitý, ale každé hraně můžeme připsat vlastnosti, které pro rozhodování důležité jsou.</p>
+    <div class="mapa-dvojice">
+      <figure class="mapa-karta"><svg viewBox="0 0 560 330" role="img" aria-labelledby="krajina-title krajina-desc"><title id="krajina-title">Nepravidelná silniční mapa v krajině</title><desc id="krajina-desc">Pět míst spojují různě dlouhé silnice. Jedna překračuje řeku po mostě.</desc><path class="mapa-voda" d="M250,-10 C205,55 315,98 258,158 C211,208 321,264 270,345 L335,345 C375,265 282,220 335,160 C386,103 285,54 322,-10Z"/><g fill="none" stroke="#c6ced9" stroke-width="18" stroke-linecap="round"><path d="M65 255 Q155 195 230 245"/><path d="M65 255 Q105 120 220 80"/><path d="M220 80 Q350 60 485 105"/><path d="M230 245 Q355 290 485 240"/><path d="M220 80 Q310 165 485 240"/><path d="M485 105 Q500 170 485 240"/></g><g fill="none" stroke="#fff" stroke-width="11" stroke-linecap="round"><path d="M65 255 Q155 195 230 245"/><path d="M65 255 Q105 120 220 80"/><path d="M220 80 Q350 60 485 105"/><path d="M230 245 Q355 290 485 240"/><path d="M220 80 Q310 165 485 240"/><path d="M485 105 Q500 170 485 240"/></g><g><circle class="graf-uzel graf-start" cx="65" cy="255" r="17"/><circle class="graf-uzel" cx="220" cy="80" r="17"/><circle class="graf-uzel" cx="230" cy="245" r="17"/><circle class="graf-uzel" cx="485" cy="105" r="17"/><circle class="graf-uzel graf-cil" cx="485" cy="240" r="17"/></g><g class="mapa-popisek"><text x="65" y="288">Podání</text><text x="220" y="48">Lhota</text><text x="230" y="279">Most</text><text x="485" y="73">Město</text><text x="485" y="276">Depo</text></g><g class="mapa-drobnym"><text x="137" y="213">6 km</text><text x="116" y="145">9 km</text><text x="350" y="65">12 km</text><text x="360" y="287">7 km</text><text x="350" y="184">8 km · pomalu</text><text x="523" y="174">4 km</text></g></svg><figcaption><strong>Obecná mapa:</strong> silnice mohou zatáčet a překonávat překážky. Křížení čar bez křižovatky nevytváří uzel.</figcaption></figure>
+      <figure class="mapa-karta"><svg viewBox="0 0 430 330" role="img" aria-labelledby="obecny-title obecny-desc"><title id="obecny-title">Obecná mapa převedená na ohodnocený graf</title><desc id="obecny-desc">Pět uzlů je spojeno hranami označenými vzdáleností.</desc><g class="graf-hrana"><line x1="45" y1="250" x2="170" y2="75"/><line x1="45" y1="250" x2="170" y2="245"/><line x1="170" y1="75" x2="365" y2="90"/><line x1="170" y1="245" x2="365" y2="240"/><line x1="170" y1="75" x2="365" y2="240"/><line x1="365" y1="90" x2="365" y2="240"/></g><polyline class="trasa" points="45,250 170,245 365,240"/><g><circle class="graf-uzel graf-start" cx="45" cy="250" r="20"/><circle class="graf-uzel" cx="170" cy="75" r="20"/><circle class="graf-uzel" cx="170" cy="245" r="20"/><circle class="graf-uzel" cx="365" cy="90" r="20"/><circle class="graf-uzel graf-cil" cx="365" cy="240" r="20"/></g><g class="mapa-popisek"><text x="45" y="250">S</text><text x="170" y="75">A</text><text x="170" y="245">B</text><text x="365" y="90">C</text><text x="365" y="240">D</text></g><g class="mapa-drobnym"><text x="87" y="154">9 km</text><text x="105" y="268">6 km</text><text x="268" y="65">12 km</text><text x="268" y="266">7 km</text><text x="283" y="157">8 km</text><text x="396" y="168">4 km</text></g></svg><figcaption><strong>Ohodnocený graf:</strong> zatáčky zmizely, ale spojení a délky zůstaly. Modrá cesta měří 6 + 7 = 13 km.</figcaption></figure>
+    </div>
+    <div class="vlastnosti-hran"><div class="vlastnost-hrany"><strong>Vzdálenost: 8 km</strong><span>Kolik kilometrů zásilka ujede?</span></div><div class="vlastnost-hrany"><strong>Doba: 14 minut</strong><span>Krátká silnice nemusí být nejrychlejší.</span></div><div class="vlastnost-hrany"><strong>Omezení: most</strong><span>Těžká nebo vysoká zásilka tudy nemusí projet.</span></div></div>
+    <p>Stejný graf tedy může odpovídat na různé otázky: cesta s nejméně křižovatkami, nejkratší vzdáleností nebo nejmenším časem nemusí být tatáž. Grafy se navíc nepoužívají jen pro silnice — stejně lze popsat železniční spoje, počítačovou síť, návaznost úkolů nebo vztahy mezi lidmi.</p>
+  </section>
+
+  <section class="sekce">
+    <h3>Síť pro následující pokus</h3>
+    <p>Nyní mapu zjednodušíme na sedm uzlů A až G. Kružnice představují křižovatky a čáry průjezdné silniční úseky. V prvním pokusu budeme délku trasy měřit pouze počtem projetých úseků; jejich skutečné kilometry zatím zanedbáme.</p>
+    <div class="schema" role="img" aria-label="Síť uzlů A až G. Balík začíná v A a míří do G."><svg viewBox="0 0 720 260" aria-hidden="true"><g class="hrana"><line x1="75" y1="130" x2="205" y2="130"/><line x1="205" y1="130" x2="345" y2="55"/><line x1="205" y1="130" x2="360" y2="130"/><line x1="205" y1="130" x2="345" y2="215"/><line x1="345" y1="55" x2="510" y2="55"/><line x1="360" y1="130" x2="645" y2="130"/><line x1="345" y1="215" x2="645" y2="130"/><line x1="510" y1="55" x2="645" y2="130"/></g><g><circle class="uzel start" cx="75" cy="130" r="27"/><circle class="uzel" cx="205" cy="130" r="27"/><circle class="uzel" cx="345" cy="55" r="27"/><circle class="uzel" cx="360" cy="130" r="27"/><circle class="uzel" cx="345" cy="215" r="27"/><circle class="uzel" cx="510" cy="55" r="27"/><circle class="uzel cil" cx="645" cy="130" r="27"/></g><g><text x="75" y="130">A</text><text x="205" y="130">B</text><text x="345" y="55">C</text><text x="360" y="130">D</text><text x="345" y="215">E</text><text x="510" y="55">F</text><text x="645" y="130">G</text><text class="popis" x="75" y="176">podací místo</text><text class="popis" x="645" y="176">depo</text></g></svg></div>
   </section>
 
   <section>
