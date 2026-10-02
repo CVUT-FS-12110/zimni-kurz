@@ -29,5 +29,12 @@ window.LEKCE = [
     soubor: 'ulohy/04-razeni-zasilek.html',
     tema: 'Řazení podle času příchodu',
     okruh: 'programování a algoritmy'
+  },
+  {
+    nazev: 'Lekce 5 — Pohon pásového dopravníku',
+    popis: 'Vyberte motor a převodovku pro nakloněný pás. Návrh musí zásilku utáhnout, dodržet rychlost a zapadnout do konstrukce.',
+    soubor: 'ulohy/05-pohon-dopravniku.html',
+    tema: 'Volba motoru a převodovky',
+    okruh: 'mechanické soustavy'
   }
 ];

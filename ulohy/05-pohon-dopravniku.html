@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pohon pásového dopravníku — Zimní kurz</title>
+<link rel="stylesheet" href="../assets/css/styl.css">
+<style>
+  .schema { max-width: 760px; margin: 1rem 0; }
+  .schema svg { display: block; width: 100%; height: auto; border: 2px solid var(--ram-silny); border-radius: var(--radius); background: #fff; }
+  .schema text { font-family: "Segoe UI", system-ui, sans-serif; fill: var(--text); }
+  .schema .popis { font-size: 15px; font-weight: 700; }
+  .schema .dopln { font-size: 13px; fill: var(--text-slaby); }
+  .platno-ram { aspect-ratio: 16 / 10; }
+  .vysledek { margin-top: 1rem; padding: .75rem; border: 2px solid var(--ram); border-radius: var(--radius); background: #fff; }
+  .vysledek h3 { margin: 0 0 .4rem; }
+  .podminka { display: grid; grid-template-columns: 1fr auto; gap: .25rem .6rem; padding: .35rem 0; border-top: 1px solid var(--ram); }
+  .podminka strong { font-variant-numeric: tabular-nums; }
+  .splneno { color: var(--shluk-3); }
+  .nesplneno { color: var(--shluk-2); }
+  .souhrn { margin: .65rem 0 0; font-weight: 800; }
+  .rovnice { max-width: 760px; margin: .7rem 0; padding: .7rem 1rem; border: 2px solid var(--ram); border-radius: var(--radius); background: var(--pozadi-panel); font: .94rem/1.65 ui-monospace, "Cascadia Mono", Consolas, monospace; overflow-x: auto; }
+  .tabulka { width: 100%; max-width: 760px; border-collapse: collapse; font-size: .92rem; }
+  .tabulka th, .tabulka td { padding: .4rem .5rem; border: 1px solid var(--ram); text-align: right; }
+  .tabulka th:first-child, .tabulka td:first-child, .tabulka td:nth-child(2) { text-align: left; }
+  .tabulka thead { background: var(--pozadi-panel); }
+  .prazdny-blok { min-height: 5rem; }
+  @media (max-width: 540px) { .tabulka { font-size: .78rem; } .tabulka th, .tabulka td { padding: .3rem; } }
+</style>
+</head>
+<body>
+<main class="stranka">
+  <a class="zpet" href="../index.html">← Zpět na rozcestník</a>
+  <p class="pod-nadpisem">Lekce 5 — Balíček stoupá do další části linky</p>
+  <h1>Pohon pásového dopravníku</h1>
+
+  <section class="sekce">
+    <h2>1. Jak rozpohybovat dopravník?</h2>
+    <p class="uvod">Balíček už je v třídicím centru, ale do vyšší části linky vede nakloněný pás bez pohonu. Elektromotor se obvykle otáčí příliš rychle a má malý moment, proto se mezi něj a hnací buben přidává převodovka. Úkolem je z dostupných součástí sestavit pohon, který pás rozjede dostatečně rychle a současně zásilku vytáhne vzhůru.</p>
+    <div class="schema" role="img" aria-label="Motor přes převodovku otáčí bubnem nakloněného pásu, který veze balíček vzhůru.">
+      <svg viewBox="0 0 760 280">
+        <defs><marker id="sipka" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#0b46c8"/></marker></defs>
+        <path d="M250 220 L680 85" stroke="#0d1218" stroke-width="34" stroke-linecap="round"/>
+        <path d="M250 220 L680 85" stroke="#dfe5ef" stroke-width="26" stroke-dasharray="18 10" stroke-linecap="round"/>
+        <circle cx="250" cy="220" r="28" fill="#fff" stroke="#0d1218" stroke-width="5"/><circle cx="680" cy="85" r="28" fill="#fff" stroke="#0d1218" stroke-width="5"/>
+        <rect x="470" y="111" width="82" height="54" rx="4" fill="#d97000" stroke="#0d1218" stroke-width="3" transform="rotate(-17 511 138)"/><text x="492" y="142" class="popis" transform="rotate(-17 511 138)">25 kg</text>
+        <rect x="22" y="176" width="92" height="67" rx="8" fill="#1145cf" stroke="#0d1218" stroke-width="3"/><text x="45" y="207" class="popis" fill="#fff" style="fill:#fff">motor</text><text x="35" y="227" class="dopln" style="fill:#fff">1400 ot/min</text>
+        <rect x="140" y="181" width="80" height="58" rx="5" fill="#eef1f6" stroke="#0d1218" stroke-width="3"/><text x="152" y="206" class="popis">převod</text><text x="161" y="226" class="dopln">1 : 20</text>
+        <path d="M115 210 H137 M222 210 H235" stroke="#0b46c8" stroke-width="4" marker-end="url(#sipka)"/>
+        <path d="M388 194 L462 171" stroke="#0b46c8" stroke-width="4" marker-end="url(#sipka)"/><text x="384" y="222" class="popis">rychlost pásu</text>
+        <path d="M615 246 A70 70 0 0 1 681 225" fill="none" stroke="#cc1233" stroke-width="3"/><text x="640" y="259" class="popis">sklon 10°</text>
+      </svg>
+    </div>
+    <p>Nejsilnější motor automaticky neznamená nejlepší návrh. Větší převod pomůže momentu, ale zároveň pás zpomalí; typ převodovky navíc ovlivní ztráty, cenu, hmotnost i směr hřídelí.</p>
+  </section>
+
+  <section>
+    <h2>2. Sestavte pohon a sledujte důsledky</h2>
+    <p class="sekce">Vyberte motor a převodovku. Modrá šipka ukazuje pohyb pásu, červená šipka sílu působící proti pohybu. Balíček dojede nahoru jen tehdy, když je rychlost alespoň 0,50 m/s a dostupný moment není menší než potřebný.</p>
+    <div class="dilna">
+      <div class="platno-ram"><canvas id="platno" aria-label="Animovaný nakloněný dopravník s balíčkem, motorem a převodovkou"></canvas></div>
+      <div class="panel"><div class="zalozka-obsah">
+        <div class="ovladac"><label for="motor">Elektromotor</label><select id="motor"></select></div>
+        <div class="ovladac"><label for="prevodovka">Převodovka</label><select id="prevodovka"></select></div>
+        <div class="ovladac"><label for="hmotnost">Hmotnost zásilky <output id="hmotnost-hodnota"></output></label><input id="hmotnost" type="range" min="5" max="60" value="25" step="1"></div>
+        <div class="ovladac"><label for="sklon">Sklon pásu <output id="sklon-hodnota"></output></label><input id="sklon" type="range" min="0" max="25" value="10" step="1"></div>
+        <div class="ovladac"><label for="prumer">Průměr bubnu <output id="prumer-hodnota"></output></label><input id="prumer" type="range" min="100" max="300" value="160" step="10"></div>
+        <div class="ovladac"><label for="hridele">Požadované uspořádání hřídelí</label><select id="hridele"><option value="libovolne">libovolné</option><option value="rovnobezne">rovnoběžné</option><option value="kolme">kolmé</option></select></div>
+        <div class="tlacitka"><button class="akce hlavni" id="spustit">Spustit</button><button class="akce" id="reset">Reset</button></div>
+        <div class="vysledek" aria-live="polite">
+          <h3>Ověření návrhu</h3>
+          <div class="podminka"><span>Rychlost pásu</span><strong id="rychlost">–</strong><span>minimum 0,50 m/s</span><strong id="rychlost-stav">–</strong></div>
+          <div class="podminka"><span>Dostupný moment</span><strong id="moment">–</strong><span>Potřebný moment</span><strong id="potrebny">–</strong></div>
+          <div class="podminka"><span>Hřídele</span><strong id="hridele-stav">–</strong><span>Cena / hmotnost</span><strong id="cena">–</strong></div>
+          <p class="souhrn" id="souhrn">–</p>
+        </div>
+      </div></div>
+    </div>
+    <div class="sekce">
+      <h3>Co si zkuste</h3>
+      <ul>
+        <li>Začněte motorem C a převodovkou P2. Zvyšujte převod z 1:20 na 1:50 a sledujte, co získá moment a co ztratí rychlost.</li>
+        <li>Porovnejte P5 a P6 se stejným převodem 1:40. Které výsledky zůstanou stejné a které změní rozdílná účinnost?</li>
+        <li>Nastavte zásilku 40 kg a potom sklon 20°. Ověřte, zda původní návrh stále vyhovuje.</li>
+        <li>Zvětšete buben ze 160 na 250 mm. Sledujte, proč pás zrychlí, ale zároveň vzroste potřebný moment.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="sekce">
+    <h2>3. Od motoru k pohybu pásu</h2>
+    <h3>Otáčky a rychlost</h3>
+    <p>Převodový poměr <em>i</em> říká, kolikrát se motor otočí během jedné otáčky bubnu. Motor C má 1400 otáček za minutu a převodovka P2 poměr 1:20, takže se buben otočí 70krát za minutu. Jedna otáčka bubnu o průměru 0,16 m posune pás o jeho obvod, přibližně 0,503 m.</p>
+    <div class="rovnice">otáčky bubnu = 1400 / 20 = 70 ot/min
+obvod bubnu = 3,14 · 0,16 ≈ 0,503 m
+rychlost pásu = 0,503 · 70 / 60 ≈ 0,586 m/s</div>
+    <p>Číslo 60 převádí minuty na sekundy. Výsledek 0,586 m/s je nad požadovanou rychlostí 0,50 m/s.</p>
+
+    <h3>Síla a moment</h3>
+    <p>Proti pohybu působí část tíhy zásilky a odpor pásu. Pro 25 kg, sklon 10° a součinitel odporu 0,05 vychází celková síla přibližně 54,7 N. Moment popisuje otáčivý účinek síly: stejná síla působící na větší buben vyžaduje větší moment.</p>
+    <div class="rovnice">síla do svahu = 25 · 9,81 · sin(10°) ≈ 42,6 N
+odpor pohybu = 0,05 · 25 · 9,81 · cos(10°) ≈ 12,1 N
+celková síla = 42,6 + 12,1 ≈ 54,7 N
+potřebný moment = 54,7 · (0,16 / 2) ≈ 4,38 Nm</div>
+    <p>Motor C dává moment 1,23 Nm. Převodovka P2 jej násobí dvaceti, ale kvůli ztrátám předá jen 94 %:</p>
+    <div class="rovnice">dostupný moment = 1,23 · 20 · 0,94 ≈ 23,1 Nm</div>
+    <p>Tato kombinace tedy splní rychlost i moment. Značky znamenají: <em>m</em> je hmotnost v kg, <em>g</em> gravitační zrychlení 9,81 m/s², <em>α</em> sklon, <em>μ</em> součinitel odporu, <em>d</em> průměr bubnu, <em>i</em> převodový poměr a <em>η</em> účinnost.</p>
+
+    <h3>Čím se liší převodovky</h3>
+    <table class="tabulka"><thead><tr><th>Typ</th><th>Hřídele</th><th>Silná stránka</th><th>Omezení</th></tr></thead><tbody>
+      <tr><td>čelní</td><td>rovnoběžné</td><td>vysoká účinnost</td><td>pro velký převod potřebuje více stupňů</td></tr>
+      <tr><td>kuželo-čelní</td><td>kolmé</td><td>dobrá účinnost a změna směru</td><td>vyšší cena a složitost</td></tr>
+      <tr><td>šneková</td><td>kolmé</td><td>velký převod v malém prostoru</td><td>větší ztráty a zahřívání</td></tr>
+    </tbody></table>
+
+    <div class="pointa">
+      <h2>Proč je to těžké</h2>
+      <p>Každá změna pomáhá jedné vlastnosti a může škodit jiné. Větší převod zvýší moment, ale sníží rychlost. Větší buben pás zrychlí, ale pro stejnou zásilku potřebuje větší moment. Převodovky se stejným poměrem mohou mít stejné otáčky, přesto kvůli rozdílné účinnosti nepředají stejný moment.</p>
+      <p>Funkčních kombinací je více a technické podmínky samy neurčí jediného vítěze. Do volby vstupují také cena, hmotnost, prostorové uspořádání a délka provozu. Konstrukční návrh proto nehledá nejsilnější součást, ale rozumný kompromis, který splní všechny požadavky bez zbytečných rezerv.</p>
+    </div>
+  </section>
+
+  <section class="sekce prazdny-blok"><h2>4. Kde se to učí</h2></section>
+  <p class="paticka"><a href="../index.html">← Zpět na rozcestník</a></p>
+</main>
+
+<script src="../assets/js/spolecne.js"></script>
+<script>
+(function () {
+  'use strict';
+  const MOTORY=[
+    {id:'A',n:2800,p:90,m:0.31},{id:'B',n:1400,p:120,m:0.82},{id:'C',n:1400,p:180,m:1.23},
+    {id:'D',n:900,p:120,m:1.27},{id:'E',n:2800,p:370,m:1.26},{id:'F',n:900,p:250,m:2.65}
+  ];
+  const PREVODY=[
+    {id:'P1',typ:'čelní',i:10,eta:.96,kg:6,cena:8500,h:'rovnobezne'},
+    {id:'P2',typ:'čelní dvoustupňová',i:20,eta:.94,kg:7.5,cena:10500,h:'rovnobezne'},
+    {id:'P3',typ:'kuželo-čelní',i:25,eta:.92,kg:8,cena:13000,h:'kolme'},
+    {id:'P4',typ:'čelní třístupňová',i:30,eta:.91,kg:9,cena:12500,h:'rovnobezne'},
+    {id:'P5',typ:'šneková',i:40,eta:.78,kg:6.5,cena:9000,h:'kolme'},
+    {id:'P6',typ:'kuželo-čelní',i:40,eta:.90,kg:9.5,cena:15500,h:'kolme'},
+    {id:'P7',typ:'šneková',i:50,eta:.72,kg:7,cena:9500,h:'kolme'}
+  ];
+  const VYCHOZI={motor:2,prevod:1,hmotnost:25,sklon:10,prumer:160,hridele:'libovolne'};
+  const P={...VYCHOZI}; let poloha=.35,vysledek;
+  const motorEl=document.getElementById('motor'),prevodEl=document.getElementById('prevodovka');
+  MOTORY.forEach((m,i)=>motorEl.add(new Option(`Motor ${m.id} — ${m.n} ot/min, ${m.p} W, ${m.m.toLocaleString('cs-CZ')} Nm`,i)));
+  PREVODY.forEach((p,i)=>prevodEl.add(new Option(`${p.id} — ${p.typ}, 1:${p.i}, ${Math.round(p.eta*100)} %`,i)));
+
+  function spocitej(){
+    const m=MOTORY[P.motor],q=PREVODY[P.prevod],d=P.prumer/1000,a=P.sklon*Math.PI/180;
+    const otacky=m.n/q.i,rychlost=Math.PI*d*otacky/60,sila=P.hmotnost*9.81*(Math.sin(a)+.05*Math.cos(a));
+    const potrebny=sila*d/2,moment=m.m*q.i*q.eta,rychlostOk=rychlost>=.5,momentOk=moment>=potrebny;
+    const hrideleOk=P.hridele==='libovolne'||P.hridele===q.h;
+    vysledek={m,q,d,otacky,rychlost,sila,potrebny,moment,rychlostOk,momentOk,hrideleOk,ok:rychlostOk&&momentOk&&hrideleOk};
+    obnov(); kresli();
+  }
+  function stav(id,text,ok){const el=document.getElementById(id);el.textContent=text;el.className=ok?'splneno':'nesplneno';}
+  function obnov(){
+    const v=vysledek,q=v.q; stav('rychlost',v.rychlost.toLocaleString('cs-CZ',{minimumFractionDigits:3,maximumFractionDigits:3})+' m/s',v.rychlostOk);
+    stav('rychlost-stav',v.rychlostOk?'splněno':'nesplněno',v.rychlostOk); stav('moment',v.moment.toLocaleString('cs-CZ',{maximumFractionDigits:1})+' Nm',v.momentOk);
+    document.getElementById('potrebny').textContent=v.potrebny.toLocaleString('cs-CZ',{maximumFractionDigits:1})+' Nm';
+    stav('hridele-stav',q.h==='kolme'?'kolmé':'rovnoběžné',v.hrideleOk); document.getElementById('cena').textContent=q.cena.toLocaleString('cs-CZ')+' Kč / '+q.kg.toLocaleString('cs-CZ')+' kg';
+    const s=document.getElementById('souhrn');s.textContent=v.ok?'Návrh splňuje všechny zvolené požadavky.':'Návrh nevyhovuje: '+[!v.rychlostOk&&'pás je pomalý',!v.momentOk&&'moment nestačí',!v.hrideleOk&&'nesprávné uspořádání hřídelí'].filter(Boolean).join(', ')+'.';s.className='souhrn '+(v.ok?'splneno':'nesplneno');
+  }
+  const plocha=Kurz.platno(document.getElementById('platno'),()=>kresli());
+  function kresli(){
+    const c=plocha.ctx,w=plocha.sirka,h=plocha.vyska;if(!c||!w||!vysledek)return;c.clearRect(0,0,w,h);c.fillStyle='#fff';c.fillRect(0,0,w,h);
+    const a=P.sklon*Math.PI/180,x1=w*.27,y1=h*.78,len=Math.min(w*.62,h*.68/Math.max(.42,Math.sin(a)+.25)),x2=x1+len*Math.cos(a),y2=y1-len*Math.sin(a);
+    c.lineCap='round';c.strokeStyle='#0d1218';c.lineWidth=34;c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke();c.strokeStyle='#dfe5ef';c.lineWidth=25;c.setLineDash([18,10]);c.lineDashOffset=-poloha*60;c.stroke();c.setLineDash([]);
+    [[x1,y1],[x2,y2]].forEach(([x,y])=>{c.fillStyle='#fff';c.strokeStyle='#0d1218';c.lineWidth=4;c.beginPath();c.arc(x,y,22,0,Math.PI*2);c.fill();c.stroke();});
+    const t=.18+.66*poloha,bx=x1+(x2-x1)*t,by=y1+(y2-y1)*t-30;c.save();c.translate(bx,by);c.rotate(-a);c.fillStyle=vysledek.ok?'#d97000':'#cc1233';c.strokeStyle='#0d1218';c.lineWidth=3;c.fillRect(-28,-24,56,45);c.strokeRect(-28,-24,56,45);c.fillStyle='#fff';c.font='700 13px Segoe UI';c.textAlign='center';c.fillText(P.hmotnost+' kg',0,3);c.restore();
+    c.fillStyle='#1145cf';c.strokeStyle='#0d1218';c.lineWidth=3;c.fillRect(14,h-108,86,65);c.strokeRect(14,h-108,86,65);c.fillStyle='#fff';c.font='700 14px Segoe UI';c.textAlign='center';c.fillText('Motor '+vysledek.m.id,57,h-79);c.font='12px Segoe UI';c.fillText(vysledek.m.n+' ot/min',57,h-59);
+    c.fillStyle='#eef1f6';c.strokeStyle='#0d1218';c.fillRect(115,h-102,80,55);c.strokeRect(115,h-102,80,55);c.fillStyle='#0d1218';c.font='700 13px Segoe UI';c.fillText(vysledek.q.id+'  1:'+vysledek.q.i,155,h-70);
+    c.fillStyle='#4a5768';c.textAlign='left';c.font='13px Segoe UI';c.fillText('výstup '+vysledek.otacky.toLocaleString('cs-CZ',{maximumFractionDigits:1})+' ot/min',14,24);c.fillText('síla proti pohybu '+vysledek.sila.toLocaleString('cs-CZ',{maximumFractionDigits:1})+' N',14,44);
+    c.fillStyle=vysledek.ok?'#0a7d38':'#cc1233';c.font='700 15px Segoe UI';c.fillText(vysledek.ok?'Pohon vyhovuje':'Pohon nevyhovuje',14,68);
+  }
+  const smycka=Kurz.smycka(dt=>{if(vysledek.momentOk&&vysledek.hrideleOk)poloha=(poloha+dt*Math.min(1,vysledek.rychlost)*.35)%1;kresli();});
+  function zastav(){smycka.stop();document.getElementById('spustit').textContent='Spustit';}
+  document.getElementById('spustit').addEventListener('click',e=>{if(smycka.bezi)zastav();else{smycka.start();e.currentTarget.textContent='Zastavit';}});
+  function vyber(){P.motor=Number(motorEl.value);P.prevod=Number(prevodEl.value);spocitej();}
+  motorEl.addEventListener('change',vyber);prevodEl.addEventListener('change',vyber);document.getElementById('hridele').addEventListener('change',e=>{P.hridele=e.target.value;spocitej();});
+  Kurz.posuvnik('hmotnost',v=>{P.hmotnost=v;spocitej();},v=>v+' kg');Kurz.posuvnik('sklon',v=>{P.sklon=v;spocitej();},v=>v+'°');Kurz.posuvnik('prumer',v=>{P.prumer=v;spocitej();},v=>v+' mm');
+  document.getElementById('reset').addEventListener('click',()=>{zastav();Object.assign(P,VYCHOZI);motorEl.value=P.motor;prevodEl.value=P.prevod;document.getElementById('hmotnost').value=P.hmotnost;document.getElementById('sklon').value=P.sklon;document.getElementById('prumer').value=P.prumer;document.getElementById('hridele').value=P.hridele;['hmotnost','sklon','prumer'].forEach(id=>document.getElementById(id).dispatchEvent(new Event('input')));poloha=.35;spocitej();});
+  motorEl.value=P.motor;prevodEl.value=P.prevod;spocitej();
+})();
+</script>
+</body>
+</html>
