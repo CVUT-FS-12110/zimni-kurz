@@ -36,5 +36,12 @@ window.LEKCE = [
     soubor: 'ulohy/05-pohon-dopravniku.html',
     tema: 'Volba motoru a převodovky',
     okruh: 'mechanické soustavy'
+  },
+  {
+    nazev: 'Lekce 6 — Měření rozměrů zásilky',
+    popis: 'Změřte projíždějící balík bez dotyku. Nastavení triangulačních senzorů a optické brány určuje přesnost šířky, výšky, délky i objemu.',
+    soubor: 'ulohy/06-mereni-vzdalenosti.html',
+    tema: 'Optická triangulace a světelná brána',
+    okruh: 'měření'
   }
 ];

@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Měření rozměrů zásilky — Zimní kurz</title>
+<link rel="stylesheet" href="../assets/css/styl.css">
+<style>
+  .schema { max-width: 760px; margin: 1rem 0; }
+  .schema svg { display:block; width:100%; height:auto; border:2px solid var(--ram-silny); border-radius:var(--radius); background:#fff; }
+  .schema text { font-family:"Segoe UI",system-ui,sans-serif; fill:var(--text); font-size:14px; font-weight:700; }
+  .schema .slaby { fill:var(--text-slaby); font-size:12px; font-weight:500; }
+  .platno-ram { aspect-ratio:16 / 10; }
+  .vysledky { margin-top:.8rem; padding-top:.65rem; border-top:2px solid var(--ram); }
+  .vysledky dl { display:grid; grid-template-columns:1fr auto; gap:.2rem .6rem; margin:0; }
+  .vysledky dt { color:var(--text-slaby); }
+  .vysledky dd { margin:0; font-weight:800; font-variant-numeric:tabular-nums; }
+  .vysledky .hlavni { color:var(--akcent); }
+  .legenda { display:flex; flex-wrap:wrap; gap:.4rem 1rem; margin:.55rem 0 0; color:var(--text-slaby); font-size:.82rem; }
+  .znacka { display:inline-block; width:1.1rem; height:.25rem; margin-right:.3rem; vertical-align:middle; background:var(--barva); }
+  .rovnice { max-width:760px; padding:.7rem 1rem; border:2px solid var(--ram); border-radius:var(--radius); background:var(--pozadi-panel); font: .92rem/1.65 ui-monospace,"Cascadia Mono",Consolas,monospace; white-space:pre-wrap; }
+  .srovnani { width:100%; max-width:760px; border-collapse:collapse; }
+  .srovnani th,.srovnani td { padding:.45rem .55rem; border:1px solid var(--ram); text-align:left; }
+  .srovnani thead { background:var(--pozadi-panel); }
+  .prazdny-blok { min-height:5rem; }
+</style>
+</head>
+<body>
+<main class="stranka">
+  <a class="zpet" href="../index.html">← Zpět na rozcestník</a>
+  <p class="pod-nadpisem">Lekce 6 — Kontrola zásilky bez dotyku</p>
+  <h1>Měření rozměrů zásilky</h1>
+
+  <section class="sekce">
+    <h2>1. Jak změřit balík za jízdy?</h2>
+    <p class="uvod">Před uložením nebo naložením potřebuje třídicí linka znát šířku, výšku a délku každé zásilky. Pravítko nelze přikládat k balíkům, které bez zastavení projíždějí po pásu. Rozměry proto změří světlo: boční snímače určí šířku optickou triangulací a světelná brána zaznamená obrys zásilky.</p>
+    <div class="schema" role="img" aria-label="Balík projíždí mezi dvěma bočními triangulačními senzory a světelnou bránou s několika paprsky.">
+      <svg viewBox="0 0 760 280">
+        <defs><marker id="sipka6" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#0b46c8"/></marker></defs>
+        <rect x="45" y="213" width="670" height="25" rx="8" fill="#dfe5ef" stroke="#0d1218" stroke-width="3"/>
+        <rect x="304" y="119" width="170" height="92" rx="4" fill="#d97000" stroke="#0d1218" stroke-width="3"/><text x="361" y="169">zásilka</text>
+        <rect x="72" y="112" width="70" height="65" rx="6" fill="#1145cf" stroke="#0d1218" stroke-width="3"/><rect x="620" y="112" width="70" height="65" rx="6" fill="#1145cf" stroke="#0d1218" stroke-width="3"/>
+        <text x="75" y="98">boční senzory</text><path d="M142 132 L304 151 M142 158 L304 151 M620 132 L474 151 M620 158 L474 151" stroke="#cc1233" stroke-width="2"/>
+        <rect x="520" y="35" width="14" height="178" fill="#0d1218"/><rect x="588" y="35" width="14" height="178" fill="#0d1218"/>
+        <g stroke="#0a7d38" stroke-width="2"><path d="M534 60H588M534 82H588M534 104H588M534 126H588M534 148H588M534 170H588M534 192H588"/></g>
+        <text x="514" y="25">optická brána</text><path d="M170 254H284" stroke="#0b46c8" stroke-width="4" marker-end="url(#sipka6)"/><text x="171" y="274" class="slaby">směr pohybu</text>
+      </svg>
+    </div>
+    <p>Žádný snímač nedává nekonečně přesné číslo. Kamera rozlišuje jednotlivé pixely, brána jednotlivé paprsky a řídicí jednotka pořizuje měření jen v určitých okamžicích. Právě tyto mezery určují nejistotu rozměrů.</p>
+  </section>
+
+  <section>
+    <h2>2. Vyzkoušejte dvě měřicí metody</h2>
+    <p class="sekce">Čárkované čáry značí skutečný rozměr, plná kresba výsledek snímače. Přepínejte mezi metodami; nastavení triangulace se uchová a spolu s výsledky brány určuje nejistotu vypočteného objemu.</p>
+    <div class="dilna">
+      <div>
+        <div class="platno-ram"><canvas id="platno" aria-label="Interaktivní schéma optické triangulace nebo optické brány"></canvas></div>
+        <div class="legenda"><span><i class="znacka" style="--barva:#cc1233"></i>světelný paprsek</span><span><i class="znacka" style="--barva:#1145cf"></i>změřený obrys</span><span><i class="znacka" style="--barva:#0d1218"></i>skutečný obrys</span></div>
+      </div>
+      <div class="panel" id="panel">
+        <div class="zalozky" role="tablist"><button role="tab" data-zalozka="tri" aria-selected="true">ŠÍŘKA</button><button role="tab" data-zalozka="brana" aria-selected="false">VÝŠKA A DÉLKA</button></div>
+        <div class="zalozka-obsah" id="tri" role="tabpanel">
+          <p class="poznamka">Dva stejné senzory měří vzdálenost k levému a pravému boku zásilky.</p>
+          <div class="ovladac"><label for="uhel">Úhel triangulace <output id="uhel-hodnota"></output></label><input type="range" id="uhel" min="10" max="45" step="1" value="25"></div>
+          <div class="ovladac"><label for="ohnisko">Ohnisková vzdálenost <output id="ohnisko-hodnota"></output></label><input type="range" id="ohnisko" min="8" max="35" step="1" value="16"></div>
+          <div class="ovladac"><label for="pracovni">Pracovní vzdálenost <output id="pracovni-hodnota"></output></label><input type="range" id="pracovni" min="250" max="650" step="10" value="400"></div>
+          <div class="ovladac"><label for="sirka">Skutečná šířka <output id="sirka-hodnota"></output></label><input type="range" id="sirka" min="100" max="600" step="5" value="360"></div>
+          <div class="tlacitka"><button class="akce" id="reset-tri">Reset</button></div>
+          <div class="vysledky"><dl><dt>Měřicí rozsah jednoho senzoru</dt><dd id="rozsah">–</dd><dt>Rozlišení vzdálenosti</dt><dd id="rozliseni">–</dd><dt>Změřená šířka</dt><dd class="hlavni" id="sirka-merena">–</dd><dt>Nejistota šířky</dt><dd id="sirka-chyba">–</dd></dl></div>
+        </div>
+        <div class="zalozka-obsah" id="brana" role="tabpanel" hidden>
+          <p class="poznamka">Brána je vysoká 800 mm. Výška se zaokrouhlí na rozteč paprsků, délka na dráhu mezi dvěma vzorky.</p>
+          <div class="ovladac"><label for="paprsky">Počet paprsků <output id="paprsky-hodnota"></output></label><input type="range" id="paprsky" min="8" max="64" step="4" value="20"></div>
+          <div class="ovladac"><label for="rychlost">Rychlost pásu <output id="rychlost-hodnota"></output></label><input type="range" id="rychlost" min="10" max="150" step="5" value="60"></div>
+          <div class="ovladac"><label for="frekvence">Frekvence vzorkování <output id="frekvence-hodnota"></output></label><input type="range" id="frekvence" min="10" max="200" step="5" value="50"></div>
+          <div class="ovladac"><label for="vyska">Skutečná výška <output id="vyska-hodnota"></output></label><input type="range" id="vyska" min="80" max="700" step="5" value="310"></div>
+          <div class="ovladac"><label for="delka">Skutečná délka <output id="delka-hodnota"></output></label><input type="range" id="delka" min="100" max="900" step="10" value="520"></div>
+          <div class="tlacitka"><button class="akce hlavni" id="spustit">Spustit</button><button class="akce" id="reset">Reset</button></div>
+          <div class="vysledky"><dl><dt>Rozteč paprsků</dt><dd id="roztec">–</dd><dt>Dráha mezi vzorky</dt><dd id="krok-vzorku">–</dd><dt>Změřená výška</dt><dd class="hlavni" id="vyska-merena">–</dd><dt>Změřená délka</dt><dd class="hlavni" id="delka-merena">–</dd><dt>Odhad objemu</dt><dd id="objem">–</dd><dt>Nejistota objemu</dt><dd id="objem-chyba">–</dd></dl></div>
+        </div>
+      </div>
+    </div>
+    <div class="sekce">
+      <h3>Co si zkuste</h3>
+      <ul>
+        <li>U triangulace zmenšete úhel na 10°. Sledujte, jak se zvětší měřicí rozsah, ale zhorší rozlišení.</li>
+        <li>Zvětšujte ohniskovou vzdálenost. Najděte nastavení s jemným rozlišením, při kterém se měřený povrch ještě vejde do rozsahu.</li>
+        <li>U optické brány zdvojnásobte počet paprsků. Který rozměr se zpřesní a který zůstane stejný?</li>
+        <li>Zvyšte rychlost pásu a vyrovnejte její vliv vyšší frekvencí vzorkování. Sledujte nejistotu délky a objemu.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="sekce">
+    <h2>3. Co přesnost měření omezuje</h2>
+    <h3>Optická triangulace</h3>
+    <p>Snímač vysílá světelný bod pod úhlem a objektiv sleduje, kam jeho obraz dopadne na řádek pixelů. Když se povrch přiblíží, bod se na snímači posune. Z polohy bodu lze pomocí trojúhelníku dopočítat vzdálenost. Dva senzory na známé vzdálenosti od sebe pak určí šířku zásilky odečtením levé a pravé mezery.</p>
+    <p>V modelu má obrazový snímač šířku 6,4 mm a 1280 pixelů, takže jeden pixel měří 0,005 mm. V okolí pracovní vzdálenosti platí přibližný přepočet:</p>
+    <div class="rovnice">rozlišení vzdálenosti ≈ velikost pixelu · pracovní vzdálenost
+                         / (ohnisková vzdálenost · tangens úhlu)
+
+šířka zásilky = vzdálenost senzorů − levá mezera − pravá mezera</div>
+    <p>Větší úhel nebo delší ohnisko způsobí větší posun obrazu na jeden milimetr změny, a tedy jemnější rozlišení. Současně se však zmenší úsek vzdáleností, který se vejde na snímač. Jde o model ideální geometrie; skutečný přístroj navíc ovlivňuje zaostření, povrch balíku, okolní světlo a kalibrace.</p>
+
+    <h3>Optická brána</h3>
+    <p>Paprsky jsou rozmístěny přes známou výšku. Zásilka některé zakryje a nejvyšší zakrytý paprsek určí její výšku. Mezi paprsky ale brána nevidí, proto se výška mění po skocích odpovídajících jejich rozteči.</p>
+    <div class="rovnice">rozteč paprsků = výška brány / (počet paprsků − 1)
+dráha mezi vzorky = rychlost pásu / frekvence vzorkování
+objem = změřená šířka · změřená výška · změřená délka</div>
+    <p>Například pás rychlý 0,60 m/s ujede při 50 měřeních za sekundu mezi vzorky 12 mm. Začátek a konec balíku tedy nelze určit jemněji než přibližně na tento krok. Zvyšování počtu paprsků pomáhá výšce; délku zlepší vyšší frekvence nebo pomalejší pás.</p>
+
+    <table class="srovnani"><thead><tr><th>Metoda</th><th>Měří</th><th>Hlavní omezení modelu</th></tr></thead><tbody><tr><td>triangulace</td><td>vzdálenost a šířku</td><td>velikost pixelu a geometrie paprsků</td></tr><tr><td>optická brána</td><td>výšku</td><td>mezera mezi paprsky</td></tr><tr><td>brána během pohybu</td><td>délku</td><td>dráha pásu mezi dvěma vzorky</td></tr></tbody></table>
+
+    <div class="pointa">
+      <h2>Proč je to těžké</h2>
+      <p>Digitální snímač nepozoruje prostor spojitě. Mezi dvěma pixely, paprsky nebo okamžiky měření vždy zůstává mezera, ve které se skutečná hrana může skrývat. Více dat obvykle znamená přesnější výsledek, ale také dražší snímač, více zpracování a někdy menší měřicí rozsah.</p>
+      <p>Nejistota objemu navíc vzniká ze tří rozměrů současně. Malé odchylky šířky, výšky a délky se ve výsledku kombinují, takže přesný jediný rozměr nestačí. Návrh měření musí vycházet z toho, jak velkou chybu ještě dovoluje navazující manipulace.</p>
+    </div>
+  </section>
+
+  <section class="sekce prazdny-blok"><h2>4. Kde se to učí</h2></section>
+  <p class="paticka"><a href="../index.html">← Zpět na rozcestník</a></p>
+</main>
+
+<script src="../assets/js/spolecne.js"></script>
+<script>
+(function(){
+  'use strict';
+  const D={uhel:25,ohnisko:16,pracovni:400,sirka:360,paprsky:20,rychlost:60,frekvence:50,vyska:310,delka:520};
+  const P={...D}; let rez={},rezim='tri',poloha=0.05;
+  function vypocet(){
+    const pixel=6.4/1280,t=Math.tan(P.uhel*Math.PI/180),pulSnimace=3.2;
+    const zMin=P.pracovni/(1+pulSnimace/(P.ohnisko*t)),jmenovatel=1-pulSnimace/(P.ohnisko*t),zMax=jmenovatel>0?P.pracovni/jmenovatel:Infinity;
+    const rozliseni=pixel*P.pracovni/(P.ohnisko*t),chybaSirka=2*rozliseni;
+    const merenaSirka=Math.round(P.sirka/rozliseni)*rozliseni;
+    const roztec=800/(P.paprsky-1),merenaVyska=Math.ceil(P.vyska/roztec)*roztec;
+    const krok=P.rychlost*10/P.frekvence,merenaDelka=Math.ceil(P.delka/krok)*krok;
+    const objem=merenaSirka*merenaVyska*merenaDelka/1e6;
+    const relativni=chybaSirka/merenaSirka+roztec/merenaVyska+krok/merenaDelka;
+    rez={zMin,zMax,rozliseni,chybaSirka,merenaSirka,roztec,krok,merenaVyska,merenaDelka,objem,chybaObjem:objem*relativni}; obnov();kresli();
+  }
+  const fmt=(n,d=1)=>n.toLocaleString('cs-CZ',{minimumFractionDigits:d,maximumFractionDigits:d});
+  function obnov(){
+    document.getElementById('rozsah').textContent=fmt(rez.zMin,0)+'–'+(Number.isFinite(rez.zMax)?fmt(rez.zMax,0)+' mm':'bez horní meze');document.getElementById('rozliseni').textContent=fmt(rez.rozliseni,2)+' mm/pixel';
+    document.getElementById('sirka-merena').textContent=fmt(rez.merenaSirka)+' mm';document.getElementById('sirka-chyba').textContent='± '+fmt(rez.chybaSirka,2)+' mm';
+    document.getElementById('roztec').textContent=fmt(rez.roztec)+' mm';document.getElementById('krok-vzorku').textContent=fmt(rez.krok)+' mm';document.getElementById('vyska-merena').textContent=fmt(rez.merenaVyska)+' mm';
+    document.getElementById('delka-merena').textContent=fmt(rez.merenaDelka)+' mm';document.getElementById('objem').textContent=fmt(rez.objem)+' litrů';document.getElementById('objem-chyba').textContent='± '+fmt(rez.chybaObjem)+' litru';
+  }
+  const plocha=Kurz.platno(document.getElementById('platno'),()=>kresli());
+  function cara(c,x1,y1,x2,y2,barva,sirka=2,carka=[]){c.strokeStyle=barva;c.lineWidth=sirka;c.setLineDash(carka);c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke();c.setLineDash([]);}
+  function text(c,s,x,y,barva='#0d1218',zar='left'){c.fillStyle=barva;c.font='13px Segoe UI';c.textAlign=zar;c.fillText(s,x,y);}
+  function kresli(){const c=plocha.ctx,w=plocha.sirka,h=plocha.vyska;if(!c||!w)return;c.clearRect(0,0,w,h);c.fillStyle='#fff';c.fillRect(0,0,w,h);if(rezim==='tri')kresliTri(c,w,h);else kresliBranu(c,w,h);}
+  function kresliTri(c,w,h){
+    const cy=h*.54,left=w*.09,right=w*.91,scale=(right-left)/800,half=P.sirka*scale/2,bL=w/2-half,bR=w/2+half;
+    c.fillStyle='#d97000';c.strokeStyle='#0d1218';c.lineWidth=3;c.fillRect(bL,cy-70,bR-bL,140);c.strokeRect(bL,cy-70,bR-bL,140);
+    [[left,1],[right,-1]].forEach(([x,dir])=>{c.fillStyle='#1145cf';c.fillRect(x-24,cy-30,48,60);c.strokeStyle='#0d1218';c.strokeRect(x-24,cy-30,48,60);const hit=dir===1?bL:bR;cara(c,x,cy-14,hit,cy,'#cc1233',2);cara(c,x,cy+14,hit,cy,'#cc1233',2);});
+    cara(c,bL,cy-88,bR,cy-88,'#0d1218',2,[6,4]);text(c,'skutečná šířka '+P.sirka+' mm',w/2,cy-98,'#0d1218','center');
+    const mxL=w/2-rez.merenaSirka*scale/2,mxR=w/2+rez.merenaSirka*scale/2;cara(c,mxL,cy+88,mxR,cy+88,'#1145cf',4);text(c,'naměřeno '+fmt(rez.merenaSirka)+' mm',w/2,cy+110,'#1145cf','center');
+    text(c,'pracovní vzdálenost '+P.pracovni+' mm',w*.09,35,'#4a5768');text(c,'úhel '+P.uhel+'° · ohnisko '+P.ohnisko+' mm',w*.91,35,'#4a5768','right');
+  }
+  function kresliBranu(c,w,h){
+    const x=w*.64,top=28,bottom=h-45,gh=bottom-top,roz=gh/(P.paprsky-1);c.fillStyle='#0d1218';c.fillRect(x-8,top-8,8,gh+16);c.fillRect(x+w*.18,top-8,8,gh+16);
+    for(let i=0;i<P.paprsky;i++){const y=bottom-i*roz;cara(c,x,y,x+w*.18,y,'#0a7d38',1.5);}
+    const ph=P.vyska/800*gh,pw=Math.min(w*.5,P.delka/900*w*.42),bx=(poloha*(w+pw*2))-pw,by=bottom-ph;
+    c.fillStyle='rgba(217,112,0,.78)';c.strokeStyle='#0d1218';c.lineWidth=3;c.fillRect(bx,by,pw,ph);c.strokeRect(bx,by,pw,ph);
+    const mh=Math.min(800,rez.merenaVyska)/800*gh,mw=Math.min(w*.5,rez.merenaDelka/900*w*.42);c.strokeStyle='#1145cf';c.lineWidth=4;c.strokeRect(bx-2,bottom-mh-2,mw+4,mh+4);
+    cara(c,20,bottom,w-20,bottom,'#0d1218',4);text(c,'brána: '+P.paprsky+' paprsků',x,20,'#4a5768');text(c,'jeden vzorek po '+fmt(rez.krok)+' mm pohybu',20,28,'#4a5768');
+  }
+  function nastavRezim(id){rezim=id;kresli();}
+  Kurz.zalozky('panel');document.querySelectorAll('#panel [role="tab"]').forEach(b=>b.addEventListener('click',()=>nastavRezim(b.dataset.zalozka)));
+  const nastaveni=[['uhel','uhel',v=>v+'°'],['ohnisko','ohnisko',v=>v+' mm'],['pracovni','pracovni',v=>v+' mm'],['sirka','sirka',v=>v+' mm'],['paprsky','paprsky',v=>v],['rychlost','rychlost',v=>fmt(v/100,2)+' m/s'],['frekvence','frekvence',v=>v+' Hz'],['vyska','vyska',v=>v+' mm'],['delka','delka',v=>v+' mm']];
+  nastaveni.forEach(([id,klic,format])=>Kurz.posuvnik(id,v=>{P[klic]=v;vypocet();},format));
+  const smycka=Kurz.smycka(dt=>{poloha=(poloha+dt*P.rychlost/180)%1;kresli();});
+  function zastav(){smycka.stop();document.getElementById('spustit').textContent='Spustit';}
+  document.getElementById('spustit').addEventListener('click',e=>{if(smycka.bezi)zastav();else{smycka.start();e.currentTarget.textContent='Zastavit';}});
+  function reset(){zastav();Object.assign(P,D);poloha=.05;nastaveni.forEach(([id,klic])=>{const el=document.getElementById(id);el.value=P[klic];el.dispatchEvent(new Event('input'));});vypocet();}
+  document.getElementById('reset').addEventListener('click',reset);document.getElementById('reset-tri').addEventListener('click',reset);
+  vypocet();
+})();
+</script>
+</body>
+</html>
