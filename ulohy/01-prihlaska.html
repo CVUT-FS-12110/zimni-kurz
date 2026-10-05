@@ -38,8 +38,39 @@
   .potvrzeni { padding: .7rem 1rem; border-left: 6px solid var(--shluk-3); background: #edf8f0; }
   .tabulka-parametru { width: 100%; border-collapse: collapse; font-size: .92rem; }
   .tabulka-parametru th, .tabulka-parametru td { padding: .4rem .55rem; border: 1px solid var(--ram); text-align: left; }
-  @media (max-width: 820px) { .prihlaska-dilna { grid-template-columns: 1fr; } }
-  @media (max-width: 580px) { .schema-rada { grid-template-columns: 1fr; } .schema-sipka { transform: rotate(90deg); } .odolnosti { grid-template-columns: 1fr; } }
+  .mapa-programu { max-width: 980px; margin: 1.4rem 0 2.4rem; padding: 1rem; border: 2px solid var(--ram-silny); border-radius: var(--radius); background: var(--pozadi-panel); }
+  .mapa-programu > p { max-width: 72ch; }
+  .mapa-oblasti { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; margin-top: 1rem; }
+  .mapa-oblast { padding: .8rem; border: 2px solid var(--ram); border-top: 6px solid var(--barva); border-radius: var(--radius); background: var(--pozadi); }
+  .mapa-oblast h3 { margin: 0 0 .35rem; }
+  .mapa-oblast p { margin: 0; color: var(--text-slaby); font-size: .86rem; line-height: 1.45; }
+  .mapa-oblast:nth-child(1) { --barva: var(--shluk-1); }
+  .mapa-oblast:nth-child(2) { --barva: var(--shluk-2); }
+  .mapa-oblast:nth-child(3) { --barva: var(--shluk-3); }
+  .mapa-oblast:nth-child(4) { --barva: var(--shluk-4); }
+  .mapa-oblast:nth-child(5) { --barva: var(--shluk-5); }
+  .mapa-oblast:nth-child(6) { --barva: var(--shluk-6); }
+  .pribeh { max-width: 1080px; margin: 2.5rem 0; }
+  .pribeh > .uvod { max-width: 72ch; }
+  .pribeh-kapitola { display: grid; grid-template-columns: minmax(280px, 1.05fr) minmax(300px, 1fr); gap: 1.25rem; align-items: center; margin: 1rem 0; padding: 1.2rem; border: 2px solid var(--ram-silny); border-radius: var(--radius); background: var(--pozadi); }
+  .pribeh-kapitola:nth-of-type(even) .pribeh-obrazek { order: 2; }
+  .pribeh-kapitola h3 { margin-top: 0; font-size: 1.2rem; }
+  .pribeh-kapitola ul { padding-left: 1.2rem; }
+  .pribeh-kapitola li { margin: .25rem 0; }
+  .pribeh-obrazek { min-width: 0; padding: .6rem; border-radius: var(--radius); background: var(--pozadi-panel); }
+  .pribeh-obrazek svg { display: block; width: 100%; height: auto; }
+  .pribeh-obrazek .uzel { fill: #fff; stroke: var(--ram-silny); stroke-width: 2; }
+  .pribeh-obrazek .uzel-akcent { fill: var(--pozadi-zvyraz); stroke: var(--akcent); stroke-width: 3; }
+  .pribeh-obrazek .spoj { fill: none; stroke: var(--ram-silny); stroke-width: 3; marker-end: url(#sipka); }
+  .pribeh-obrazek .spoj-data { fill: none; stroke: var(--akcent); stroke-width: 3; stroke-dasharray: 7 5; marker-end: url(#sipka-modra); }
+  .pribeh-obrazek text { fill: var(--text); font: 600 13px "Segoe UI", system-ui, sans-serif; text-anchor: middle; }
+  .pribeh-obrazek .maly-text { fill: var(--text-slaby); font-size: 11px; font-weight: 500; }
+  .dodatecne-poznamky { max-width: 1080px; margin: 2.5rem 0; }
+  .dodatecne-poznamky > p { max-width: 72ch; }
+  .pribeh-zaver { max-width: 72ch; margin: 1rem 0 2rem; padding: 1rem; border: 2px solid var(--akcent); border-radius: var(--radius); background: var(--pozadi-panel); font-size: 1.05rem; }
+  @media (max-width: 820px) { .prihlaska-dilna { grid-template-columns: 1fr; } .mapa-oblasti { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 760px) { .pribeh-kapitola { grid-template-columns: 1fr; } .pribeh-kapitola:nth-of-type(even) .pribeh-obrazek { order: initial; } }
+  @media (max-width: 580px) { .schema-rada, .mapa-oblasti { grid-template-columns: 1fr; } .schema-sipka { transform: rotate(90deg); } .odolnosti { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -47,6 +78,202 @@
   <a class="zpet" href="../index.html">← Zpět na rozcestník</a>
   <p class="pod-nadpisem">Lekce 1 — Vaše zásilka vzniká</p>
   <h1>Přihláška ke studiu</h1>
+
+  <aside class="mapa-programu" aria-labelledby="mapa-nadpis">
+    <h2 id="mapa-nadpis">Co ukáže tento kurz</h2>
+    <p>Tento kurz vybírá několik problémů, které se do větší hloubky probírají v bakalářském programu <a href="https://www.fs.cvut.cz/zajemci-o-studium/formy-studia/bakalarske-programy/aai-bakalarsky-program/">Automatizace a aplikovaná informatika na Fakultě strojní ČVUT</a>. Jednotlivé předměty se navzájem propojují; pro rychlou orientaci je lze rozdělit do šesti oblastí:</p>
+    <div class="mapa-oblasti">
+      <section class="mapa-oblast"><h3>Matematika a modelování</h3><p>Matematika I–III · Vybrané statě z algebry a komplexní analýzy · Numerická matematika</p></section>
+      <section class="mapa-oblast"><h3>Fyzika a mechanika</h3><p>Fyzika I · Mechanika I a II · Mechanika tekutin · Pružnost a pevnost I · Přenos hybnosti, tepla a hmoty</p></section>
+      <section class="mapa-oblast"><h3>Programování a data</h3><p>Základy programování · Algoritmy a datové struktury · Paralelní programování · Softwarové nástroje pro technické výpočty · Programování pro web · Počítačové sítě a kybernetická bezpečnost</p></section>
+      <section class="mapa-oblast"><h3>Automatizace a měření</h3><p>Moderní metody měření a sběru dat · Mikropočítače a aplikace v IoT · Přístrojová technika pro automatizaci · Programování PLC · Automatické řízení</p></section>
+      <section class="mapa-oblast"><h3>Konstrukce a výroba</h3><p>Základy strojírenského konstruování · Základy slévání, tváření a svařování · Základy obrábění, metrologie a projektování výroby · Základy nauky o materiálu</p></section>
+      <section class="mapa-oblast"><h3>Aplikace a souvislosti</h3><p>Vesmír a přístrojová technika · Podnikatelství pro techniky</p></section>
+    </div>
+  </aside>
+
+  <section class="pribeh" aria-labelledby="pribeh-nadpis">
+    <h2 id="pribeh-nadpis">Od jedné zásilky k propojenému světu techniky</h2>
+    <p class="uvod">Cesta obyčejné zásilky vypadá jednoduše jen zvenku. Ve skutečnosti za ní stojí dopravní síť, automatizované stroje, měření, software i lidé, kteří musí celý systém navrhnout a bezpečně provozovat.</p>
+
+    <article class="pribeh-kapitola">
+      <div class="pribeh-obrazek">
+        <svg viewBox="0 0 520 245" role="img" aria-labelledby="cesta-title cesta-desc">
+          <title id="cesta-title">Cesta zásilky propojeným systémem</title>
+          <desc id="cesta-desc">Zásilka putuje od odesílatele svozovým vozem do distribučního centra, dále kamionem a rozvozovým autem k příjemci. Informační systém sleduje celou cestu.</desc>
+          <defs>
+            <marker id="sipka" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#0d1218"/></marker>
+            <marker id="sipka-modra" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#0b46c8"/></marker>
+          </defs>
+          <path class="spoj" d="M92 155 H162 M252 155 H322 M412 155 H478"/>
+          <rect class="uzel" x="15" y="120" width="78" height="70" rx="6"/><text x="54" y="150">Odesílatel</text><text class="maly-text" x="54" y="170">zásilka</text>
+          <rect class="uzel" x="163" y="120" width="90" height="70" rx="6"/><text x="208" y="150">Svoz</text><text class="maly-text" x="208" y="170">auto</text>
+          <rect class="uzel-akcent" x="323" y="110" width="90" height="90" rx="6"/><text x="368" y="145">Distribuční</text><text x="368" y="163">centrum</text><text class="maly-text" x="368" y="183">stroje + lidé</text>
+          <rect class="uzel" x="478" y="120" width="38" height="70" rx="6"/><text x="497" y="150">Cíl</text><text class="maly-text" x="497" y="170">📦</text>
+          <rect class="uzel-akcent" x="165" y="18" width="210" height="58" rx="29"/><text x="270" y="43">Informační systém</text><text class="maly-text" x="270" y="61">ví, kde zásilka právě je</text>
+          <path class="spoj-data" d="M205 77 L205 112 M270 77 L352 105 M335 77 L492 114"/>
+        </svg>
+      </div>
+      <div>
+        <h3>1. Zásilka necestuje sama</h3>
+        <p>Jediné kliknutí v e-shopu spustí dlouhý řetězec rozhodnutí. Je potřeba naplánovat trasu, přidělit vozidlo, rozpoznat balík, přesměrovat jej na správný pás a předat informaci dalšímu místu.</p>
+        <p>Vedle fyzické zásilky proto putuje také její <strong>digitální popis</strong>: identifikátor, rozměry, hmotnost, cíl a historie pohybu.</p>
+      </div>
+    </article>
+
+    <article class="pribeh-kapitola">
+      <div class="pribeh-obrazek">
+        <svg viewBox="0 0 520 245" role="img" aria-labelledby="centrum-title centrum-desc">
+          <title id="centrum-title">Vrstvy automatizovaného distribučního centra</title>
+          <desc id="centrum-desc">Balík prochází přes senzor, dopravník a třídicí výhybku. Řídicí jednotka zpracovává měření a informační systém určuje cíl.</desc>
+          <defs><marker id="sipka2" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#0d1218"/></marker><marker id="sipka2m" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#0b46c8"/></marker></defs>
+          <path d="M30 182 H485" stroke="#0d1218" stroke-width="9"/><circle cx="70" cy="195" r="12" fill="#fff" stroke="#0d1218" stroke-width="3"/><circle cx="450" cy="195" r="12" fill="#fff" stroke="#0d1218" stroke-width="3"/>
+          <rect class="uzel-akcent" x="70" y="125" width="65" height="50" rx="5"/><text x="102" y="153">BALÍK</text>
+          <path d="M205 170 V92 H265 V170" fill="none" stroke="#0a7d38" stroke-width="7"/><circle cx="235" cy="106" r="10" fill="#0a7d38"/><text x="235" y="72">senzor</text>
+          <path d="M365 178 L430 135" fill="none" stroke="#cc1233" stroke-width="8"/><text x="402" y="115">výhybka</text>
+          <rect class="uzel" x="178" y="10" width="115" height="42" rx="6"/><text x="235" y="36">řídicí jednotka</text>
+          <rect class="uzel-akcent" x="330" y="10" width="155" height="42" rx="6"/><text x="407" y="36">informační systém</text>
+          <path d="M235 88 V57" fill="none" stroke="#0b46c8" stroke-width="3" marker-end="url(#sipka2m)"/><path d="M299 31 H324" fill="none" stroke="#0b46c8" stroke-width="3" marker-end="url(#sipka2m)"/><path d="M407 56 L407 102" fill="none" stroke="#0b46c8" stroke-width="3" marker-end="url(#sipka2m)"/>
+          <text class="maly-text" x="260" y="222">dopravník převádí rozhodnutí programu na pohyb</text>
+        </svg>
+      </div>
+      <div>
+        <h3>2. Jedno centrum, mnoho oborů</h3>
+        <p>Dopravník potřebuje pevnou konstrukci, vhodný motor a správný převod. Senzory musí balík spolehlivě najít a změřit. Program musí z měření rozhodnout, kam se má výhybka pohnout.</p>
+        <p>Každá vrstva může samostatně fungovat správně, a přesto může celek selhat. Senzor například měří přesně, ale na místě, kde přes něj balík projede příliš rychle.</p>
+      </div>
+    </article>
+
+    <article class="pribeh-kapitola">
+      <div class="pribeh-obrazek">
+        <svg viewBox="0 0 520 245" role="img" aria-labelledby="vyvoj-title vyvoj-desc">
+          <title id="vyvoj-title">Vývoj technického systému v čase</title>
+          <desc id="vyvoj-desc">Časová osa vede od ručně ovládaného mechanického stroje přes automatizaci a propojení až k systému využívajícímu data.</desc>
+          <defs><marker id="sipka3" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#0d1218"/></marker></defs>
+          <path d="M45 125 H480" fill="none" stroke="#0d1218" stroke-width="4" marker-end="url(#sipka3)"/>
+          <g><circle cx="75" cy="125" r="24" fill="#fff" stroke="#1145cf" stroke-width="5"/><text x="75" y="130">⚙</text><text x="75" y="78">Mechanický</text><text class="maly-text" x="75" y="94">člověk ovládá</text></g>
+          <g><circle cx="205" cy="125" r="24" fill="#fff" stroke="#0a7d38" stroke-width="5"/><text x="205" y="130">S</text><text x="205" y="173">Automatizovaný</text><text class="maly-text" x="205" y="190">senzory + řízení</text></g>
+          <g><circle cx="335" cy="125" r="24" fill="#fff" stroke="#d97000" stroke-width="5"/><text x="335" y="130">↔</text><text x="335" y="78">Propojený</text><text class="maly-text" x="335" y="94">sdílí data</text></g>
+          <g><circle cx="455" cy="125" r="24" fill="#fff" stroke="#7622d6" stroke-width="5"/><text x="455" y="130">AI</text><text x="455" y="173">Datově řízený</text><text class="maly-text" x="455" y="190">odhaduje a optimalizuje</text></g>
+          <text class="maly-text" x="260" y="225">Nová vrstva nenahrazuje předchozí — staví na ní.</text>
+        </svg>
+      </div>
+      <div>
+        <h3>3. Stroj se postupně stal systémem</h3>
+        <p>Mechanické stroje nejprve získaly elektrický pohon, potom senzory a programovatelné řízení. Později se propojily s dalšími stroji a informačními systémy. Dnes lze z provozních dat hledat závady nebo upravovat plán výroby.</p>
+        <p>Staré znalosti tím nezmizely. Ani moderní algoritmus nezachrání špatně navržené ložisko nebo motor, který nemá dostatečný výkon.</p>
+      </div>
+    </article>
+
+    <article class="pribeh-kapitola">
+      <div class="pribeh-obrazek">
+        <svg viewBox="0 0 520 245" role="img" aria-labelledby="auto-title auto-desc">
+          <title id="auto-title">Rozhodování autonomního vozidla</title>
+          <desc id="auto-desc">Senzory poskytují data počítači, ten vytváří model okolí, plánuje pohyb a ovládá vozidlo. Skutečný svět poskytuje novou zpětnou vazbu.</desc>
+          <defs><marker id="sipka4" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#0d1218"/></marker></defs>
+          <rect class="uzel" x="15" y="87" width="88" height="66" rx="6"/><text x="59" y="115">Senzory</text><text class="maly-text" x="59" y="134">kamera, radar</text>
+          <rect class="uzel-akcent" x="135" y="87" width="105" height="66" rx="6"/><text x="187" y="115">Model okolí</text><text class="maly-text" x="187" y="134">co je kolem?</text>
+          <rect class="uzel" x="272" y="87" width="105" height="66" rx="6"/><text x="324" y="115">Plán pohybu</text><text class="maly-text" x="324" y="134">co udělat?</text>
+          <rect class="uzel-akcent" x="409" y="87" width="95" height="66" rx="6"/><text x="456" y="115">Vozidlo</text><text class="maly-text" x="456" y="134">řízení, brzdy</text>
+          <path d="M105 120 H130 M242 120 H267 M379 120 H404" fill="none" stroke="#0d1218" stroke-width="3" marker-end="url(#sipka4)"/>
+          <path d="M456 160 C456 215 59 215 59 160" fill="none" stroke="#0b46c8" stroke-width="3" stroke-dasharray="7 5" marker-end="url(#sipka4)"/>
+          <text x="260" y="35">Rozhodnutí se stále opravuje podle reality</text><text class="maly-text" x="260" y="232">chyba měření → chyba modelu → chybné rozhodnutí</text>
+        </svg>
+      </div>
+      <div>
+        <h3>4. Autonomní neznamená bez odpovědnosti</h3>
+        <p>Autonomní rozvozové auto musí opakovaně měřit okolí, rozpoznávat objekty, plánovat bezpečný pohyb a ovládat skutečný stroj. Každé rozhodnutí závisí na kvalitě senzorů, programu i mechaniky.</p>
+        <p>Inženýr proto neřeší jen otázku „funguje to?“, ale také „jak bezpečně to selže?“ a „kdo pozná, že systému nelze věřit?“</p>
+      </div>
+    </article>
+
+    <p class="pribeh-zaver"><strong>Společná myšlenka:</strong> Moderní doprava ani výroba nejsou jeden stroj nebo jeden program. Jsou to propojené systémy, ve kterých se musí potkat mechanika, měření, řízení, software, data a odpovědnost lidí.</p>
+  </section>
+
+  <section class="dodatecne-poznamky" aria-labelledby="poznamky-nadpis">
+    <h2 id="poznamky-nadpis">Dodatečné poznámky</h2>
+    <p>Technický pokrok neurčuje jen to, co už umíme vymyslet. Stejně důležité je, co dokážeme spolehlivě postavit, vyzkoušet, zaplatit a zavést do skutečného provozu.</p>
+
+    <article class="pribeh-kapitola">
+      <div class="pribeh-obrazek">
+        <svg viewBox="0 0 520 310" role="img" aria-labelledby="setrvacnost-title setrvacnost-desc">
+          <title id="setrvacnost-title">Křivka šíření inovací</title>
+          <desc id="setrvacnost-desc">Technologii nejprve přijímají inovátoři, poté časní osvojitelé, časná většina, pozdní většina a nakonec opozdilci. Největší část praxe se mění až ve fázi obou většin.</desc>
+          <defs>
+            <clipPath id="krivka-inovaci"><path d="M28 205 C85 205 110 190 150 135 C190 78 220 45 260 45 C300 45 330 78 370 135 C410 190 435 205 492 205 L492 205 L28 205 Z"/></clipPath>
+            <marker id="sipka6" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#0d1218"/></marker>
+          </defs>
+          <g clip-path="url(#krivka-inovaci)">
+            <rect x="28" y="42" width="65" height="164" fill="#1145cf"/>
+            <rect x="93" y="42" width="68" height="164" fill="#007c86"/>
+            <rect x="161" y="42" width="99" height="164" fill="#0a7d38"/>
+            <rect x="260" y="42" width="99" height="164" fill="#d97000"/>
+            <rect x="359" y="42" width="133" height="164" fill="#7622d6"/>
+          </g>
+          <path d="M28 205 C85 205 110 190 150 135 C190 78 220 45 260 45 C300 45 330 78 370 135 C410 190 435 205 492 205" fill="none" stroke="#0d1218" stroke-width="3"/>
+          <path d="M28 205 H500" fill="none" stroke="#0d1218" stroke-width="3" marker-end="url(#sipka6)"/>
+          <path d="M93 159 V205 M161 68 V205 M260 92 V205 M359 68 V205" stroke="#fff" stroke-width="2" opacity=".9"/>
+          <g class="maly-text">
+            <text x="61" y="226"><tspan x="61">Inovátoři</tspan><tspan x="61" dy="14">2,5 %</tspan></text>
+            <text x="127" y="220"><tspan x="127">Časní</tspan><tspan x="127" dy="14">osvojitelé</tspan><tspan x="127" dy="14">13,5 %</tspan></text>
+            <text x="210" y="220"><tspan x="210">Časná</tspan><tspan x="210" dy="14">většina</tspan><tspan x="210" dy="14">34 %</tspan></text>
+            <text x="310" y="220"><tspan x="310">Pozdní</tspan><tspan x="310" dy="14">většina</tspan><tspan x="310" dy="14">34 %</tspan></text>
+            <text x="425" y="226"><tspan x="425">Opozdilci</tspan><tspan x="425" dy="14">16 %</tspan></text>
+          </g>
+          <text class="maly-text" x="260" y="296">čas a rozšíření technologie v praxi →</text>
+        </svg>
+      </div>
+      <div>
+        <h3>Poznámka 1 — Proč je praxe často pozadu</h3>
+        <p>Od fungujícího nápadu k běžnému provozu vede dlouhá cesta. Návrh zařízení, výroba prototypu a hlavně testování automatizace stojí mnoho času, peněz a práce. U systému, který má řídit továrnu nebo dopravu, nestačí ukázat, že funguje jednou v laboratoři. Musí spolehlivě zvládnout tisíce běžných i nečekaných situací.</p>
+        <p>Mnoho principů automatizace proto známe dlouho, ale jejich zavedení se vyplatí až ve chvíli, kdy někdo získá dostatek zdrojů a důvod podstoupit změnu. Křivka šíření inovací ukazuje, že první pokusy malé skupiny inovátorů předcházejí přijetí většinou často o dlouhou dobu. Existující stroje, postupy a kvalifikace lidí vytvářejí obrovskou setrvačnost.</p>
+        <p>Hnací silou bývá až nutnost: tlak konkurence, nedostatek pracovníků, drahá nebo omezená energie, požadavek na vyšší bezpečnost či potřeba vyrábět přesněji.</p>
+      </div>
+    </article>
+
+    <article class="pribeh-kapitola">
+      <div class="pribeh-obrazek">
+        <svg viewBox="0 0 520 245" role="img" aria-labelledby="vs-title vs-desc">
+          <title id="vs-title">Postup řešení otevřeného technického problému</title>
+          <desc id="vs-desc">Technický problém vede přes zjednodušený model, výpočet nebo experiment a ověření až k řešení. Výsledek ověření často vrací práci k modelu.</desc>
+          <defs><marker id="sipka5" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#0d1218"/></marker></defs>
+          <rect class="uzel" x="15" y="85" width="92" height="65" rx="6"/><text x="61" y="112">Problém</text><text class="maly-text" x="61" y="132">neúplné zadání</text>
+          <rect class="uzel-akcent" x="140" y="85" width="92" height="65" rx="6"/><text x="186" y="112">Model</text><text class="maly-text" x="186" y="132">zjednodušení</text>
+          <rect class="uzel" x="265" y="85" width="105" height="65" rx="6"/><text x="317" y="112">Experiment</text><text class="maly-text" x="317" y="132">výpočet, měření</text>
+          <rect class="uzel-akcent" x="403" y="85" width="102" height="65" rx="6"/><text x="454" y="112">Ověření</text><text class="maly-text" x="454" y="132">odpovídá realitě?</text>
+          <path d="M109 118 H135 M234 118 H260 M372 118 H398" fill="none" stroke="#0d1218" stroke-width="3" marker-end="url(#sipka5)"/>
+          <path d="M454 157 C454 215 186 215 186 157" fill="none" stroke="#0b46c8" stroke-width="3" stroke-dasharray="7 5" marker-end="url(#sipka5)"/>
+          <text x="260" y="35">Řešení málokdy vznikne na první pokus</text>
+        </svg>
+      </div>
+      <div>
+        <h3>Poznámka 2 — Co se mění při studiu na vysoké škole</h3>
+        <p>Úloha už nemusí mít připravený návod ani jediný správný výsledek. Je potřeba rozhodnout, které informace jsou důležité, co lze zanedbat a podle čeho se pozná dobré řešení.</p>
+        <p>Přednášky dávají principy, cvičení učí jejich použití a laboratoře konfrontují model se skutečností. Neúspěšný první pokus přitom není konec, ale informace pro další návrh.</p>
+      </div>
+    </article>
+
+    <article class="pribeh-kapitola">
+      <div class="pribeh-obrazek">
+        <svg viewBox="0 0 520 245" role="img" aria-labelledby="ai-title ai-desc">
+          <title id="ai-title">Spolupráce člověka a umělé inteligence</title>
+          <desc id="ai-desc">Člověk určuje problém, omezení a ověřuje skutečnost. Umělá inteligence navrhuje varianty a hledá vzory v datech. Rozhodnutí vzniká jejich spoluprací.</desc>
+          <circle cx="165" cy="120" r="82" fill="#dfe5ef" stroke="#1145cf" stroke-width="4"/><circle cx="355" cy="120" r="82" fill="#edf8f0" stroke="#0a7d38" stroke-width="4"/>
+          <text x="165" y="68">Člověk</text><text class="maly-text" x="165" y="98">určí problém</text><text class="maly-text" x="165" y="120">zná souvislosti</text><text class="maly-text" x="165" y="142">ověří realitu</text><text class="maly-text" x="165" y="164">nese odpovědnost</text>
+          <text x="355" y="68">AI</text><text class="maly-text" x="355" y="98">hledá vzory</text><text class="maly-text" x="355" y="120">navrhuje varianty</text><text class="maly-text" x="355" y="142">zpracuje data</text><text class="maly-text" x="355" y="164">pomáhá s kódem</text>
+          <path d="M232 105 H288 M288 135 H232" fill="none" stroke="#0d1218" stroke-width="3"/><path d="M281 98 L292 105 L281 112 M239 128 L228 135 L239 142" fill="none" stroke="#0d1218" stroke-width="3"/>
+          <text x="260" y="218">Nástroj nenahrazuje porozumění systému.</text>
+        </svg>
+      </div>
+      <div>
+        <h3>Poznámka 3 — AI mění nástroje, ne fyzikální svět</h3>
+        <p>Umělá inteligence může navrhnout program, hledat neobvyklé chování stroje nebo porovnat mnoho variant. Sama ale nepozná, zda dostala správná data a zda její návrh bude bezpečně fungovat ve skutečném provozu.</p>
+        <p>Čím výkonnější nástroje používáme, tím důležitější je rozumět základům a umět výsledek ověřit.</p>
+      </div>
+    </article>
+
+    <p class="pribeh-zaver"><strong>Společná myšlenka:</strong> Inženýrské vzdělání není jen sbírka vzorců a programovacích jazyků. Učí propojovat skutečný svět, jeho zjednodušený model, naměřená data a rozhodnutí, za která někdo nese odpovědnost.</p>
+  </section>
 
   <section class="sekce">
     <h2>1. Jak pošlete svou přihlášku?</h2>
@@ -149,7 +376,6 @@
     <p>Neexistuje jedna zásilka, která je nejlepší ve všem. Přidání výplně zvyšuje ochranu, ale současně rozměry a hmotnost. Navíc obaly mají jen několik pevných velikostí: jediných 5 mm navíc může vynutit větší krabici a způsobit náhlý skok objemu. Odolnost také není jedna vlastnost — řešení výborné proti nárazu nemusí chránit před vodou, teplem nebo elektromagnetickým polem. Návrh je proto hledáním kompromisu mezi několika měřitelnými cíli.</p>
   </section>
 
-  <section class="sekce"><h2>4. Kde se to učí</h2></section>
   <p class="paticka"><a href="../index.html">← Zpět na rozcestník</a></p>
 </main>
 

@@ -5,6 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Zimní kurz</title>
 <link rel="stylesheet" href="assets/css/styl.css">
+<style>
+  .harmonogram { margin: 1.5rem 0 2.5rem; }
+  .harmonogram h2 { max-width: 70ch; }
+  .harmonogram-kroky { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: .8rem; margin: 1rem 0 0; padding: 0; list-style: none; counter-reset: krok; }
+  .harmonogram-krok { position: relative; padding: 1rem; border: 2px solid var(--ram-silny); border-top: 6px solid var(--barva); border-radius: var(--radius); background: var(--pozadi-panel); counter-increment: krok; }
+  .harmonogram-krok::before { content: counter(krok); display: grid; place-items: center; width: 2rem; height: 2rem; margin-bottom: .5rem; border-radius: 50%; color: var(--akcent-text); background: var(--barva); font-weight: 800; }
+  .harmonogram-krok strong, .harmonogram-krok span { display: block; }
+  .harmonogram-krok span { margin-top: .25rem; color: var(--text-slaby); font-size: .92rem; }
+  .harmonogram-krok:nth-child(1) { --barva: var(--shluk-1); }
+  .harmonogram-krok:nth-child(2) { --barva: var(--shluk-3); }
+  .harmonogram-krok:nth-child(3) { --barva: var(--shluk-5); }
+  @media (max-width: 680px) { .harmonogram-kroky { grid-template-columns: 1fr; } }
+</style>
 </head>
 <body>
 <main class="stranka">
@@ -19,9 +32,16 @@
     jeden zdánlivě jednoduchý problém a nechá jej nejprve prozkoumat v interaktivní úloze.
   </p>
 
-  <nav id="rozcestnik" class="seznam-lekci" aria-label="Lekce kurzu"></nav>
+  <section class="harmonogram" aria-labelledby="harmonogram-nadpis">
+    <h2 id="harmonogram-nadpis">Jak bude kurz probíhat</h2>
+    <ol class="harmonogram-kroky">
+      <li class="harmonogram-krok"><strong>Úvodní hodina</strong><span>Seznámení s kurzem a příprava vlastní zásilky.</span></li>
+      <li class="harmonogram-krok"><strong>12 úloh</strong><span>Každý týden přibude nový problém, interaktivní experiment a vysvětlení souvislostí.</span></li>
+      <li class="harmonogram-krok"><strong>Závěrečné cvičení</strong><span>Společná rekapitulace připomene hlavní poznatky a uzavře celý kurz.</span></li>
+    </ol>
+  </section>
 
-  <p class="paticka">Začněte volbou trasy, nebo otevřete libovolnou samostatnou lekci.</p>
+  <nav id="rozcestnik" class="seznam-lekci" aria-label="Lekce kurzu"></nav>
 
 </main>
 
@@ -29,7 +49,7 @@
 <script>
 (function () {
   const cil = document.getElementById('rozcestnik');
-  window.LEKCE.forEach((lekce, i) => {
+  window.LEKCE.filter(lekce => lekce.verejna).forEach((lekce, i) => {
     const odkaz = document.createElement('a');
     odkaz.className = 'lekce-karta';
     odkaz.href = lekce.soubor;

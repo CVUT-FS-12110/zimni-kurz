@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rozpracované lekce — Zimní kurz</title>
+<link rel="stylesheet" href="../assets/css/styl.css">
+</head>
+<body>
+<main class="stranka">
+  <a class="zpet" href="../index.html">← Veřejný rozcestník</a>
+  <p class="pod-nadpisem">Vývojová verze kurzu</p>
+  <h1>Rozpracované lekce</h1>
+  <p class="uvod">Tyto lekce ještě nejsou součástí veřejné podoby kurzu. Slouží k průběžné kontrole obsahu a interaktivních ukázek.</p>
+
+  <nav id="rozcestnik" class="seznam-lekci" aria-label="Rozpracované lekce kurzu"></nav>
+
+  <p class="paticka"><a href="../index.html">← Zpět na veřejný rozcestník</a></p>
+</main>
+
+<script src="../assets/js/ulohy.js"></script>
+<script>
+(function () {
+  const cil = document.getElementById('rozcestnik');
+  window.LEKCE.forEach((lekce, i) => {
+    if (lekce.verejna) return;
+    const odkaz = document.createElement('a');
+    odkaz.className = 'lekce-karta';
+    odkaz.href = '../' + lekce.soubor;
+
+    const cislo = document.createElement('span');
+    cislo.className = 'lekce-cislo';
+    cislo.textContent = String(i + 1).padStart(2, '0');
+
+    const obsah = document.createElement('span');
+    obsah.className = 'lekce-obsah';
+    const nazev = document.createElement('strong');
+    nazev.className = 'lekce-nazev';
+    nazev.textContent = lekce.nazev;
+    const tema = document.createElement('span');
+    tema.className = 'lekce-tema';
+    tema.textContent = lekce.tema;
+    const popis = document.createElement('span');
+    popis.className = 'lekce-popis';
+    popis.textContent = lekce.popis;
+    const okruh = document.createElement('span');
+    okruh.className = 'lekce-okruh';
+    okruh.textContent = lekce.okruh;
+    obsah.append(nazev, tema, popis, okruh);
+
+    const sipka = document.createElement('span');
+    sipka.className = 'lekce-sipka';
+    sipka.setAttribute('aria-hidden', 'true');
+    sipka.textContent = '→';
+    odkaz.append(cislo, obsah, sipka);
+    cil.appendChild(odkaz);
+  });
+})();
+</script>
+</body>
+</html>
