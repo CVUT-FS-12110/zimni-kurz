@@ -51,6 +51,13 @@
   .mapa-oblast:nth-child(4) { --barva: var(--shluk-4); }
   .mapa-oblast:nth-child(5) { --barva: var(--shluk-5); }
   .mapa-oblast:nth-child(6) { --barva: var(--shluk-6); }
+  .studium-vs { max-width: 1080px; margin: 2.5rem 0; }
+  .studium-vs > p { max-width: 72ch; }
+  .studium-prehled { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; margin-top: 1rem; }
+  .studium-bod { padding: 1rem; border: 2px solid var(--ram); border-radius: var(--radius); background: var(--pozadi-panel); }
+  .studium-bod h3 { margin: 0 0 .4rem; font-size: 1.05rem; }
+  .studium-bod p { margin: 0; }
+  .studium-bod--odpovednost { border-color: var(--akcent); }
   .pribeh { max-width: 1080px; margin: 2.5rem 0; }
   .pribeh > .uvod { max-width: 72ch; }
   .pribeh-kapitola { display: grid; grid-template-columns: minmax(280px, 1.05fr) minmax(300px, 1fr); gap: 1.25rem; align-items: center; margin: 1rem 0; padding: 1.2rem; border: 2px solid var(--ram-silny); border-radius: var(--radius); background: var(--pozadi); }
@@ -74,7 +81,7 @@
   .pribeh-zaver { max-width: 72ch; margin: 1rem 0 2rem; padding: 1rem; border: 2px solid var(--akcent); border-radius: var(--radius); background: var(--pozadi-panel); font-size: 1.05rem; }
   @media (max-width: 820px) { .prihlaska-dilna { grid-template-columns: 1fr; } .mapa-oblasti { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   @media (max-width: 760px) { .pribeh-kapitola { grid-template-columns: 1fr; } .pribeh-kapitola:nth-of-type(even) .pribeh-obrazek { order: initial; } }
-  @media (max-width: 580px) { .schema-rada, .mapa-oblasti { grid-template-columns: 1fr; } .schema-sipka { transform: rotate(90deg); } .odolnosti { grid-template-columns: 1fr; } }
+  @media (max-width: 580px) { .schema-rada, .mapa-oblasti, .studium-prehled { grid-template-columns: 1fr; } .schema-sipka { transform: rotate(90deg); } .odolnosti { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -95,6 +102,29 @@
       <section class="mapa-oblast"><h3>Aplikace a souvislosti</h3><p>Vesmír a přístrojová technika · Podnikatelství pro techniky</p></section>
     </div>
   </aside>
+
+  <section class="studium-vs" aria-labelledby="studium-vs-nadpis">
+    <h2 id="studium-vs-nadpis">Jak funguje studium na vysoké škole</h2>
+    <p>Vysoká škola dává studentům větší volnost než střední škola, ale zároveň od nich očekává větší samostatnost. Vyučující předají látku, zadávají práci a ověřují výsledky; hlídat si povinnosti a včas řešit problémy musí především každý student sám.</p>
+    <div class="studium-prehled">
+      <article class="studium-bod">
+        <h3>Přednášky a cvičení</h3>
+        <p>Jedna přednáška nebo cvičení obvykle trvá 90 minut. Přednáška vysvětluje nové principy, zatímco na cvičení se počítá, programuje, měří nebo řeší konkrétní úlohy. Velká část výuky je proto aktivní práce, ne jen poslouchání.</p>
+      </article>
+      <article class="studium-bod">
+        <h3>Dobrovolná neznamená zbytečná</h3>
+        <p>Účast na přednáškách bývá dobrovolná. U zkoušky je však potřeba látku znát bez ohledu na to, zda student na přednášku přišel. Kdo se výuky neúčastní, musí si stejné znalosti doplnit jiným způsobem.</p>
+      </article>
+      <article class="studium-bod">
+        <h3>Semestr a zkouškové období</h3>
+        <p>Během semestru se plní úlohy, projekty, měření nebo průběžné testy. Po skončení výuky následuje zkouškové období, ve kterém se konají závěrečné zkoušky. Učit se všechno až na jeho začátku bývá pozdě.</p>
+      </article>
+      <article class="studium-bod studium-bod--odpovednost">
+        <h3>Odpovědnost je na studentovi</h3>
+        <p>Vyučující nemusí jednotlivě upozorňovat na každou absenci, nesplněný úkol ani blížící se termín. Pokud student přestane docházet, neplní povinnosti a nekomunikuje, může být jeho práce v předmětu ukončena bez dalšího osobního varování. Problém je proto potřeba řešit včas.</p>
+      </article>
+    </div>
+  </section>
 
   <section class="pribeh" aria-labelledby="pribeh-nadpis">
     <h2 id="pribeh-nadpis">Od jedné zásilky k propojenému světu techniky</h2>
@@ -127,6 +157,56 @@
 
     <article class="pribeh-kapitola">
       <div class="pribeh-obrazek">
+        <svg viewBox="0 0 520 300" role="img" aria-labelledby="databaze-title databaze-desc">
+          <title id="databaze-title">Databázové schéma informačního systému zásilek</title>
+          <desc id="databaze-desc">Tabulka zásilek je propojena se zákazníky, záznamy pohybu a uzly distribuční sítě pomocí identifikátorů.</desc>
+          <defs><marker id="sipka-db" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#0d1218"/></marker></defs>
+          <rect class="uzel" x="15" y="25" width="140" height="92" rx="6"/>
+          <text x="85" y="48">ZÁKAZNÍK</text><text class="maly-text" x="85" y="70">id_zákazníka</text><text class="maly-text" x="85" y="88">jméno</text><text class="maly-text" x="85" y="106">adresa</text>
+          <rect class="uzel-akcent" x="190" y="20" width="150" height="110" rx="6"/>
+          <text x="265" y="43">ZÁSILKA</text><text class="maly-text" x="265" y="65">id_zásilky</text><text class="maly-text" x="265" y="83">odesílatel_id</text><text class="maly-text" x="265" y="101">příjemce_id</text><text class="maly-text" x="265" y="119">rozměry, hmotnost</text>
+          <rect class="uzel" x="375" y="25" width="130" height="92" rx="6"/>
+          <text x="440" y="48">UZEL SÍTĚ</text><text class="maly-text" x="440" y="70">id_uzlu</text><text class="maly-text" x="440" y="88">název</text><text class="maly-text" x="440" y="106">poloha</text>
+          <rect class="uzel-akcent" x="180" y="180" width="170" height="100" rx="6"/>
+          <text x="265" y="203">POHYB ZÁSILKY</text><text class="maly-text" x="265" y="225">id_zásilky</text><text class="maly-text" x="265" y="243">id_uzlu</text><text class="maly-text" x="265" y="261">čas + událost</text>
+          <path d="M160 70 H184 M345 70 H369 M265 136 V174 M355 230 C415 230 440 170 440 123" fill="none" stroke="#0d1218" stroke-width="3" marker-end="url(#sipka-db)"/>
+          <text class="maly-text" x="174" y="60">1 : N</text><text class="maly-text" x="356" y="60">N : 1</text><text class="maly-text" x="286" y="158">1 : N</text>
+        </svg>
+      </div>
+      <div>
+        <h3>2. Informační systém propojuje celý provoz</h3>
+        <p><strong>Informační systém</strong> není jen obrazovka pro obsluhu. Přijímá data ze čteček a vah, kontroluje je, ukládá je do databáze a poskytuje je dalším částem firmy — například plánování dopravy, zákaznické podpoře nebo řízení skladu.</p>
+        <p><strong>Databáze</strong> ukládá údaje do propojených tabulek. Zásilka má jedinečný identifikátor a každý její průchod uzlem vytvoří nový záznam s místem, časem a typem události. Historie se tedy nepřepisuje; postupně se skládá z jednotlivých záznamů.</p>
+        <p>Díky vazbám mezi tabulkami lze odpovědět na otázky jako „Kde byla zásilka naposledy?“, „Kolik balíků čeká v tomto centru?“ nebo „Který uzel má dnes největší zpoždění?“ Chybný identifikátor však může propojit správná data se špatnou zásilkou.</p>
+      </div>
+    </article>
+
+    <article class="pribeh-kapitola">
+      <div class="pribeh-obrazek">
+        <svg viewBox="0 0 520 285" role="img" aria-labelledby="dvojce-title dvojce-desc">
+          <title id="dvojce-title">Datový tok mezi skutečným strojem a digitálním dvojčetem</title>
+          <desc id="dvojce-desc">Senzory posílají měření fyzického dopravníku do digitálního modelu. Model porovnává očekávaný a skutečný stav, simuluje změny a vrací doporučení obsluze nebo řízení.</desc>
+          <defs><marker id="sipka-dvojce" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#0d1218"/></marker><marker id="sipka-dvojce-modra" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#0b46c8"/></marker></defs>
+          <rect class="uzel" x="20" y="55" width="170" height="155" rx="8"/>
+          <text x="105" y="82">FYZICKÝ SYSTÉM</text><path d="M42 160 H168" stroke="#0d1218" stroke-width="8"/><circle cx="62" cy="173" r="10" fill="#fff" stroke="#0d1218" stroke-width="3"/><circle cx="148" cy="173" r="10" fill="#fff" stroke="#0d1218" stroke-width="3"/><rect class="uzel-akcent" x="73" y="119" width="62" height="35" rx="4"/><text class="maly-text" x="104" y="141">balík</text><text class="maly-text" x="105" y="198">stroj + senzory</text>
+          <rect class="uzel-akcent" x="330" y="55" width="170" height="155" rx="8"/>
+          <text x="415" y="82">DIGITÁLNÍ DVOJČE</text><rect class="uzel" x="355" y="102" width="120" height="38" rx="5"/><text class="maly-text" x="415" y="125">aktuální stav</text><rect class="uzel" x="355" y="151" width="120" height="38" rx="5"/><text class="maly-text" x="415" y="174">model + simulace</text>
+          <path d="M196 105 H323" fill="none" stroke="#0b46c8" stroke-width="4" marker-end="url(#sipka-dvojce-modra)"/><text class="maly-text" x="260" y="94">měření</text>
+          <path d="M324 178 H197" fill="none" stroke="#0d1218" stroke-width="4" marker-end="url(#sipka-dvojce)"/><text class="maly-text" x="260" y="199">doporučení / nastavení</text>
+          <rect class="uzel" x="155" y="238" width="210" height="35" rx="17"/><text class="maly-text" x="260" y="260">databáze uchovává vývoj v čase</text>
+          <path d="M205 211 L225 234 M315 234 L335 211" fill="none" stroke="#0d1218" stroke-width="2" stroke-dasharray="5 4"/>
+        </svg>
+      </div>
+      <div>
+        <h3>3. Digitální dvojče sleduje skutečný stroj</h3>
+        <p><strong>Digitální dvojče</strong> je průběžně aktualizovaný model konkrétního stroje nebo celého provozu. Není to pouze trojrozměrný obrázek. Obsahuje důležité vlastnosti systému a ze senzorů dostává informace o rychlosti, teplotě, zatížení nebo počtu zpracovaných zásilek.</p>
+        <p>Model může porovnat očekávané chování se skutečným, upozornit na postupné opotřebení nebo bezpečně vyzkoušet změnu rychlosti dopravníku ještě před zásahem do provozu. Výsledek pak slouží člověku jako doporučení, případně se po kontrole vrátí do řídicího systému jako nové nastavení.</p>
+        <p>Dvojče je užitečné jen tehdy, když odpovídá realitě. Vadný senzor, opožděná data nebo příliš zjednodušený model mohou vytvořit přesvědčivý, ale chybný obraz skutečného stroje.</p>
+      </div>
+    </article>
+
+    <article class="pribeh-kapitola">
+      <div class="pribeh-obrazek">
         <svg viewBox="0 0 520 245" role="img" aria-labelledby="centrum-title centrum-desc">
           <title id="centrum-title">Vrstvy automatizovaného distribučního centra</title>
           <desc id="centrum-desc">Balík prochází přes senzor, dopravník a třídicí výhybku. Řídicí jednotka zpracovává měření a informační systém určuje cíl.</desc>
@@ -142,7 +222,7 @@
         </svg>
       </div>
       <div>
-        <h3>2. Jedno centrum, mnoho oborů</h3>
+        <h3>4. Jedno centrum, mnoho oborů</h3>
         <p>Dopravník potřebuje pevnou konstrukci, vhodný motor a správný převod. Senzory musí balík spolehlivě najít a změřit. Program musí z měření rozhodnout, kam se má výhybka pohnout.</p>
         <p>Každá vrstva může samostatně fungovat správně, a přesto může celek selhat. Senzor například měří přesně, ale na místě, kde přes něj balík projede příliš rychle.</p>
       </div>
@@ -163,7 +243,7 @@
         </svg>
       </div>
       <div>
-        <h3>3. Stroj se postupně stal systémem</h3>
+        <h3>5. Stroj se postupně stal systémem</h3>
         <p>Mechanické stroje nejprve získaly elektrický pohon, potom senzory a programovatelné řízení. Později se propojily s dalšími stroji a informačními systémy. Dnes lze z provozních dat hledat závady nebo upravovat plán výroby.</p>
         <p>Staré znalosti tím nezmizely. Ani moderní algoritmus nezachrání špatně navržené ložisko nebo motor, který nemá dostatečný výkon.</p>
       </div>
@@ -185,13 +265,13 @@
         </svg>
       </div>
       <div>
-        <h3>4. Autonomní neznamená bez odpovědnosti</h3>
+        <h3>6. Autonomní neznamená bez odpovědnosti</h3>
         <p>Autonomní rozvozové auto musí opakovaně měřit okolí, rozpoznávat objekty, plánovat bezpečný pohyb a ovládat skutečný stroj. Každé rozhodnutí závisí na kvalitě senzorů, programu i mechaniky.</p>
         <p>Inženýr proto neřeší jen otázku „funguje to?“, ale také „jak bezpečně to selže?“ a „kdo pozná, že systému nelze věřit?“</p>
       </div>
     </article>
 
-    <p class="pribeh-zaver"><strong>Společná myšlenka:</strong> Moderní doprava ani výroba nejsou jeden stroj nebo jeden program. Jsou to propojené systémy, ve kterých se musí potkat mechanika, měření, řízení, software, data a odpovědnost lidí.</p>
+    <p class="pribeh-zaver"><strong>Společná myšlenka:</strong> Moderní doprava ani výroba nejsou jeden stroj nebo jeden program. Fyzické zařízení vytváří data, informační systém je propojuje, databáze uchovává jejich historii a digitální dvojče z nich sestavuje použitelný obraz reality. Teprve společně s mechanikou, měřením, řízením a odpovědností lidí vzniká systém, kterému lze důvěřovat.</p>
   </section>
 
   <section class="dodatecne-poznamky" aria-labelledby="poznamky-nadpis">
