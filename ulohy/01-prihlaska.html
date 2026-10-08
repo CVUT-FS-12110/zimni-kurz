@@ -17,6 +17,7 @@
   .formular legend { margin-bottom: .45rem; font-weight: 800; }
   .formular label:not(.volba) { display: block; margin-bottom: .2rem; font-weight: 600; }
   .formular input[type="text"], .formular select { width: 100%; padding: .5rem; font: inherit; color: var(--text); background: var(--pozadi); border: 2px solid var(--ram); border-radius: 4px; }
+  .pomer-popisky { display: flex; justify-content: space-between; gap: 1rem; margin-top: .2rem; color: var(--text-slaby); font-size: .8rem; }
   .volby { display: grid; gap: .35rem; }
   .volba { display: grid; grid-template-columns: auto 1fr auto; gap: .55rem; align-items: center; padding: .45rem .55rem; background: var(--pozadi); border: 2px solid var(--ram); border-radius: 4px; cursor: pointer; }
   .volba:has(input:checked) { border-color: var(--akcent); }
@@ -57,7 +58,10 @@
   .pribeh-kapitola h3 { margin-top: 0; font-size: 1.2rem; }
   .pribeh-kapitola ul { padding-left: 1.2rem; }
   .pribeh-kapitola li { margin: .25rem 0; }
+  .pribeh-kapitola--siroka { grid-template-columns: 1fr; }
+  .pribeh-kapitola--siroka .pribeh-obrazek { order: initial; }
   .pribeh-obrazek { min-width: 0; padding: .6rem; border-radius: var(--radius); background: var(--pozadi-panel); }
+  .pribeh-obrazek img { display: block; width: 100%; height: auto; border-radius: calc(var(--radius) - 2px); }
   .pribeh-obrazek svg { display: block; width: 100%; height: auto; }
   .pribeh-obrazek .uzel { fill: #fff; stroke: var(--ram-silny); stroke-width: 2; }
   .pribeh-obrazek .uzel-akcent { fill: var(--pozadi-zvyraz); stroke: var(--akcent); stroke-width: 3; }
@@ -233,46 +237,37 @@
 
     <article class="pribeh-kapitola">
       <div class="pribeh-obrazek">
-        <svg viewBox="0 0 520 245" role="img" aria-labelledby="vs-title vs-desc">
-          <title id="vs-title">Postup řešení otevřeného technického problému</title>
-          <desc id="vs-desc">Technický problém vede přes zjednodušený model, výpočet nebo experiment a ověření až k řešení. Výsledek ověření často vrací práci k modelu.</desc>
-          <defs><marker id="sipka5" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#0d1218"/></marker></defs>
-          <rect class="uzel" x="15" y="85" width="92" height="65" rx="6"/><text x="61" y="112">Problém</text><text class="maly-text" x="61" y="132">neúplné zadání</text>
-          <rect class="uzel-akcent" x="140" y="85" width="92" height="65" rx="6"/><text x="186" y="112">Model</text><text class="maly-text" x="186" y="132">zjednodušení</text>
-          <rect class="uzel" x="265" y="85" width="105" height="65" rx="6"/><text x="317" y="112">Experiment</text><text class="maly-text" x="317" y="132">výpočet, měření</text>
-          <rect class="uzel-akcent" x="403" y="85" width="102" height="65" rx="6"/><text x="454" y="112">Ověření</text><text class="maly-text" x="454" y="132">odpovídá realitě?</text>
-          <path d="M109 118 H135 M234 118 H260 M372 118 H398" fill="none" stroke="#0d1218" stroke-width="3" marker-end="url(#sipka5)"/>
-          <path d="M454 157 C454 215 186 215 186 157" fill="none" stroke="#0b46c8" stroke-width="3" stroke-dasharray="7 5" marker-end="url(#sipka5)"/>
-          <text x="260" y="35">Řešení málokdy vznikne na první pokus</text>
+        <svg viewBox="0 0 520 245" role="img" aria-labelledby="konkurence-title konkurence-desc">
+          <title id="konkurence-title">Automatizace pomáhá snižovat náklady</title>
+          <desc id="konkurence-desc">Automatizace omezuje spotřebu energie, potřebu lidského času a množství chyb. Nižší náklady pomáhají podniku zůstat konkurenceschopný.</desc>
+          <defs><marker id="sipka-konkurence" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#0d1218"/></marker></defs>
+          <rect class="uzel-akcent" x="15" y="83" width="110" height="76" rx="6"/><text x="70" y="116">Automatizace</text><text class="maly-text" x="70" y="138">měření a řízení</text>
+          <rect class="uzel" x="160" y="30" width="130" height="50" rx="6"/><text x="225" y="53">Méně energie</text><text class="maly-text" x="225" y="69">účelnější provoz</text>
+          <rect class="uzel" x="160" y="97" width="130" height="50" rx="6"/><text x="225" y="120">Úspora času</text><text class="maly-text" x="225" y="136">méně rutinní práce</text>
+          <rect class="uzel" x="160" y="164" width="130" height="50" rx="6"/><text x="225" y="187">Méně chyb</text><text class="maly-text" x="225" y="203">stálejší kvalita</text>
+          <rect class="uzel-akcent" x="335" y="83" width="170" height="76" rx="6"/><text x="420" y="114">Nižší náklady</text><text class="maly-text" x="420" y="135">konkurenceschopný podnik</text>
+          <path d="M127 105 L155 58 M127 121 H155 M127 137 L155 186 M295 55 L330 103 M295 122 H330 M295 189 L330 140" fill="none" stroke="#0d1218" stroke-width="3" marker-end="url(#sipka-konkurence)"/>
         </svg>
       </div>
       <div>
-        <h3>Poznámka 2 — Co se mění při studiu na vysoké škole</h3>
-        <p>Úloha už nemusí mít připravený návod ani jediný správný výsledek. Je potřeba rozhodnout, které informace jsou důležité, co lze zanedbat a podle čeho se pozná dobré řešení.</p>
-        <p>Přednášky dávají principy, cvičení učí jejich použití a laboratoře konfrontují model se skutečností. Neúspěšný první pokus přitom není konec, ale informace pro další návrh.</p>
+        <h3>Poznámka 2 — Automatizace a konkurenceschopnost</h3>
+        <p>Automatizace není jen otázkou rychlejší výroby. Dobře navržený systém spotřebuje méně energie, omezuje chyby a šetří lidský čas pro práci, při které je potřeba úsudek, zkušenost nebo tvořivost. Podnik tak může vyrábět levněji, přesněji a ve stále stejné kvalitě.</p>
+        <p>Zavedení automatizace samo stojí peníze a musí dávat ekonomický smysl. Pokud však konkurence postupně snižuje náklady a zvyšuje výkon, podnik se zastaralými postupy jen obtížně udrží cenu i kvalitu. Kdo změnu dlouhodobě odkládá, může přestat být konkurenceschopný.</p>
       </div>
     </article>
 
-    <article class="pribeh-kapitola">
+    <article class="pribeh-kapitola pribeh-kapitola--siroka">
       <div class="pribeh-obrazek">
-        <svg viewBox="0 0 520 245" role="img" aria-labelledby="ai-title ai-desc">
-          <title id="ai-title">Spolupráce člověka a umělé inteligence</title>
-          <desc id="ai-desc">Člověk určuje problém, omezení a ověřuje skutečnost. Umělá inteligence navrhuje varianty a hledá vzory v datech. Rozhodnutí vzniká jejich spoluprací.</desc>
-          <circle cx="165" cy="120" r="82" fill="#dfe5ef" stroke="#1145cf" stroke-width="4"/><circle cx="355" cy="120" r="82" fill="#edf8f0" stroke="#0a7d38" stroke-width="4"/>
-          <text x="165" y="68">Člověk</text><text class="maly-text" x="165" y="98">určí problém</text><text class="maly-text" x="165" y="120">zná souvislosti</text><text class="maly-text" x="165" y="142">ověří realitu</text><text class="maly-text" x="165" y="164">nese odpovědnost</text>
-          <text x="355" y="68">AI</text><text class="maly-text" x="355" y="98">hledá vzory</text><text class="maly-text" x="355" y="120">navrhuje varianty</text><text class="maly-text" x="355" y="142">zpracuje data</text><text class="maly-text" x="355" y="164">pomáhá s kódem</text>
-          <path d="M232 105 H288 M288 135 H232" fill="none" stroke="#0d1218" stroke-width="3"/><path d="M281 98 L292 105 L281 112 M239 128 L228 135 L239 142" fill="none" stroke="#0d1218" stroke-width="3"/>
-          <text x="260" y="218">Nástroj nenahrazuje porozumění systému.</text>
-        </svg>
+        <img src="../assets/obrazky/distribucni_centrum.png" alt="Automatizované distribuční centrum, ve kterém stroje přesouvají a třídí zásilky.">
       </div>
       <div>
-        <h3>Poznámka 3 — AI mění nástroje, ne fyzikální svět</h3>
-        <p>Umělá inteligence může navrhnout program, hledat neobvyklé chování stroje nebo porovnat mnoho variant. Sama ale nepozná, zda dostala správná data a zda její návrh bude bezpečně fungovat ve skutečném provozu.</p>
-        <p>Čím výkonnější nástroje používáme, tím důležitější je rozumět základům a umět výsledek ověřit.</p>
+        <h3>Poznámka 3 — Jsou budoucností humanoidní roboti?</h3>
+        <p>Robot nemusí vypadat jako člověk, aby převzal namáhavou nebo opakující se práci. V distribučním centru bývá účinnější soustava specializovaných dopravníků, ramen a vozíků, protože každý stroj je navržen pro jediný úkol.</p>
+        <p>Humanoidní robot může být výhodný tam, kde má pracovat v prostředí vytvořeném pro lidské tělo: chodit po schodech, otevírat dveře nebo používat běžné nástroje. Složitější konstrukce však přináší vyšší cenu, spotřebu energie i více možností poruchy. Budoucnost proto pravděpodobně nebude patřit jednomu univerzálnímu tvaru, ale kombinaci různých strojů podle konkrétní práce.</p>
       </div>
     </article>
 
-    <p class="pribeh-zaver"><strong>Společná myšlenka:</strong> Inženýrské vzdělání není jen sbírka vzorců a programovacích jazyků. Učí propojovat skutečný svět, jeho zjednodušený model, naměřená data a rozhodnutí, za která někdo nese odpovědnost.</p>
+    <p class="pribeh-zaver"><strong>Společná myšlenka:</strong> Automatizace není samoúčelná. Prosadí se tehdy, když spolehlivě šetří energii, lidský čas nebo náklady a pomáhá udržet konkurenceschopnost. Nejdůležitější proto není použít nejmodernější či člověku nejpodobnější stroj, ale zvolit řešení, které nejlépe odpovídá konkrétní práci.</p>
   </section>
 
   <section class="sekce">
@@ -294,17 +289,20 @@
         <div class="ovladac">
           <label for="student-id">Vaše ID</label>
           <input id="student-id" type="text" value="A01" maxlength="24" pattern="[A-Za-z0-9_-]+" aria-describedby="id-napoveda" required>
-          <p class="poznamka" id="id-napoveda">Použijte přidělené ID, ne jméno.</p>
+          <p class="poznamka" id="id-napoveda">Použijte jméno nebo přezdívku.</p>
         </div>
         <fieldset><legend>1. Médium přihlášky</legend><div class="volby" id="media-volby"></div></fieldset>
-        <div class="ovladac">
-          <label for="vypln">2. Typ výplně</label>
-          <select id="vypln"></select>
-        </div>
-        <div class="ovladac">
-          <label for="tloustka">Množství výplně <output id="tloustka-hodnota">20 mm</output></label>
-          <input id="tloustka" type="range" min="0" max="50" step="5" value="20">
-        </div>
+        <fieldset>
+          <legend>2. Ochranné materiály</legend>
+          <div class="ovladac"><label for="vypln-a">Materiál A</label><select id="vypln-a"></select></div>
+          <div class="ovladac"><label for="vypln-b">Materiál B</label><select id="vypln-b"></select></div>
+          <div class="ovladac">
+            <label for="pomer">Podíl materiálů <output id="pomer-hodnota">50 % / 50 %</output></label>
+            <input id="pomer" type="range" min="0" max="100" step="5" value="50" aria-describedby="pomer-popisky">
+            <div class="pomer-popisky" id="pomer-popisky"><span id="pomer-a">100 % A</span><span id="pomer-b">100 % B</span></div>
+          </div>
+          <label class="volba" for="stinici-folie"><input id="stinici-folie" type="checkbox"><span>Stínicí fólie</span><small>volitelná · nulová tloušťka</small></label>
+        </fieldset>
         <div class="ovladac">
           <label for="obal">3. Vnější obal</label>
           <select id="obal"></select>
@@ -322,6 +320,9 @@
           <div class="souhrn">
             <dl>
               <dt>Obsah s výplní</dt><dd id="rozmery-obsahu"></dd>
+              <dt>Povinná ochranná vrstva</dt><dd id="tloustka-ochrany"></dd>
+              <dt>Směs výplně</dt><dd id="smes-vyplne"></dd>
+              <dt>Stínicí fólie</dt><dd id="folie-stav"></dd>
               <dt>Vnější rozměry zásilky</dt><dd id="rozmery"></dd>
               <dt>Objem zásilky</dt><dd id="objem"></dd>
               <dt>Celková hmotnost</dt><dd id="hmotnost"></dd>
@@ -348,17 +349,17 @@
   <section class="sekce">
     <h3>Co si zkuste</h3>
     <ul>
-      <li>Posouvejte množství výplně po 5 mm a sledujte, kdy přestane stačit menší obal. Co se v tom okamžiku skokově změní?</li>
-      <li>Porovnejte papír s 50 mm pěny a hliněnou destičku bez výplně. Která zásilka je menší a která spíš přežije náraz?</li>
+      <li>Zvolte postupně malou, střední a velkou krabici. Jak se s povinnou tloušťkou ochrany mění rozměry a hmotnost obsahu?</li>
+      <li>Namíchejte zmačkaný papír a pěnovou výplň. Posouvejte jejich podíl po 5 % a sledujte, jak se mění hmotnost a odolnost.</li>
       <li>Najděte nejlehčí kombinaci, která má odolnost proti nárazům alespoň 60 ze 100.</li>
-      <li>Vyzkoušejte magnetickou pásku a DVD. Která ochrana pomůže proti elektromagnetickému poškození a která nikoli?</li>
+      <li>Vyzkoušejte magnetickou pásku a DVD se stínicí fólií a bez ní. Co fólie změní a které hodnoty zůstanou stejné?</li>
     </ul>
   </section>
 
   <section class="sekce">
     <h2>3. Jak se vlastnosti počítají</h2>
-    <p>Médium popisují tři rozměry <strong>w, h, d</strong> v milimetrech a hmotnost v gramech. Při vrstvě výplně <strong>p</strong> na každé straně vznikne obsah o rozměrech <strong>W = w + 2p</strong>, <strong>H = h + 2p</strong> a <strong>D = d + 2p</strong>. Zvolený vnější obal musí být ve všech třech směrech alespoň tak velký.</p>
-    <p>Objem uvedený ve výsledku patří celému obalu: jeho tři vnější rozměry se vynásobí a převedou z mm³ na litry. Hmotnost je součtem média, výplně a obalu. Výplň zabírá prostor kolem média; každý její typ má jinou přibližnou hustotu.</p>
+    <p>Médium popisují tři rozměry <strong>w, h, d</strong> v milimetrech a hmotnost v gramech. Každý typ krabice vyžaduje ochrannou vrstvu <strong>p</strong> na každé straně; čím větší krabice, tím silnější vrstvu je potřeba použít. Vznikne obsah o rozměrech <strong>W = w + 2p</strong>, <strong>H = h + 2p</strong> a <strong>D = d + 2p</strong>. Nabídnou se jen obaly, do kterých se takto chráněný obsah vejde.</p>
+    <p>Posuvník neurčuje tloušťku, ale podíl dvou materiálů v povinné vrstvě. Výsledná hustota a ochranné vlastnosti jsou váženým průměrem obou podílů. Stínicí fólie je samostatná tenká vrstva: přidá ochranu proti elektromagnetickému poli a trochu hmotnosti, ale v tomto zjednodušeném modelu nezmění rozměry. Celková hmotnost je součtem média, směsi výplně, případné fólie a obalu.</p>
     <table class="tabulka-parametru">
       <thead><tr><th>Vlastnost</th><th>Co znamená hodnota 0</th><th>Co znamená hodnota 100</th></tr></thead>
       <tbody>
@@ -368,12 +369,12 @@
         <tr><td>Odolnost teplu</td><td>poškodí ji mírné zahřátí</td><td>snese vysokou teplotu</td></tr>
       </tbody>
     </table>
-    <p>Například DVD má rozměry 120 × 120 × 1,2 mm. S 20 mm bublinkové fólie potřebuje prostor 160 × 160 × 41,2 mm. Do polstrované obálky se nevejde kvůli tloušťce, proto formulář jako nejmenší možnost nabídne malou krabici. Výsledný objem se pak počítá z rozměrů celé krabice, ne pouze z DVD.</p>
+    <p>Například DVD má rozměry 120 × 120 × 1,2 mm. V malé krabici je povinná ochrana 10 mm na každé straně, takže chráněný obsah zabere 140 × 140 × 21,2 mm. Poměr materiálů ovlivní jeho hmotnost a odolnost, nikoli tyto rozměry. Výsledný objem zásilky se počítá z rozměrů celé krabice.</p>
   </section>
 
   <section class="pointa">
     <h2>Proč je to těžké</h2>
-    <p>Neexistuje jedna zásilka, která je nejlepší ve všem. Přidání výplně zvyšuje ochranu, ale současně rozměry a hmotnost. Navíc obaly mají jen několik pevných velikostí: jediných 5 mm navíc může vynutit větší krabici a způsobit náhlý skok objemu. Odolnost také není jedna vlastnost — řešení výborné proti nárazu nemusí chránit před vodou, teplem nebo elektromagnetickým polem. Návrh je proto hledáním kompromisu mezi několika měřitelnými cíli.</p>
+    <p>Neexistuje jedna zásilka, která je nejlepší ve všem. Větší krabice vyžaduje silnější ochrannou vrstvu, a proto spolu s objemem roste také spotřeba materiálu a hmotnost. Směs lehkého a odolného materiálu může tento nárůst zmírnit, ale zlepšení jedné vlastnosti nemusí pomoci proti vodě, teplu nebo elektromagnetickému poli. Ani stínicí fólie neřeší všechny druhy poškození. Návrh je proto hledáním kompromisu mezi několika měřitelnými cíli.</p>
   </section>
 
   <p class="paticka"><a href="../index.html">← Zpět na rozcestník</a></p>
@@ -391,25 +392,25 @@
     { id:'kamen', nazev:'Kamenná deska', ikona:'🪨', rozm:[300,220,30], hmotnost:4500, mech:82, voda:95, em:100, teplo:100 }
   ];
   const vyplne = [
-    { id:'zadna', nazev:'Bez výplně', hustota:0, mech:0, voda:0, em:0, teplo:0 },
     { id:'papir', nazev:'Zmačkaný papír', hustota:.025, mech:.65, voda:.02, em:0, teplo:.12 },
-    { id:'bubliny', nazev:'Bublinková fólie', hustota:.012, mech:.9, voda:.45, em:0, teplo:.08 },
+    { id:'bubliny', nazev:'Bublinková fólie', hustota:.012, mech:.9, voda:1, em:0, teplo:.08 },
     { id:'pena', nazev:'Pěnová výplň', hustota:.035, mech:1.05, voda:.3, em:0, teplo:.28 },
-    { id:'polystyren', nazev:'Polystyren', hustota:.02, mech:.8, voda:.35, em:0, teplo:.38 },
-    { id:'stinic', nazev:'Stínicí fólie', hustota:.08, mech:.25, voda:.5, em:1.4, teplo:.18 }
+    { id:'polystyren', nazev:'Polystyren', hustota:.02, mech:.8, voda:.35, em:0, teplo:.38 }
   ];
+  const folie = { hmotnost:25, mech:1, voda:8, em:45, teplo:2 };
   const obaly = [
-    { id:'obalka', nazev:'Obálka', vnitrni:[240,340,8], vnejsi:[245,345,10], hmotnost:18, mech:2, voda:2, em:0, teplo:0 },
-    { id:'polstrovana-obalka', nazev:'Polstrovaná obálka', vnitrni:[270,360,30], vnejsi:[280,370,35], hmotnost:45, mech:10, voda:10, em:0, teplo:2 },
-    { id:'mala-krabice', nazev:'Malá krabice', vnitrni:[250,200,100], vnejsi:[260,210,110], hmotnost:120, mech:14, voda:4, em:0, teplo:4 },
-    { id:'stredni-krabice', nazev:'Střední krabice', vnitrni:[400,300,200], vnejsi:[415,315,215], hmotnost:260, mech:18, voda:4, em:0, teplo:5 },
-    { id:'velka-krabice', nazev:'Velká krabice', vnitrni:[600,400,300], vnejsi:[620,420,320], hmotnost:520, mech:22, voda:4, em:0, teplo:6 }
+    { id:'obalka', nazev:'Obálka', ochrana:0, vnitrni:[240,340,8], vnejsi:[245,345,10], hmotnost:18, mech:2, voda:2, em:0, teplo:0 },
+    { id:'polstrovana-obalka', nazev:'Polstrovaná obálka', ochrana:0, vnitrni:[270,360,30], vnejsi:[280,370,35], hmotnost:45, mech:10, voda:10, em:0, teplo:2 },
+    { id:'mala-krabice', nazev:'Malá krabice', ochrana:10, vnitrni:[250,200,100], vnejsi:[260,210,110], hmotnost:120, mech:14, voda:4, em:0, teplo:4 },
+    { id:'stredni-krabice', nazev:'Střední krabice', ochrana:20, vnitrni:[400,300,200], vnejsi:[415,315,215], hmotnost:260, mech:18, voda:4, em:0, teplo:5 },
+    { id:'velka-krabice', nazev:'Velká krabice', ochrana:30, vnitrni:[600,400,300], vnejsi:[620,420,320], hmotnost:520, mech:22, voda:4, em:0, teplo:6 }
   ];
   const $ = id => document.getElementById(id);
   const mediaVolby = $('media-volby');
   mediaVolby.innerHTML = media.map((m,i) => `<label class="volba"><input type="radio" name="medium" value="${m.id}" ${i===0?'checked':''}><span>${m.ikona} ${m.nazev}</span><small>${m.rozm.join(' × ')} mm · ${m.hmotnost} g</small></label>`).join('');
-  $('vypln').innerHTML = vyplne.map(v => `<option value="${v.id}">${v.nazev}</option>`).join('');
-  $('vypln').value = 'bubliny';
+  const volbyVyplne = vyplne.map(v => `<option value="${v.id}">${v.nazev}</option>`).join('');
+  $('vypln-a').innerHTML = volbyVyplne; $('vypln-a').value = 'bubliny';
+  $('vypln-b').innerHTML = volbyVyplne; $('vypln-b').value = 'papir';
   let stav;
   const omez = x => Math.max(0, Math.min(100, Math.round(x)));
   const cislo = x => Number.isInteger(x) ? String(x) : x.toFixed(1).replace('.', ',');
@@ -420,32 +421,42 @@
   }
   function prepocitej(zachovatObal) {
     const m = media.find(x => x.id === document.querySelector('[name="medium"]:checked').value);
-    const v = vyplne.find(x => x.id === $('vypln').value);
-    let p = Number($('tloustka').value);
-    if (v.id === 'zadna') { p = 0; $('tloustka').value = 0; $('tloustka').disabled = true; } else $('tloustka').disabled = false;
-    $('tloustka-hodnota').textContent = p + ' mm';
-    const obsah = m.rozm.map(x => x + 2*p);
-    const dostupne = obaly.filter(o => vejdeSe(obsah,o));
+    const v1 = vyplne.find(x => x.id === $('vypln-a').value);
+    const v2 = vyplne.find(x => x.id === $('vypln-b').value);
+    const podilB = Number($('pomer').value) / 100;
+    const podilA = 1 - podilB;
+    const sFolii = $('stinici-folie').checked;
+    $('pomer-hodnota').textContent = Math.round(podilA*100) + ' % / ' + Math.round(podilB*100) + ' %';
+    $('pomer-a').textContent = '100 % ' + v1.nazev;
+    $('pomer-b').textContent = '100 % ' + v2.nazev;
+    const dostupne = obaly.filter(o => vejdeSe(m.rozm.map(x => x + 2*o.ochrana), o));
     const predchozi = $('obal').value;
-    $('obal').innerHTML = dostupne.map((o,i) => `<option value="${o.id}">${o.nazev}${i===0?' — nejmenší vhodný':''}</option>`).join('');
+    $('obal').innerHTML = dostupne.map((o,i) => `<option value="${o.id}">${o.nazev} · ochrana ${o.ochrana} mm${i===0?' — nejmenší vhodný':''}</option>`).join('');
     if (zachovatObal && dostupne.some(o => o.id === predchozi)) $('obal').value = predchozi;
     const o = obaly.find(x => x.id === $('obal').value);
     if (!o) { $('obal-napoveda').textContent = 'Kombinace se nevejde ani do největšího obalu.'; return; }
-    $('obal-napoveda').textContent = dostupne.length > 1 ? 'Lze zvolit i zbytečně větší obal.' : 'Toto je jediný obal, do kterého se obsah vejde.';
+    const p = o.ochrana;
+    const obsah = m.rozm.map(x => x + 2*p);
+    $('obal-napoveda').textContent = p ? `Tento obal vyžaduje nejméně ${p} mm ochranného materiálu na každé straně.` : 'Tento obal nevyžaduje další ochrannou vrstvu.';
     const objemMedia = m.rozm.reduce((a,b)=>a*b,1);
     const objemObsahu = obsah.reduce((a,b)=>a*b,1);
-    const hmotnostVyplne = (objemObsahu-objemMedia)/1000*v.hustota;
-    const hmotnost = m.hmotnost + hmotnostVyplne + o.hmotnost;
+    const hustota = v1.hustota*podilA + v2.hustota*podilB;
+    const hmotnostVyplne = (objemObsahu-objemMedia)/1000*hustota;
+    const hmotnost = m.hmotnost + hmotnostVyplne + o.hmotnost + (sFolii ? folie.hmotnost : 0);
     const objem = o.vnejsi.reduce((a,b)=>a*b,1)/1000000;
     const bonus = Math.sqrt(p) * 7;
-    const mech = omez(m.mech + bonus*v.mech + o.mech);
-    const voda = omez(m.voda + bonus*v.voda + o.voda);
-    const em = omez(m.em + bonus*v.em + o.em);
-    const teplo = omez(m.teplo + bonus*v.teplo + o.teplo);
-    stav = { m,v,p,o,obsah,hmotnost,objem,odolnost:{ mech,voda,em,teplo } };
+    const vlastnost = k => v1[k]*podilA + v2[k]*podilB;
+    const mech = omez(m.mech + bonus*vlastnost('mech') + o.mech + (sFolii ? folie.mech : 0));
+    const voda = omez(m.voda + bonus*vlastnost('voda') + o.voda + (sFolii ? folie.voda : 0));
+    const em = omez(m.em + bonus*vlastnost('em') + o.em + (sFolii ? folie.em : 0));
+    const teplo = omez(m.teplo + bonus*vlastnost('teplo') + o.teplo + (sFolii ? folie.teplo : 0));
+    stav = { m,v1,v2,podilA,podilB,sFolii,p,o,obsah,hmotnost,objem,odolnost:{ mech,voda,em,teplo } };
     $('ikona').textContent=m.ikona; $('balik-popis').textContent=o.nazev;
     $('balik').style.setProperty('--vypln', Math.min(24,4+p/3)+'px');
     $('rozmery-obsahu').textContent=obsah.map(cislo).join(' × ')+' mm';
+    $('tloustka-ochrany').textContent=p+' mm na každé straně';
+    $('smes-vyplne').textContent=`${Math.round(podilA*100)} % ${v1.nazev} / ${Math.round(podilB*100)} % ${v2.nazev}`;
+    $('folie-stav').textContent=sFolii ? 'ano (bez změny rozměrů)' : 'ne';
     $('rozmery').textContent=o.vnejsi.join(' × ')+' mm';
     $('objem').textContent=cislo(Math.round(objem*100)/100)+' l';
     $('hmotnost').textContent=hmotnost < 1000 ? Math.round(hmotnost)+' g' : cislo(Math.round(hmotnost)/1000)+' kg';
@@ -459,7 +470,10 @@
     $('yaml').value = [
       'verze: 1', `student_id: ${yamlText(id)}`,
       'prihlaska:', `  medium: ${s.m.id}`, `  medium_nazev: ${yamlText(s.m.nazev)}`,
-      `  vypln: ${s.v.id}`, `  vypln_nazev: ${yamlText(s.v.nazev)}`, `  vypln_mm: ${s.p}`,
+      '  ochranna_vrstva:', `    tloustka_mm: ${s.p}`,
+      `    material_a: ${s.v1.id}`, `    material_a_nazev: ${yamlText(s.v1.nazev)}`, `    material_a_procent: ${Math.round(s.podilA*100)}`,
+      `    material_b: ${s.v2.id}`, `    material_b_nazev: ${yamlText(s.v2.nazev)}`, `    material_b_procent: ${Math.round(s.podilB*100)}`,
+      `    stinici_folie: ${s.sFolii}`,
       `  obal: ${s.o.id}`, `  obal_nazev: ${yamlText(s.o.nazev)}`,
       'zasilka:', `  sirka_mm: ${r[0]}`, `  vyska_mm: ${r[1]}`, `  hloubka_mm: ${r[2]}`,
       `  objem_l: ${s.objem.toFixed(3)}`, `  hmotnost_g: ${Math.round(s.hmotnost)}`,
@@ -468,10 +482,17 @@
     ].join('\n')+'\n';
     $('vystup').hidden=false; $('kopie-stav').textContent=''; $('vystup').scrollIntoView({behavior:'smooth',block:'nearest'});
   }
-  $('formular').addEventListener('input', e => prepocitej(e.target.id === 'obal'));
+  $('formular').addEventListener('input', e => {
+    if ((e.target.id === 'vypln-a' || e.target.id === 'vypln-b') && $('vypln-a').value === $('vypln-b').value) {
+      const druhy = e.target.id === 'vypln-a' ? $('vypln-b') : $('vypln-a');
+      const index = vyplne.findIndex(v => v.id === e.target.value);
+      druhy.value = vyplne[(index + 1) % vyplne.length].id;
+    }
+    prepocitej(!e.target.matches('[name="medium"]'));
+  });
   $('obal').addEventListener('change', () => prepocitej(true));
   $('formular').addEventListener('submit', e => { e.preventDefault(); vytvorYaml(); });
-  $('reset').addEventListener('click', () => { $('formular').reset(); $('vypln').value='bubliny'; $('tloustka').value=20; $('vystup').hidden=true; prepocitej(false); });
+  $('reset').addEventListener('click', () => { $('formular').reset(); $('vypln-a').value='bubliny'; $('vypln-b').value='papir'; $('pomer').value=50; $('vystup').hidden=true; prepocitej(false); });
   $('kopirovat').addEventListener('click', async () => {
     try { await navigator.clipboard.writeText($('yaml').value); $('kopie-stav').textContent='Zkopírováno do schránky.'; }
     catch (_) { $('yaml').select(); document.execCommand('copy'); $('kopie-stav').textContent='Zkopírováno do schránky.'; }
