@@ -45,6 +45,51 @@
   .vlastnost-hrany { padding: 0.65rem 0.75rem; border: 2px solid var(--ram); border-radius: var(--radius); background: var(--pozadi-panel); }
   .vlastnost-hrany strong, .vlastnost-hrany span { display: block; }
   .vlastnost-hrany span { color: var(--text-slaby); font-size: 0.86rem; }
+  .hledani-uvod { max-width: 960px; margin: 0 0 2rem; }
+  .hledani-kroky { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.7rem; margin-top: 1rem; }
+  .hledani-krok { padding: 0.8rem; border: 2px solid var(--ram); border-top: 6px solid var(--akcent); border-radius: var(--radius); background: var(--pozadi-panel); }
+  .hledani-krok strong, .hledani-krok span { display: block; }
+  .hledani-krok span { margin-top: 0.25rem; color: var(--text-slaby); font-size: 0.88rem; }
+  .graf-pojmy { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.6rem; max-width: 960px; margin: 1rem 0; }
+  .graf-pojem { padding: 0.7rem; border: 2px solid var(--ram); border-radius: var(--radius); background: var(--pozadi-panel); }
+  .graf-pojem strong, .graf-pojem span { display: block; }
+  .graf-pojem span { margin-top: 0.2rem; color: var(--text-slaby); font-size: 0.86rem; }
+  .teorie-box { max-width: 960px; margin: 1rem 0; padding: 1rem; border-left: 6px solid var(--akcent); background: var(--pozadi-panel); }
+  .teorie-box > :first-child { margin-top: 0; }
+  .teorie-box > :last-child { margin-bottom: 0; }
+  .struktury { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.8rem; max-width: 900px; margin: 1rem 0; }
+  .struktura { padding: 0.8rem; border: 2px solid var(--ram-silny); border-radius: var(--radius); background: var(--pozadi-panel); }
+  .struktura h4 { margin: 0 0 0.5rem; }
+  .struktura-rada { display: flex; align-items: center; gap: 0.35rem; margin: 0.65rem 0; }
+  .struktura-prvek { min-width: 2.2rem; padding: 0.35rem; border: 2px solid var(--akcent); border-radius: 4px; background: #fff; text-align: center; font-weight: 800; }
+  .struktura-sipka { color: var(--text-slaby); font-weight: 800; }
+  .struktura small { color: var(--text-slaby); }
+  .dijkstra-tabulka { width: 100%; max-width: 900px; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+  .dijkstra-tabulka th, .dijkstra-tabulka td { padding: 0.45rem 0.55rem; border: 1px solid var(--ram); text-align: left; }
+  .dijkstra-tabulka th { background: var(--pozadi-panel); }
+  .dijkstra-schema { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.55rem; max-width: 960px; margin: 1rem 0; }
+  .dijkstra-krok { position: relative; padding: 0.75rem; border: 2px solid var(--ram-silny); border-radius: var(--radius); background: var(--pozadi-panel); }
+  .dijkstra-krok:not(:last-child)::after { content: "→"; position: absolute; z-index: 1; top: 50%; right: -0.48rem; width: 0.9rem; color: var(--akcent); background: var(--pozadi); text-align: center; font-weight: 900; transform: translateY(-50%); }
+  .dijkstra-krok strong, .dijkstra-krok span { display: block; }
+  .dijkstra-krok strong { margin-bottom: 0.25rem; }
+  .dijkstra-krok span { color: var(--text-slaby); font-size: 0.86rem; }
+  .priorita-demo { max-width: 960px; margin: 1rem 0; padding: 0.9rem; border: 2px solid var(--ram); border-radius: var(--radius); background: var(--pozadi-panel); }
+  .priorita-demo h4 { margin: 0 0 0.4rem; }
+  .priorita-radek { display: grid; grid-template-columns: minmax(7rem, 10rem) minmax(0, 1fr); gap: 0.6rem; align-items: center; padding: 0.45rem 0; border-top: 1px solid var(--ram); }
+  .priorita-radek:first-of-type { border-top: 0; }
+  .priorita-popis { font-size: 0.84rem; color: var(--text-slaby); }
+  .priorita-fronta { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
+  .priorita-prvek { padding: 0.28rem 0.45rem; border: 2px solid var(--ram); border-radius: 4px; background: #fff; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .priorita-prvek:first-child { border-color: var(--akcent); background: var(--pozadi-zvyraz); }
+  .priorita-vysvetlivka { margin: 0.55rem 0 0; color: var(--text-slaby); font-size: 0.86rem; }
+  .dijkstra-obrazek { width: min(960px, calc(100vw - 2.5rem)); max-width: none; margin: 1rem 0; border: 2px solid var(--ram-silny); border-radius: var(--radius); background: #fff; overflow-x: auto; }
+  .dijkstra-obrazek svg { display: block; width: 100%; min-width: 720px; height: auto; }
+  .dijkstra-obrazek figcaption { padding: 0.65rem 0.8rem; border-top: 2px solid var(--ram); background: var(--pozadi-panel); color: var(--text-slaby); font-size: 0.88rem; }
+  .dijkstra-obrazek strong { color: var(--text); }
+  .predmety-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem; max-width: 960px; }
+  .predmet { padding: 0.8rem; border: 2px solid var(--ram); border-radius: var(--radius); background: var(--pozadi-panel); }
+  .predmet h3 { margin: 0 0 0.35rem; font-size: 1.05rem; }
+  .predmet p { margin: 0; color: var(--text-slaby); }
   .platno-ram { aspect-ratio: 16 / 11; min-height: 430px; }
   .volba-dvojice { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
   .legenda { display: flex; flex-wrap: wrap; gap: 0.4rem 0.9rem; margin: 0.6rem 0 0; font-size: 0.86rem; }
@@ -79,6 +124,9 @@
   @media (max-width: 700px) {
     .mapa-dvojice { grid-template-columns: 1fr; }
     .vlastnosti-hran { grid-template-columns: 1fr; }
+    .hledani-kroky, .graf-pojmy, .struktury, .predmety-grid, .dijkstra-schema { grid-template-columns: 1fr; }
+    .dijkstra-krok:not(:last-child)::after { content: "↓"; top: auto; right: 50%; bottom: -0.7rem; transform: translateX(50%); }
+    .priorita-radek { grid-template-columns: 1fr; gap: 0.2rem; }
     .zapis-grid { grid-template-columns: 1fr; }
     .platno-ram { min-height: 540px; aspect-ratio: 4 / 5; }
     .platno-vaha { min-height: 500px; }
@@ -101,6 +149,17 @@
       Některé silnice mohou být uzavřené. Jak najít trasu systematicky — a jak poznat,
       že nalezená cesta je nejkratší?
     </p>
+  </section>
+
+  <section class="hledani-uvod" aria-labelledby="hledani-cesty-nadpis">
+    <h2 id="hledani-cesty-nadpis">Hledání cesty je rozhodovací problém</h2>
+    <p>Člověk se na malé mapě často podívá a vhodnou cestu prostě uvidí. Počítač však potřebuje přesný postup, který funguje stejně pro sedm křižovatek i pro síť s miliony míst. Musí rozlišit, kudy se jet <em>dá</em>, které možnosti už prověřil a podle čeho pozná, že nalezená trasa je opravdu nejlepší.</p>
+    <div class="hledani-kroky">
+      <div class="hledani-krok"><strong>1. Popis sítě</strong><span>Z mapy ponecháme místa a možná spojení mezi nimi.</span></div>
+      <div class="hledani-krok"><strong>2. Pravidlo hledání</strong><span>Určíme, v jakém pořadí se budou možnosti procházet.</span></div>
+      <div class="hledani-krok"><strong>3. Měřítko výsledku</strong><span>Rozhodneme, zda hledáme nejméně úseků, kilometrů, času nebo ceny.</span></div>
+    </div>
+    <p>Následující obrázky ukazují první krok: jak ze skutečné mapy odstranit nepodstatné detaily a zachovat právě ty informace, které algoritmus potřebuje.</p>
   </section>
 
   <section class="priklad-mapy">
@@ -148,7 +207,14 @@
 
   <section class="sekce">
     <h3>Síť pro následující pokus</h3>
-    <p>Nyní mapu zjednodušíme na sedm uzlů A až G. Kružnice představují křižovatky a čáry průjezdné silniční úseky. V prvním pokusu budeme délku trasy měřit pouze počtem projetých úseků; jejich skutečné kilometry zatím zanedbáme.</p>
+    <p><strong>Teorie grafů</strong> je část matematiky, která zkoumá sítě objektů a vztahů mezi nimi. Samotný obrázek se nazývá <strong>graf</strong>. Objekty jsou <strong>uzly</strong> (také vrcholy) a přímá spojení mezi dvojicemi uzlů jsou <strong>hrany</strong>. Dva uzly spojené hranou nazýváme sousední.</p>
+    <div class="graf-pojmy">
+      <div class="graf-pojem"><strong>Uzel</strong><span>Jedno místo nebo objekt, například křižovatka A.</span></div>
+      <div class="graf-pojem"><strong>Hrana</strong><span>Přímé spojení dvou uzlů, například silnice A—B.</span></div>
+      <div class="graf-pojem"><strong>Cesta</strong><span>Posloupnost navazujících uzlů, například A—B—D—G.</span></div>
+      <div class="graf-pojem"><strong>Délka cesty</strong><span>V prvním pokusu počet hran, později součet časů.</span></div>
+    </div>
+    <p>Nyní mapu zjednodušíme na sedm uzlů A až G. Kružnice představují křižovatky a čáry průjezdné silniční úseky. Hrany nemají šipky, takže každou silnicí lze jet oběma směry. V prvním pokusu budeme délku trasy měřit pouze počtem projetých úseků; jejich skutečné kilometry zatím zanedbáme.</p>
     <div class="schema" role="img" aria-label="Síť uzlů A až G. Balík začíná v A a míří do G."><svg viewBox="0 0 720 260" aria-hidden="true"><g class="hrana"><line x1="75" y1="130" x2="205" y2="130"/><line x1="205" y1="130" x2="345" y2="55"/><line x1="205" y1="130" x2="360" y2="130"/><line x1="205" y1="130" x2="345" y2="215"/><line x1="345" y1="55" x2="510" y2="55"/><line x1="360" y1="130" x2="645" y2="130"/><line x1="345" y1="215" x2="645" y2="130"/><line x1="510" y1="55" x2="645" y2="130"/></g><g><circle class="uzel start" cx="75" cy="130" r="27"/><circle class="uzel" cx="205" cy="130" r="27"/><circle class="uzel" cx="345" cy="55" r="27"/><circle class="uzel" cx="360" cy="130" r="27"/><circle class="uzel" cx="345" cy="215" r="27"/><circle class="uzel" cx="510" cy="55" r="27"/><circle class="uzel cil" cx="645" cy="130" r="27"/></g><g><text x="75" y="130">A</text><text x="205" y="130">B</text><text x="345" y="55">C</text><text x="360" y="130">D</text><text x="345" y="215">E</text><text x="510" y="55">F</text><text x="645" y="130">G</text><text class="popis" x="75" y="176">podací místo</text><text class="popis" x="645" y="176">depo</text></g></svg></div>
   </section>
 
@@ -285,11 +351,18 @@
   <section class="sekce">
     <h2>3. Jak graf a hledání zapisujeme</h2>
     <p>
-      Síť nazýváme <strong>grafem</strong>. Zastávka je <strong>uzel</strong> (nebo vrchol),
-      silniční úsek je <strong>hrana</strong> a navazující posloupnost hran je <strong>cesta</strong>.
-      Graf lze zapsat množinou uzlů a hran nebo praktičtěji seznamem sousedů.
-      Následující zápis používá zjednodušenou sedmiuzlovou síť z úvodního obrázku.
+      Obrázek je názorný, matematika však potřebuje zápis, se kterým lze jednoznačně
+      pracovat. Graf zapisujeme jako <strong>G = (V, E)</strong>. Písmeno <strong>V</strong>
+      označuje množinu uzlů a <strong>E</strong> množinu hran. Zápis
+      <strong>{A, B} ∈ E</strong> říká, že mezi uzly A a B existuje neorientovaná hrana,
+      tedy spojení použitelné oběma směry.
     </p>
+    <div class="teorie-box">
+      <h3>Malá matematická ochutnávka</h3>
+      <p>Pro naši síť platí <strong>|V| = 7</strong> a <strong>|E| = 8</strong>: svislé čáry znamenají počet prvků množiny. Uzly A a B jsou <strong>sousední</strong>. Uzel B má čtyři sousedy A, C, D a E, proto má <strong>stupeň 4</strong>. Posloupnost A, B, D, G je cesta, protože každá sousední dvojice je spojena hranou. Graf je <strong>souvislý</strong>, pokud lze mezi každými dvěma uzly najít nějakou cestu.</p>
+      <p>V orientovaném grafu by hrana měla směr, například A → B pro jednosměrnou ulici. V ohodnoceném grafu navíc hraně přiřadíme číslo neboli váhu, například dobu jízdy 8 minut.</p>
+    </div>
+    <p>Stejný graf lze v programu uložit různými způsoby. Seznam hran se podobá matematickému zápisu. <strong>Seznam sousedů</strong> je pro prohledávání praktičtější: u každého uzlu rovnou uvádí, kam z něj lze pokračovat.</p>
     <div class="zapis-grid">
       <pre class="zapis" aria-label="Zápis uzlů a hran">Uzly:
 V = {A, B, C, D, E, F, G}
@@ -313,49 +386,161 @@ G: D, E, F</pre>
 
     <h3>Hledání do šířky — BFS</h3>
     <p>
-      BFS nejprve prozkoumá všechny uzly vzdálené jednu hranu, potom dvě hrany a tak
-      dále. Používá <strong>frontu</strong>: kdo přišel první, je první zpracován.
-      V neohodnoceném grafu proto najde cestu s nejmenším počtem hran. U každého nového
-      uzlu si zapamatuje předchůdce; z cíle pak podle nich složí cestu zpět ke startu.
+      BFS (z anglického <em>breadth-first search</em>) prohledává graf po vrstvách.
+      Nejprve objeví všechny uzly jednu hranu od startu, potom uzly vzdálené dvě hrany
+      a teprve potom vzdálenější místa. Používá <strong>frontu</strong>: uzel vložený jako
+      první se také jako první odebere. Proto žádný vzdálenější uzel nepředběhne bližší.
     </p>
-    <pre class="zapis">fronta: [A]
-zpracuj A, přidej B:       [B]
-zpracuj B, přidej C, D, E: [C, D, E]
-zpracuj C, přidej F:       [D, E, F]
-zpracuj D, přidej G:       [E, F, G]
+    <p>Jakmile BFS uzel objeví poprvé, označí jej jako navštívený a zapamatuje si jeho předchůdce. Tím zabrání nekonečnému obcházení cyklů. Po nalezení cíle sleduje předchůdce pozpátku: G ← D ← B ← A. Obrácením vznikne cesta A → B → D → G. V neohodnoceném grafu BFS zaručuje nejmenší počet hran, nikoli nejkratší čas.</p>
 
-předchůdci cíle: G ← D ← B ← A
-výsledná cesta:   A → B → D → G</pre>
+    <div class="struktury" aria-label="Porovnání fronty a zásobníku">
+      <div class="struktura">
+        <h4>Fronta BFS — FIFO</h4>
+        <div class="struktura-rada"><span class="struktura-sipka">odeber ←</span><span class="struktura-prvek">C</span><span class="struktura-prvek">D</span><span class="struktura-prvek">E</span><span class="struktura-sipka">← přidej</span></div>
+        <small>First in, first out: C čeká nejdéle, proto přijde na řadu první.</small>
+      </div>
+      <div class="struktura">
+        <h4>Zásobník DFS — LIFO</h4>
+        <div class="struktura-rada"><span class="struktura-prvek">C</span><span class="struktura-prvek">D</span><span class="struktura-prvek">E</span><span class="struktura-sipka">← přidej i odeber</span></div>
+        <small>Last in, first out: E bylo přidáno poslední, proto se zpracuje první.</small>
+      </div>
+    </div>
+
+    <pre class="zapis" aria-label="Pseudokód hledání do šířky">BFS(start, cíl):
+  fronta ← [start]
+  navštíveno ← {start}
+  dokud fronta není prázdná:
+    v ← odeber první prvek fronty
+    pokud v = cíl: vrať cestu přes předchůdce
+    pro každého souseda s uzlu v:
+      pokud s ještě nebyl navštíven:
+        označ s a ulož předchůdce[s] ← v
+        přidej s na konec fronty</pre>
 
     <h3>Hledání do hloubky — DFS</h3>
     <p>
-      DFS pokračuje co nejdál jednou větví a teprve potom se vrací. Používá
-      <strong>zásobník</strong>: naposledy přidaný uzel se zpracuje jako první.
-      Cíl najde, pokud je dosažitelný, ale první nalezená cesta nemusí být nejkratší.
-      Výsledek navíc závisí na pořadí, ve kterém zkouší sousedy.
+      DFS (z anglického <em>depth-first search</em>) volí opačnou strategii: pokračuje
+      co nejdál jednou větví a vrací se až ze slepé uličky. Používá
+      <strong>zásobník</strong>, ze kterého se jako první odebere naposledy vložený uzel.
+      Stejné chování vznikne také pomocí rekurze, protože rozpracovaná volání programu
+      sama tvoří zásobník.
     </p>
-    <pre class="zapis">postup do hloubky: A → B → C → F → G
-první nalezená cesta má 4 hrany
-
-kratší cesta přitom existuje: A → B → D → G
-ta má pouze 3 hrany</pre>
+    <p>DFS umí zjistit, zda je cíl dosažitelný, procházet všechny uzly nebo hledat souvislé části sítě. Neprochází však uzly podle vzdálenosti. Při abecedním pořadí může najít A → B → C → F → G se čtyřmi hranami, přestože existuje kratší A → B → D → G se třemi. Jiné pořadí sousedů může dát jinou první cestu.</p>
+    <pre class="zapis" aria-label="Pseudokód hledání do hloubky">DFS(start, cíl):
+  zásobník ← [start]
+  dokud zásobník není prázdný:
+    v ← odeber poslední prvek zásobníku
+    pokud v už byl navštíven: pokračuj dál
+    označ v jako navštívený
+    pokud v = cíl: vrať nalezenou cestu
+    přidej nenavštívené sousedy na zásobník</pre>
+    <p>Oba postupy při použití seznamu sousedů projdou každý uzel a každou hranu nejvýše několikrát. Jejich časová složitost se proto zapisuje <strong>O(|V| + |E|)</strong>. Zápis neudává počet sekund; říká, že práce roste přibližně s velikostí grafu.</p>
 
     <h3>Ohodnocený graf a Dijkstrův algoritmus</h3>
     <p>
       Pokud ke každé hraně připíšeme cenu — zde dobu jízdy — vznikne
       <strong>ohodnocený graf</strong>. Hranu lze zapsat například jako
       <code>{A,B}: 2 min</code>. Cena celé cesty je součet cen jejích hran.
-      Dijkstrův algoritmus si u každého uzlu udržuje nejlepší dosud známý čas a vždy
-      zpracuje uzel s nejmenší hodnotou. Přes jeho sousedy pak zkouší, zda k nim právě
-      nenašel rychlejší cestu.
+      BFS považuje všechny hrany za stejně drahé, a proto zde nemusí najít nejrychlejší
+      cestu. <strong>Dijkstrův algoritmus</strong> porovnává průběžné součty vah.
     </p>
-    <pre class="zapis">ohodnocené hrany:
-{A,B}: 2 min
-{B,D}: 8 min
-{D,G}: 6 min
-
-cena cesty A → B → D → G:
-2 + 8 + 6 = 16 min</pre>
+    <div class="dijkstra-schema" aria-label="Čtyři opakované kroky Dijkstrova algoritmu">
+      <div class="dijkstra-krok"><strong>1. Vyber minimum</strong><span>Z prioritní fronty vezměte uzel s nejmenším známým časem.</span></div>
+      <div class="dijkstra-krok"><strong>2. Potvrďte tento uzel</strong><span>Konečný je pouze čas vybraného uzlu. Odhady ostatních uzlů se ještě mohou měnit.</span></div>
+      <div class="dijkstra-krok"><strong>3. Projděte sousedy</strong><span>Ke známému času přičtěte cenu každé odchozí hrany.</span></div>
+      <div class="dijkstra-krok"><strong>4. Zlepšete odhady</strong><span>Menší výsledky uložte do fronty a celý postup opakujte.</span></div>
+    </div>
+    <div class="teorie-box">
+      <h3>Co je prioritní fronta?</h3>
+      <p>Obyčejná fronta v BFS vybírá podle pořadí příchodu: kdo přišel první, jde první. <strong>Prioritní fronta</strong> vybírá podle přiděleného čísla neboli priority. U Dijkstrova algoritmu je prioritou nejlepší dosud známý čas. Dopředu se tedy vždy dostane uzel s nejmenším číslem, i kdyby byl vložen později.</p>
+      <p>Položku zapisujeme například <strong>(C, 4)</strong>: uzel C je zatím dosažitelný za 4 minuty. Prioritní fronta sama nepředstavuje hotovou cestu. Je to uspořádaný seznam kandidátů, které ještě musíme prověřit.</p>
+    </div>
+    <div class="priorita-demo" aria-label="Proměny prioritní fronty při hledání cesty z A do G">
+      <h4>Jak se mění prioritní fronta v ukázkové síti</h4>
+      <div class="priorita-radek"><span class="priorita-popis">Začátek</span><div class="priorita-fronta"><span class="priorita-prvek">A · 0 min</span></div></div>
+      <div class="priorita-radek"><span class="priorita-popis">Po zpracování A</span><div class="priorita-fronta"><span class="priorita-prvek">B · 2</span></div></div>
+      <div class="priorita-radek"><span class="priorita-popis">Po zpracování B</span><div class="priorita-fronta"><span class="priorita-prvek">C · 4</span><span class="priorita-prvek">E · 5</span><span class="priorita-prvek">D · 10</span></div></div>
+      <div class="priorita-radek"><span class="priorita-popis">Po zpracování C</span><div class="priorita-fronta"><span class="priorita-prvek">E · 5</span><span class="priorita-prvek">F · 6</span><span class="priorita-prvek">D · 10</span></div></div>
+      <div class="priorita-radek"><span class="priorita-popis">Po zpracování E</span><div class="priorita-fronta"><span class="priorita-prvek">F · 6</span><span class="priorita-prvek">D · 10</span><span class="priorita-prvek">G · 14</span></div></div>
+      <div class="priorita-radek"><span class="priorita-popis">Po zpracování F</span><div class="priorita-fronta"><span class="priorita-prvek">G · 8</span><span class="priorita-prvek">D · 10</span></div></div>
+      <div class="priorita-radek"><span class="priorita-popis">Vybereme cíl G</span><div class="priorita-fronta"><span class="priorita-prvek">G · 8</span><span class="priorita-prvek">D · 10</span></div></div>
+      <p class="priorita-vysvetlivka">Barevně zvýrazněná první položka má vždy nejmenší prioritu a bude zpracována jako další. U uzlu G se odhad 14 minut po nalezení lepší cesty přes F snížil na 8 minut.</p>
+    </div>
+    <figure class="dijkstra-obrazek">
+      <svg viewBox="0 0 900 410" role="img" aria-labelledby="dijkstra-cesty-title dijkstra-cesty-desc">
+        <title id="dijkstra-cesty-title">Přímá drahá cesta a delší cesta složená z levných úseků</title>
+        <desc id="dijkstra-cesty-desc">Ze startu S vede do cíle G přímá hrana s cenou 14 minut. Druhá cesta vede přes A, B a C po čtyřech hranách s cenou 2 minuty. Prioritní fronta postupně vybere A, B a C a odhad cíle sníží ze 14 na 8 minut.</desc>
+        <defs>
+          <marker id="sipka-dijkstra-modra" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0b46c8"/></marker>
+          <marker id="sipka-dijkstra-zelena" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0a7d38"/></marker>
+          <marker id="sipka-dijkstra-seda" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#6b7685"/></marker>
+        </defs>
+        <rect x="18" y="14" width="864" height="252" rx="10" fill="#f7f9fc" stroke="#c6ced9" stroke-width="2"/>
+        <path d="M92 135 Q450 -5 808 135" fill="none" stroke="#0b46c8" stroke-width="7" marker-end="url(#sipka-dijkstra-modra)"/>
+        <path d="M92 151 L250 218 L430 218 L610 218 L808 151" fill="none" stroke="#0a7d38" stroke-width="7" stroke-linejoin="round" marker-end="url(#sipka-dijkstra-zelena)"/>
+        <g fill="#fff" stroke="#0d1218" stroke-width="3">
+          <circle cx="75" cy="142" r="28" fill="#dce7ff" stroke="#0b46c8"/>
+          <circle cx="250" cy="218" r="23"/><circle cx="430" cy="218" r="23"/><circle cx="610" cy="218" r="23"/>
+          <circle cx="825" cy="142" r="28" fill="#e2f4e8" stroke="#0a7d38"/>
+        </g>
+        <g fill="#0d1218" font-family="Segoe UI, sans-serif" font-weight="700" text-anchor="middle" dominant-baseline="central">
+          <text x="75" y="142" font-size="18">S</text><text x="250" y="218" font-size="16">A</text><text x="430" y="218" font-size="16">B</text><text x="610" y="218" font-size="16">C</text><text x="825" y="142" font-size="18">G</text>
+          <text x="450" y="54" font-size="15" fill="#0b46c8">přímá cesta: 1 hrana, 14 min</text>
+          <text x="171" y="191" font-size="14" fill="#0a7d38">2</text><text x="340" y="202" font-size="14" fill="#0a7d38">2</text><text x="520" y="202" font-size="14" fill="#0a7d38">2</text><text x="708" y="191" font-size="14" fill="#0a7d38">2</text>
+          <text x="450" y="251" font-size="14" fill="#0a7d38">4 hrany, ale pouze 2 + 2 + 2 + 2 = 8 min</text>
+          <text x="75" y="101" font-size="12" fill="#4a5768">start</text><text x="825" y="101" font-size="12" fill="#4a5768">cíl</text>
+        </g>
+        <g font-family="Segoe UI, sans-serif" text-anchor="middle">
+          <text x="80" y="293" fill="#4a5768" font-size="13" font-weight="700">Prioritní fronta:</text>
+          <rect x="18" y="310" width="190" height="68" rx="7" fill="#dce7ff" stroke="#0b46c8" stroke-width="2"/>
+          <rect x="242" y="310" width="190" height="68" rx="7" fill="#fff" stroke="#8b96a5" stroke-width="2"/>
+          <rect x="466" y="310" width="190" height="68" rx="7" fill="#fff" stroke="#8b96a5" stroke-width="2"/>
+          <rect x="690" y="310" width="192" height="68" rx="7" fill="#e2f4e8" stroke="#0a7d38" stroke-width="2"/>
+          <g fill="#0d1218" font-size="14" font-weight="700">
+            <text x="113" y="335">A: 2 před G: 14</text><text x="113" y="359" fill="#4a5768" font-size="12">vybereme A</text>
+            <text x="337" y="335">B: 4 před G: 14</text><text x="337" y="359" fill="#4a5768" font-size="12">vybereme B</text>
+            <text x="561" y="335">C: 6 před G: 14</text><text x="561" y="359" fill="#4a5768" font-size="12">vybereme C</text>
+            <text x="786" y="335">G: 8</text><text x="786" y="359" fill="#0a7d38" font-size="12">14 přepíšeme na 8</text>
+          </g>
+          <path d="M212 344 H234 M436 344 H458 M660 344 H682" fill="none" stroke="#6b7685" stroke-width="3" marker-end="url(#sipka-dijkstra-seda)"/>
+        </g>
+      </svg>
+      <figcaption><strong>BFS vidí cíl G hned vedle startu</strong> a v neohodnoceném grafu by zvolilo jedinou přímou hranu. Dijkstra však neupřednostňuje počet hran ani samotný cíl. Vždy vybírá nejmenší součet času ve frontě, proto postupně zpracuje A (2), B (4) a C (6). Přímý odhad G = 14 mezitím čeká; teprve přes C se zlepší na G = 8.</figcaption>
+    </figure>
+    <div class="teorie-box">
+      <h3>Co znamená „nejlepší dosud známý čas“</h3>
+      <p>Je potřeba rozlišit <strong>zpracované</strong> a <strong>čekající</strong> uzly. V každém kroku vybereme z prioritní fronty čekající uzel s nejmenším známým časem. Teprve jeho vybráním se tento jediný čas stane konečným: žádná později objevená cesta k tomuto uzlu nemůže být levnější, pokud mají všechny hrany nezáporné váhy.</p>
+      <p>Časy u ostatních čekajících uzlů jsou stále jen odhady. Z vybraného uzlu proto zkusíme cestu prodloužit ke každému jeho nezpracovanému sousedovi. Jestliže <strong>konečný čas do vybraného uzlu + cena hrany</strong> vyjde menší než dosavadní odhad u souseda, odhad i předchůdce přepíšeme. Této operaci se říká <strong>relaxace hrany</strong>.</p>
+      <p>Například G může ve frontě čekat s odhadem 14 minut. Tento údaj ještě není konečný, protože G zatím nebylo vybráno. Po zpracování F objevíme cestu do G za 8 minut a odhad přepíšeme. Konečným se čas 8 minut stane až ve chvíli, kdy prioritní fronta vybere G jako nejlevnější čekající uzel.</p>
+    </div>
+    <p>V síti z interaktivní ukázky proběhnou důležité kroky takto:</p>
+    <table class="dijkstra-tabulka">
+      <thead><tr><th>Zpracujeme</th><th>Co se přepočítá</th><th>Nejlepší známé časy po kroku</th></tr></thead>
+      <tbody>
+        <tr><td>A (0 min)</td><td>Přes hranu A—B s cenou 2 objevíme B.</td><td>B = 2</td></tr>
+        <tr><td>B (2 min)</td><td>C = 2 + 2, D = 2 + 8, E = 2 + 3.</td><td>C = 4, E = 5, D = 10</td></tr>
+        <tr><td>C (4 min)</td><td>Přes C—F s cenou 2 objevíme F.</td><td>E = 5, F = 6, D = 10</td></tr>
+        <tr><td>E (5 min)</td><td>Přes E—G vychází první cesta do G: 5 + 9.</td><td>F = 6, D = 10, G = 14</td></tr>
+        <tr><td>F (6 min)</td><td>Přes F—G vyjde 6 + 2 = 8, proto původních 14 přepíšeme.</td><td>G = 8, D = 10</td></tr>
+        <tr><td>G (8 min)</td><td>Cíl má nejmenší hodnotu ze všech čekajících uzlů; výsledek je jistý.</td><td>A → B → C → F → G, 8 min</td></tr>
+      </tbody>
+    </table>
+    <p>BFS v téže síti najde trasu A → B → D → G se třemi hranami, ale časem 2 + 8 + 6 = 16 minut. Dijkstra použije čtyři hrany, přesto dorazí za 8 minut. „Nejkratší“ tedy vždy závisí na tom, co hranami měříme.</p>
+    <pre class="zapis" aria-label="Pseudokód Dijkstrova algoritmu">Dijkstra(start):
+  vzdálenost[start] ← 0
+  vzdálenost[ostatní] ← ∞
+  prioritní fronta ← [(start, 0)]
+  dokud prioritní fronta není prázdná:
+    v ← odeber uzel s nejmenší prioritou
+    pokud v už je zpracovaný: pokračuj dál
+    označ v jako zpracovaný
+    pro každou hranu z v do souseda s s cenou c:
+      návrh ← vzdálenost[v] + c
+      pokud návrh &lt; vzdálenost[s]:
+        vzdálenost[s] ← návrh
+        předchůdce[s] ← v
+        vlož nebo aktualizuj (s, návrh) v prioritní frontě</pre>
+    <p>Dijkstrův algoritmus vyžaduje <strong>nezáporné váhy hran</strong>. Záporná cena by mohla později zlevnit cestu k uzlu, který už algoritmus považoval za hotový, a porušila by hlavní záruku postupu. V praktické implementaci se pro rychlý výběr nejmenší hodnoty často používá prioritní fronta.</p>
 
     <div class="pointa">
       <h2>Proč je to těžké</h2>
@@ -374,6 +559,30 @@ cena cesty A → B → D → G:
 
   <section class="sekce predmety">
     <h2>4. Kde se to učí</h2>
+    <p>Grafy a grafové algoritmy se přímo probírají v předmětu <strong>Algoritmy a datové struktury</strong>. Stejný způsob uvažování se potom vrací i v dalších předmětech, pokaždé s jiným významem uzlů a hran.</p>
+    <div class="predmety-grid">
+      <article class="predmet">
+        <h3>Algoritmy a datové struktury</h3>
+        <p>Grafy, jejich uložení v paměti, BFS, DFS, hledání nejkratších cest a posuzování časové složitosti algoritmů.</p>
+      </article>
+      <article class="predmet">
+        <h3>Počítačové sítě a kybernetická bezpečnost</h3>
+        <p>Zařízení a směrovače tvoří uzly, komunikační linky hrany. Grafové postupy pomáhají hledat trasy a zkoumat odolnost sítě.</p>
+      </article>
+      <article class="predmet">
+        <h3>Paralelní programování</h3>
+        <p>Graf závislostí ukazuje, které části výpočtu musí čekat a které lze spustit současně na více procesorech nebo počítačích.</p>
+      </article>
+      <article class="predmet">
+        <h3>Automatické řízení</h3>
+        <p>Stavové diagramy popisují možné stavy systému a přechody mezi nimi. Jde o orientované grafy používané při návrhu logického řízení.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="sekce" aria-labelledby="literatura-nadpis">
+    <h2 id="literatura-nadpis">Doporučená literatura</h2>
+    <p><a href="https://www.nic.cz/files/edice/pruvodce_labyrintem_algoritmu.pdf"><strong>Průvodce labyrintem algoritmů</strong> (PDF)</a> — kniha pro další seznámení s algoritmickým myšlením, datovými strukturami a grafovými algoritmy.</p>
   </section>
 
   <p class="paticka"><a href="../index.html">← Zpět na rozcestník</a></p>
