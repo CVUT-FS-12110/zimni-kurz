@@ -50,5 +50,13 @@ window.LEKCE = [
     verejna: false,
     tema: 'Optická triangulace a světelná brána',
     okruh: 'měření'
+  },
+  {
+    nazev: 'Lekce 7 — Tempomat doručovací dodávky',
+    popis: 'Dodávka s balíkem jede do kopce, z kopce i proti větru. Udržte 90 km/h ručně a pak s P, PI a PID regulátorem — a zjistěte, proč nejde prostě „přidat hodně“.',
+    soubor: 'ulohy/07-tempomat.html',
+    verejna: false,
+    tema: 'Zpětnovazební řízení rychlosti: P, PI, PID',
+    okruh: 'řízení a regulace'
   }
 ];
