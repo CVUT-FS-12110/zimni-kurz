@@ -45,6 +45,21 @@
   .vlastnost-hrany { padding: 0.65rem 0.75rem; border: 2px solid var(--ram); border-radius: var(--radius); background: var(--pozadi-panel); }
   .vlastnost-hrany strong, .vlastnost-hrany span { display: block; }
   .vlastnost-hrany span { color: var(--text-slaby); font-size: 0.86rem; }
+  .prostor-grafu { max-width: 960px; margin: 2rem 0; }
+  .prostor-grafu > p { max-width: 76ch; }
+  .prostor-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(260px, 0.75fr); gap: 0.8rem; margin: 1rem 0; align-items: stretch; }
+  .prostor-obrazek { margin: 0; border: 2px solid var(--ram-silny); border-radius: var(--radius); background: #fff; overflow-x: auto; }
+  .prostor-obrazek svg { display: block; width: 100%; min-width: 560px; height: auto; }
+  .prostor-obrazek figcaption { padding: 0.55rem 0.7rem; border-top: 2px solid var(--ram); background: var(--pozadi-panel); color: var(--text-slaby); font-size: 0.86rem; }
+  .rozmery-karty { display: grid; gap: 0.55rem; }
+  .rozmer-karta { padding: 0.7rem; border: 2px solid var(--ram); border-radius: var(--radius); background: var(--pozadi-panel); }
+  .rozmer-karta strong, .rozmer-karta span { display: block; }
+  .rozmer-karta span { margin-top: 0.2rem; color: var(--text-slaby); font-size: 0.85rem; }
+  .vzorec-vzdalenost { max-width: 760px; padding: 0.7rem 0.9rem; border-left: 6px solid var(--akcent); background: var(--pozadi-panel); font-size: 1.02rem; }
+  .smerove-ceny { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.6rem; max-width: 960px; margin: 1rem 0; }
+  .smerova-cena { padding: 0.7rem; border: 2px solid var(--ram); border-radius: var(--radius); background: var(--pozadi-panel); }
+  .smerova-cena strong, .smerova-cena span { display: block; }
+  .smerova-cena span { margin-top: 0.2rem; color: var(--text-slaby); font-size: 0.86rem; }
   .hledani-uvod { max-width: 960px; margin: 0 0 2rem; }
   .hledani-kroky { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.7rem; margin-top: 1rem; }
   .hledani-krok { padding: 0.8rem; border: 2px solid var(--ram); border-top: 6px solid var(--akcent); border-radius: var(--radius); background: var(--pozadi-panel); }
@@ -86,6 +101,18 @@
   .dijkstra-obrazek svg { display: block; width: 100%; min-width: 720px; height: auto; }
   .dijkstra-obrazek figcaption { padding: 0.65rem 0.8rem; border-top: 2px solid var(--ram); background: var(--pozadi-panel); color: var(--text-slaby); font-size: 0.88rem; }
   .dijkstra-obrazek strong { color: var(--text); }
+  .optimalizace { width: min(960px, calc(100vw - 2.5rem)); max-width: none; margin-top: 2rem; }
+  .tri-casy { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.6rem; margin: 1rem 0; }
+  .cas-karta { padding: 0.7rem; border: 2px solid var(--ram); border-radius: var(--radius); background: var(--pozadi-panel); }
+  .cas-karta strong, .cas-karta span { display: block; }
+  .cas-karta span { margin-top: 0.2rem; color: var(--text-slaby); font-size: 0.86rem; }
+  .optimalizace-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.8rem; margin: 1rem 0; }
+  .optimalizace-karta { padding: 1rem; border: 2px solid var(--ram-silny); border-top: 7px solid var(--barva); border-radius: var(--radius); background: var(--pozadi-panel); }
+  .optimalizace-karta:first-child { --barva: var(--shluk-3); }
+  .optimalizace-karta:last-child { --barva: var(--shluk-4); }
+  .optimalizace-karta h4 { margin: 0 0 0.45rem; }
+  .optimalizace-karta ul { margin-bottom: 0; }
+  .kompromis { padding: 0.9rem 1rem; border-left: 6px solid var(--akcent); background: var(--pozadi-panel); }
   .predmety-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem; max-width: 960px; }
   .predmet { padding: 0.8rem; border: 2px solid var(--ram); border-radius: var(--radius); background: var(--pozadi-panel); }
   .predmet h3 { margin: 0 0 0.35rem; font-size: 1.05rem; }
@@ -124,7 +151,7 @@
   @media (max-width: 700px) {
     .mapa-dvojice { grid-template-columns: 1fr; }
     .vlastnosti-hran { grid-template-columns: 1fr; }
-    .hledani-kroky, .graf-pojmy, .struktury, .predmety-grid, .dijkstra-schema { grid-template-columns: 1fr; }
+    .hledani-kroky, .graf-pojmy, .struktury, .predmety-grid, .dijkstra-schema, .prostor-grid, .smerove-ceny, .tri-casy, .optimalizace-grid { grid-template-columns: 1fr; }
     .dijkstra-krok:not(:last-child)::after { content: "↓"; top: auto; right: 50%; bottom: -0.7rem; transform: translateX(50%); }
     .priorita-radek { grid-template-columns: 1fr; gap: 0.2rem; }
     .zapis-grid { grid-template-columns: 1fr; }
@@ -165,6 +192,11 @@
   <section class="priklad-mapy">
     <h3>Od mapy ulic ke grafu</h3>
     <p>Pro navigaci není důležitý tvar každého domu. Potřebujeme vědět hlavně to, <strong>kde lze změnit směr</strong> a <strong>která místa jsou přímo propojena</strong>. Křižovatku proto nahradíme bodem — <strong>uzlem</strong>. Úsek ulice mezi dvěma křižovatkami nahradíme čárou — <strong>hranou</strong>.</p>
+    <div class="teorie-box">
+      <h3>Co znamená topologie?</h3>
+      <p><strong>Topologie sítě</strong> popisuje, které uzly jsou navzájem propojené. Neříká, kde přesně jsou nakreslené ani jak dlouhé jsou čáry mezi nimi. Když uzly na papíře přesuneme a hrany ohneme, topologie zůstane stejná. Změní se až tehdy, když nějaké spojení přidáme, odstraníme nebo změníme jeho směr.</p>
+      <p>Geometrie tedy odpovídá na otázku „kde to leží?“, zatímco topologie na otázku „kam se odtud lze dostat?“. Váhy hran pak doplní třetí informaci: „kolik přechod stojí?“</p>
+    </div>
     <div class="mapa-dvojice">
       <figure class="mapa-karta">
         <svg viewBox="0 0 560 330" role="img" aria-labelledby="ulice-title ulice-desc">
@@ -203,6 +235,55 @@
     </div>
     <div class="vlastnosti-hran"><div class="vlastnost-hrany"><strong>Vzdálenost: 8 km</strong><span>Kolik kilometrů zásilka ujede?</span></div><div class="vlastnost-hrany"><strong>Doba: 14 minut</strong><span>Krátká silnice nemusí být nejrychlejší.</span></div><div class="vlastnost-hrany"><strong>Omezení: most</strong><span>Těžká nebo vysoká zásilka tudy nemusí projet.</span></div></div>
     <p>Stejný graf tedy může odpovídat na různé otázky: cesta s nejméně křižovatkami, nejkratší vzdáleností nebo nejmenším časem nemusí být tatáž. Grafy se navíc nepoužívají jen pro silnice — stejně lze popsat železniční spoje, počítačovou síť, návaznost úkolů nebo vztahy mezi lidmi.</p>
+  </section>
+
+  <section class="prostor-grafu" aria-labelledby="prostor-nadpis">
+    <h3 id="prostor-nadpis">Když uzly neleží na ploché mapě</h3>
+    <p>Silniční mapa je téměř dvojrozměrná, ale uzel může ležet také v prostoru. Dron se pohybuje doprava, dopředu i vzhůru; potrubí prochází různými patry budovy a planety obíhají Slunce v prostoru. Na plochém obrázku se hrany mohou překrývat a uzly zakrývat. U větší sítě už proto nemusí být nejlepší cesta vidět pouhým pohledem.</p>
+    <div class="prostor-grid">
+      <figure class="prostor-obrazek">
+        <svg viewBox="0 0 640 380" role="img" aria-labelledby="prostor-svg-title prostor-svg-desc">
+          <title id="prostor-svg-title">Tři body v prostoru převedené na ohodnocený graf</title>
+          <desc id="prostor-svg-desc">Body A, B a C mají trojrozměrné souřadnice. Ze souřadnic vycházejí vzdálenosti 5, 12 a 13, které se zapíší jako váhy hran abstraktního grafu.</desc>
+          <defs><marker id="sipka-osy" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#4a5768"/></marker></defs>
+          <rect x="12" y="12" width="385" height="356" rx="8" fill="#f7f9fc" stroke="#c6ced9" stroke-width="2"/>
+          <text x="204" y="38" fill="#0d1218" font-family="Segoe UI, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Body v prostoru</text>
+          <g fill="none" stroke="#4a5768" stroke-width="2" marker-end="url(#sipka-osy)"><path d="M88 302 H350"/><path d="M88 302 L32 345"/><path d="M88 302 V65"/></g>
+          <g fill="#4a5768" font-family="Segoe UI, sans-serif" font-size="12" font-weight="600"><text x="358" y="306">x</text><text x="22" y="357">y</text><text x="79" y="58">z</text></g>
+          <path d="M88 302 L245 258 L245 91 M88 302 L245 91" fill="none" stroke="#aab4c2" stroke-width="3" stroke-dasharray="7 5"/>
+          <path d="M88 302 L245 258" fill="none" stroke="#0b46c8" stroke-width="6"/>
+          <path d="M245 258 V91" fill="none" stroke="#0a7d38" stroke-width="6"/>
+          <path d="M88 302 L245 91" fill="none" stroke="#d97000" stroke-width="5"/>
+          <g fill="#fff" stroke="#0d1218" stroke-width="3"><circle cx="88" cy="302" r="22"/><circle cx="245" cy="258" r="22"/><circle cx="245" cy="91" r="22"/></g>
+          <g fill="#0d1218" font-family="Segoe UI, sans-serif" font-weight="700" text-anchor="middle"><text x="88" y="307">A</text><text x="245" y="263">B</text><text x="245" y="96">C</text></g>
+          <g fill="#4a5768" font-family="Segoe UI, sans-serif" font-size="12"><text x="104" y="329">(0, 0, 0)</text><text x="261" y="283">(3, 4, 0)</text><text x="261" y="82">(3, 4, 12)</text></g>
+          <g fill="#0d1218" font-family="Segoe UI, sans-serif" font-size="13" font-weight="700"><text x="153" y="273" fill="#0b46c8">5</text><text x="254" y="178" fill="#0a7d38">12</text><text x="139" y="183" fill="#d97000">13</text></g>
+
+          <rect x="413" y="12" width="215" height="356" rx="8" fill="#fff" stroke="#c6ced9" stroke-width="2"/>
+          <text x="520" y="38" fill="#0d1218" font-family="Segoe UI, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Stejná data jako graf</text>
+          <g fill="none" stroke-width="5"><line x1="455" y1="285" x2="575" y2="285" stroke="#0b46c8"/><line x1="575" y1="285" x2="575" y2="100" stroke="#0a7d38"/><line x1="455" y1="285" x2="575" y2="100" stroke="#d97000"/></g>
+          <g fill="#fff" stroke="#0d1218" stroke-width="3"><circle cx="455" cy="285" r="23"/><circle cx="575" cy="285" r="23"/><circle cx="575" cy="100" r="23"/></g>
+          <g fill="#0d1218" font-family="Segoe UI, sans-serif" font-weight="700" text-anchor="middle"><text x="455" y="290">A</text><text x="575" y="290">B</text><text x="575" y="105">C</text><text x="515" y="275" fill="#0b46c8">5</text><text x="590" y="195" fill="#0a7d38">12</text><text x="502" y="183" fill="#d97000">13</text></g>
+          <text x="520" y="335" fill="#4a5768" font-family="Segoe UI, sans-serif" font-size="12" text-anchor="middle"><tspan x="520">Tvar prostoru zmizel.</tspan><tspan x="520" dy="17">Spojení a vzdálenosti zůstaly.</tspan></text>
+        </svg>
+        <figcaption>Souřadnice mohou být trojrozměrné, ale algoritmus nakonec potřebuje jen uzly, povolená spojení a číselné váhy hran.</figcaption>
+      </figure>
+      <div class="rozmery-karty">
+        <div class="rozmer-karta"><strong>2 rozměry</strong><span>Poloha na mapě: x a y. Typický příklad jsou ulice nebo plošný spoj.</span></div>
+        <div class="rozmer-karta"><strong>3 rozměry</strong><span>Přidá se výška z. Tak se popisují drony, potrubí, sklady nebo objekty ve vesmíru.</span></div>
+        <div class="rozmer-karta"><strong>Více rozměrů</strong><span>„Souřadnicí“ nemusí být jen poloha. Bod může popisovat také čas, energii, teplotu, kapacitu nebo riziko.</span></div>
+        <div class="rozmer-karta"><strong>Graf zůstává stejný</strong><span>Algoritmus nemusí umět prostor nakreslit. Stačí mu seznam sousedů a cena přechodu mezi nimi.</span></div>
+      </div>
+    </div>
+    <p>Ze souřadnic dvou bodů lze vypočítat přímou vzdálenost. Ve třech rozměrech se rozdíly souřadnic umocní, sečtou a ze součtu se vezme odmocnina:</p>
+    <p class="vzorec-vzdalenost"><strong>d = √((x₂ − x₁)² + (y₂ − y₁)² + (z₂ − z₁)²)</strong><br>Stejný princip funguje i ve více rozměrech: přidají se další členy. Výsledné číslo lze použít jako váhu hrany.</p>
+    <p>Samotná geometrická vzdálenost ale často nestačí. Mezi dvěma body může stát překážka, některé spojení nemusí být vůbec dovoleno a cesta jedním směrem může být dražší než cesta zpět. Souřadnice proto dávají základ, ze kterého se sestaví graf; další podmínky rozhodnou, které hrany existují a jakou dostanou cenu.</p>
+    <div class="smerove-ceny">
+      <div class="smerova-cena"><strong>Vítr a proud</strong><span>Letadlo nebo loď urazí stejnou vzdálenost, ale po větru či proudu spotřebuje jiný čas a energii než proti nim. Hrany A → B a B → A proto mohou mít různé váhy.</span></div>
+      <div class="smerova-cena"><strong>Planety a gravitace</strong><span>Planety se pohybují a vhodná dráha závisí také na okamžiku startu. Gravitační pole může loď urychlit nebo změnit její směr. Cena hrany se proto může měnit s časem a může vyjadřovat dobu letu nebo spotřebu paliva.</span></div>
+      <div class="smerova-cena"><strong>Gravitační vlny</strong><span>Nejsou vesmírným protivětrem. U sítě vzdálených detektorů ale známe jejich prostorové souřadnice a měříme rozdíly času příchodu signálu. Z těchto „vah“ lze odhadnout směr, odkud vlna přišla.</span></div>
+    </div>
+    <p><strong>Hlavní trik je převod:</strong> složitý fyzický problém převedeme na uzly, povolené hrany a jejich ceny. Pak už hledací algoritmus nemusí rozumět ulicím, větru ani gravitaci. Pracuje pouze s čísly. Obtížná část se přesunula do správného výpočtu těchto čísel — a právě na kvalitě tohoto modelu závisí kvalita nalezené cesty.</p>
   </section>
 
   <section class="sekce">
@@ -455,16 +536,15 @@ G: D, E, F</pre>
       <p>Obyčejná fronta v BFS vybírá podle pořadí příchodu: kdo přišel první, jde první. <strong>Prioritní fronta</strong> vybírá podle přiděleného čísla neboli priority. U Dijkstrova algoritmu je prioritou nejlepší dosud známý čas. Dopředu se tedy vždy dostane uzel s nejmenším číslem, i kdyby byl vložen později.</p>
       <p>Položku zapisujeme například <strong>(C, 4)</strong>: uzel C je zatím dosažitelný za 4 minuty. Prioritní fronta sama nepředstavuje hotovou cestu. Je to uspořádaný seznam kandidátů, které ještě musíme prověřit.</p>
     </div>
-    <div class="priorita-demo" aria-label="Proměny prioritní fronty při hledání cesty z A do G">
-      <h4>Jak se mění prioritní fronta v ukázkové síti</h4>
-      <div class="priorita-radek"><span class="priorita-popis">Začátek</span><div class="priorita-fronta"><span class="priorita-prvek">A · 0 min</span></div></div>
-      <div class="priorita-radek"><span class="priorita-popis">Po zpracování A</span><div class="priorita-fronta"><span class="priorita-prvek">B · 2</span></div></div>
-      <div class="priorita-radek"><span class="priorita-popis">Po zpracování B</span><div class="priorita-fronta"><span class="priorita-prvek">C · 4</span><span class="priorita-prvek">E · 5</span><span class="priorita-prvek">D · 10</span></div></div>
-      <div class="priorita-radek"><span class="priorita-popis">Po zpracování C</span><div class="priorita-fronta"><span class="priorita-prvek">E · 5</span><span class="priorita-prvek">F · 6</span><span class="priorita-prvek">D · 10</span></div></div>
-      <div class="priorita-radek"><span class="priorita-popis">Po zpracování E</span><div class="priorita-fronta"><span class="priorita-prvek">F · 6</span><span class="priorita-prvek">D · 10</span><span class="priorita-prvek">G · 14</span></div></div>
-      <div class="priorita-radek"><span class="priorita-popis">Po zpracování F</span><div class="priorita-fronta"><span class="priorita-prvek">G · 8</span><span class="priorita-prvek">D · 10</span></div></div>
-      <div class="priorita-radek"><span class="priorita-popis">Vybereme cíl G</span><div class="priorita-fronta"><span class="priorita-prvek">G · 8</span><span class="priorita-prvek">D · 10</span></div></div>
-      <p class="priorita-vysvetlivka">Barevně zvýrazněná první položka má vždy nejmenší prioritu a bude zpracována jako další. U uzlu G se odhad 14 minut po nalezení lepší cesty přes F snížil na 8 minut.</p>
+    <div class="priorita-demo" aria-label="Proměny prioritní fronty při hledání cesty ze startu S do cíle G">
+      <h4>Jak se mění prioritní fronta ve schématu níže</h4>
+      <div class="priorita-radek"><span class="priorita-popis">Začátek</span><div class="priorita-fronta"><span class="priorita-prvek">S · 0 min</span></div></div>
+      <div class="priorita-radek"><span class="priorita-popis">Po zpracování S</span><div class="priorita-fronta"><span class="priorita-prvek">A · 2</span><span class="priorita-prvek">G · 14</span></div></div>
+      <div class="priorita-radek"><span class="priorita-popis">Po zpracování A</span><div class="priorita-fronta"><span class="priorita-prvek">B · 4</span><span class="priorita-prvek">G · 14</span></div></div>
+      <div class="priorita-radek"><span class="priorita-popis">Po zpracování B</span><div class="priorita-fronta"><span class="priorita-prvek">C · 6</span><span class="priorita-prvek">G · 14</span></div></div>
+      <div class="priorita-radek"><span class="priorita-popis">Po zpracování C</span><div class="priorita-fronta"><span class="priorita-prvek">G · 8</span></div></div>
+      <div class="priorita-radek"><span class="priorita-popis">Vybereme cíl G</span><div class="priorita-fronta"><span class="priorita-prvek">G · 8</span></div></div>
+      <p class="priorita-vysvetlivka">G je ve frontě s odhadem 14 minut hned po zpracování startu S. Není však vybráno, protože A, potom B a potom C mají menší prioritu. Teprve cesta přes C sníží odhad cíle na 8 minut; pak se G dostane na řadu.</p>
     </div>
     <figure class="dijkstra-obrazek">
       <svg viewBox="0 0 900 410" role="img" aria-labelledby="dijkstra-cesty-title dijkstra-cesty-desc">
@@ -511,7 +591,7 @@ G: D, E, F</pre>
       <h3>Co znamená „nejlepší dosud známý čas“</h3>
       <p>Je potřeba rozlišit <strong>zpracované</strong> a <strong>čekající</strong> uzly. V každém kroku vybereme z prioritní fronty čekající uzel s nejmenším známým časem. Teprve jeho vybráním se tento jediný čas stane konečným: žádná později objevená cesta k tomuto uzlu nemůže být levnější, pokud mají všechny hrany nezáporné váhy.</p>
       <p>Časy u ostatních čekajících uzlů jsou stále jen odhady. Z vybraného uzlu proto zkusíme cestu prodloužit ke každému jeho nezpracovanému sousedovi. Jestliže <strong>konečný čas do vybraného uzlu + cena hrany</strong> vyjde menší než dosavadní odhad u souseda, odhad i předchůdce přepíšeme. Této operaci se říká <strong>relaxace hrany</strong>.</p>
-      <p>Například G může ve frontě čekat s odhadem 14 minut. Tento údaj ještě není konečný, protože G zatím nebylo vybráno. Po zpracování F objevíme cestu do G za 8 minut a odhad přepíšeme. Konečným se čas 8 minut stane až ve chvíli, kdy prioritní fronta vybere G jako nejlevnější čekající uzel.</p>
+      <p>Například ve schématu výše čeká G ve frontě s odhadem 14 minut už od zpracování startu S. Tento údaj ještě není konečný, protože G zatím nebylo vybráno. Algoritmus před ním zpracuje levnější A, B a C. Přes C potom objeví cestu do G za 8 minut a odhad přepíše. Konečným se čas 8 minut stane až ve chvíli, kdy prioritní fronta vybere G jako nejlevnější čekající uzel.</p>
     </div>
     <p>V síti z interaktivní ukázky proběhnou důležité kroky takto:</p>
     <table class="dijkstra-tabulka">
@@ -554,6 +634,43 @@ G: D, E, F</pre>
         úseky mohou trvat déle než čtyři rychlé. Pak už je potřeba jiný postup, který
         pracuje s cenou hran, například Dijkstrův algoritmus.
       </p>
+    </div>
+
+    <div class="optimalizace">
+      <h3>Na závěr: nejlepší trasa, nebo rychlé rozhodnutí?</h3>
+      <p>Věta „chceme nejrychlejší cestu“ může znamenat dvě různé věci. Buď chceme, aby byla co nejlepší <strong>výsledná trasa</strong>, nebo potřebujeme, aby algoritmus vydal použitelné rozhodnutí v co nejkratším <strong>čase výpočtu</strong>. To nejsou stejné cíle.</p>
+      <div class="tri-casy">
+        <div class="cas-karta"><strong>Čas výpočtu</strong><span>Jak dlouho počítač hledá, než nabídne trasu.</span></div>
+        <div class="cas-karta"><strong>Čas cesty</strong><span>Jak dlouho potom vozidlo, člověk nebo data skutečně cestují.</span></div>
+        <div class="cas-karta"><strong>Další cena</strong><span>Spotřeba paliva, peníze, riziko, počet přestupů nebo opotřebení.</span></div>
+      </div>
+      <p>Algoritmus může počítat deset sekund a ušetřit vozidlu hodinu. Jindy by deset sekund čekání způsobilo nehodu, takže je lepší získat bezpečné rozhodnutí okamžitě, i když není dokonale úsporné.</p>
+      <div class="optimalizace-grid">
+        <article class="optimalizace-karta">
+          <h4>Kdy potřebujeme nejlepší možnou cestu</h4>
+          <p>Vyplatí se počítat déle, když se výsledek bude používat opakovaně, cesta je drahá nebo i malé zlepšení přinese velkou úsporu.</p>
+          <ul>
+            <li><strong>Rozvoz na celý den:</strong> několik minut plánování může ušetřit mnoha vozidlům desítky kilometrů.</li>
+            <li><strong>Let kosmické sondy:</strong> výpočet může trvat dlouho, protože palivo nelze během letu jednoduše doplnit.</li>
+            <li><strong>Výrobní linka:</strong> dobré pořadí operací se opakuje tisíckrát, takže malá úspora každého cyklu se nasčítá.</li>
+            <li><strong>Návrh kabelů nebo potrubí:</strong> jednou nalezené řešení se fyzicky postaví a bude sloužit roky.</li>
+          </ul>
+        </article>
+        <article class="optimalizace-karta">
+          <h4>Kdy potřebujeme nějakou cestu okamžitě</h4>
+          <p>Rychlá použitelná odpověď je důležitější, když se prostředí právě mění nebo rozhodnutí musí přijít dříve, než ztratí smysl.</p>
+          <ul>
+            <li><strong>Robot před překážkou:</strong> musí hned zabrzdit nebo uhnout; dokonale krátkou trasu může dopočítat později.</li>
+            <li><strong>Počítačová síť po výpadku:</strong> data je potřeba rychle přesměrovat. Dočasná oklika je lepší než přerušené spojení.</li>
+            <li><strong>Evakuace:</strong> první bezpečný pokyn musí přijít rychle, i kdyby později vznikl přesnější plán rozdělení lidí.</li>
+            <li><strong>Hra nebo simulace:</strong> postava musí reagovat v každém snímku; malé zkrácení trasy nestojí za viditelné zaseknutí.</li>
+          </ul>
+        </article>
+      </div>
+      <div class="kompromis">
+        <p><strong>Často se používá kompromis:</strong> algoritmus nejprve rychle najde libovolnou přípustnou cestu a potom ji zlepšuje, dokud má čas. Takovému postupu se říká průběžně zlepšované neboli <em>anytime</em> řešení. Navigace tak může okamžitě ukázat první trasu a o okamžik později ji nahradit výhodnější.</p>
+        <p>Před volbou algoritmu je proto potřeba určit dvě podmínky: <strong>co znamená nejlepší výsledek</strong> a <strong>kolik času smí hledání spotřebovat</strong>. Bez nich nelze říct, který algoritmus je pro úlohu skutečně nejlepší.</p>
+      </div>
     </div>
   </section>
 

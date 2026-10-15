@@ -15,7 +15,7 @@ window.LEKCE = [
     nazev: 'Lekce 2 — Cesta do balíkového centra',
     popis: 'Balíček s přihláškou vyráží na cestu. Jak projít sítí křižovatek a měst — a který postup zaručí nejkratší trasu?',
     soubor: 'ulohy/02-volba-trasy.html',
-    verejna: false,
+    verejna: true,
     tema: 'Volba trasy zásilky',
     okruh: 'programování a algoritmy'
   },
