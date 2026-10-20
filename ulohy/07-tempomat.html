@@ -86,6 +86,18 @@
   .uro .blok { fill: var(--pozadi-panel); stroke: var(--ram-silny); stroke-width: 2.5; }
   .uro .blok-reg { fill: #dce7ff; stroke: var(--akcent); }
   .uro .cara { fill: none; stroke: var(--ram-silny); stroke-width: 2.5; }
+  .uro-teorie { width: min(1000px, calc(100vw - 2rem)); max-width: none; }   /* širší než textový sloupec části 3 */
+  /* Interaktivní bloky schématu v části 3: po najetí / fokusu / klepnutí ukážou model. */
+  .aktivni-blok { cursor: help; outline: none; }
+  .aktivni-blok:hover .blok, .aktivni-blok:focus-visible .blok, .aktivni-blok[aria-expanded="true"] .blok { stroke: var(--akcent); stroke-width: 4; fill: #e8eeff; }
+  .uro .info-znak { fill: var(--akcent); }
+  .uro .info-text { fill: #fff; font: italic 700 13px Georgia, serif; text-anchor: middle; }
+  .schema-popis { position: fixed; z-index: 10; width: min(400px, calc(100vw - 2rem)); padding: .7rem .9rem; border: 2px solid var(--akcent); border-radius: var(--radius); background: #fff; box-shadow: 0 6px 20px rgba(13, 18, 24, .18); font-size: .9rem; }
+  .schema-popis[hidden] { display: none; }
+  .schema-popis p { margin: .4rem 0 0; }
+  .schema-popis .vzorec { margin: .5rem 0; }
+  .schema-popis .vzorec math { font-size: 1.05rem; }
+  .uro figcaption { margin-top: .4rem; font-size: .9rem; color: var(--text-slaby); }
   .uro .porucha { fill: none; stroke: var(--shluk-4); stroke-width: 2.5; stroke-dasharray: 7 5; }
   .uro .nazev { font-weight: 700; text-anchor: middle; }
   .uro .maly { font-size: 13px; fill: var(--text-slaby); text-anchor: middle; }
@@ -113,7 +125,13 @@
   .pojem strong, .pojem span { display: block; }
   .pojem span { margin-top: .15rem; color: var(--text-slaby); font-size: .9rem; }
   @media (max-width: 560px) { .pojmy { grid-template-columns: minmax(0, 1fr); } .tabulka { font-size: .8rem; } }
-  .prazdny-blok { min-height: 5rem; }
+  .predmety-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; max-width: 1000px; margin-top: 1rem; }
+  .predmet { display: flex; flex-direction: column; padding: .8rem 1rem; border: 2px solid var(--ram); border-radius: var(--radius); background: var(--pozadi-panel); }
+  .predmet h3 { margin: .1rem 0 .4rem; font-size: 1.05rem; }
+  .predmet p { margin: 0; }
+  .predmet .predmet-stupen { color: var(--akcent); font-size: .75rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+  .predmet .predmet-odkaz { margin-top: auto; padding-top: .6rem; font-size: .9rem; font-weight: 700; }
+  @media (max-width: 800px) { .predmety-grid { grid-template-columns: minmax(0, 1fr); } }
 </style>
 </head>
 <body>
@@ -487,6 +505,114 @@
   <section class="sekce">
     <h2>3. Jak regulátor pracuje a jak se nastavuje</h2>
 
+    <h3>Regulační schéma</h3>
+    <p>Tempomat z interaktivní části se dá nakreslit jako <em>regulační schéma</em>. Obdélníky jsou části zařízení, šipky ukazují, kudy putuje informace nebo síla. Stejné názvy se používají u každé regulace — ať jde o rychlost dodávky, teplotu v místnosti, nebo výšku hladiny v nádrži.</p>
+    <figure class="uro uro-teorie">
+      <svg viewBox="0 0 1100 300" role="img" aria-label="Regulační schéma: žádaná hodnota w minus naměřená hodnota dává regulační odchylku e. Regulátor z ní určí akční veličinu u. Regulovaná soustava, tedy motor a dodávka, na ni odpoví změnou regulované veličiny v. Do dodávky vstupují poruchy. Snímač měří v a vrací ji zpětnou vazbou na začátek.">
+        <defs>
+          <marker id="t-sipka" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="10" refX="12" refY="5" orient="auto"><path d="M0,0 L0,10 L13,5 z" fill="#0d1218"/></marker>
+          <marker id="t-oranz" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="10" refX="12" refY="5" orient="auto"><path d="M0,0 L0,10 L13,5 z" fill="#d97000"/></marker>
+        </defs>
+        <!-- žádaná hodnota -->
+        <text x="58" y="100" class="nazev">žádaná</text>
+        <text x="58" y="118" class="nazev">hodnota w</text>
+        <text x="58" y="160" class="maly">90 km/h</text>
+        <path class="cara" d="M108 135 L161 135" marker-end="url(#t-sipka)"/>
+        <!-- součtový člen -->
+        <circle cx="180" cy="135" r="18" fill="#fff" stroke="#0d1218" stroke-width="2.5"/>
+        <path d="M169 135 L191 135 M180 124 L180 146" stroke="#0d1218" stroke-width="2"/>
+        <text x="146" y="123" style="font-weight:700">+</text>
+        <text x="188" y="175" style="font-weight:700">−</text>
+        <!-- e -->
+        <path class="cara" d="M198 135 L283 135" marker-end="url(#t-sipka)"/>
+        <text x="240" y="100" class="nazev" style="font-size:14px">odchylka e</text>
+        <text x="240" y="118" class="maly">e = w − v</text>
+        <!-- regulátor -->
+        <g class="aktivni-blok" tabindex="0" role="button" aria-label="Regulátor — zobrazit model" aria-describedby="t-model-regulator" aria-expanded="false" data-popis="t-model-regulator">
+          <rect class="blok blok-reg" x="285" y="100" width="160" height="70" rx="6"/>
+          <text x="365" y="130" class="nazev">Regulátor</text>
+          <text x="365" y="152" class="maly">P, PI nebo PID</text>
+          <circle cx="432" cy="113" r="9" class="info-znak"/>
+          <text x="432" y="118" class="info-text">i</text>
+        </g>
+        <!-- u -->
+        <path class="cara" d="M445 135 L573 135" marker-end="url(#t-sipka)"/>
+        <text x="499" y="100" class="nazev" style="font-size:14px">akční</text>
+        <text x="499" y="118" class="nazev" style="font-size:14px">veličina u</text>
+        <text x="499" y="156" class="maly">požadovaná</text>
+        <text x="499" y="172" class="maly">síla</text>
+        <!-- regulovaná soustava -->
+        <rect x="553" y="64" width="400" height="126" rx="10" fill="none" stroke="#4a5768" stroke-width="2" stroke-dasharray="8 6"/>
+        <text x="565" y="84" class="maly" style="text-anchor:start;font-weight:700">regulovaná soustava</text>
+        <g class="aktivni-blok" tabindex="0" role="button" aria-label="Motor — zobrazit model" aria-describedby="t-model-motor" aria-expanded="false" data-popis="t-model-motor">
+          <rect class="blok" x="575" y="100" width="130" height="70" rx="6"/>
+          <text x="640" y="130" class="nazev">Motor</text>
+          <text x="640" y="152" class="maly">zpoždění 0,8 s</text>
+          <circle cx="692" cy="113" r="9" class="info-znak"/>
+          <text x="692" y="118" class="info-text">i</text>
+        </g>
+        <path class="cara" d="M705 135 L803 135" marker-end="url(#t-sipka)"/>
+        <text x="754" y="118" class="maly">tažná síla F</text>
+        <g class="aktivni-blok" tabindex="0" role="button" aria-label="Dodávka — zobrazit model" aria-describedby="t-model-dodavka" aria-expanded="false" data-popis="t-model-dodavka">
+          <rect class="blok" x="805" y="100" width="130" height="70" rx="6"/>
+          <text x="870" y="130" class="nazev">Dodávka</text>
+          <text x="870" y="152" class="maly">hmotnost m</text>
+          <circle cx="922" cy="113" r="9" class="info-znak"/>
+          <text x="922" y="118" class="info-text">i</text>
+        </g>
+        <!-- poruchy -->
+        <path class="porucha" d="M870 12 L870 98" marker-end="url(#t-oranz)"/>
+        <text x="884" y="30" style="font-weight:700;fill:#d97000">poruchy</text>
+        <text x="884" y="50" style="font-size:13px;fill:#d97000">sklon, vítr</text>
+        <!-- regulovaná veličina -->
+        <path class="cara" d="M935 135 L1088 135" marker-end="url(#t-sipka)"/>
+        <text x="1040" y="100" class="nazev">regulovaná</text>
+        <text x="1040" y="118" class="nazev">veličina v</text>
+        <!-- zpětná vazba -->
+        <path class="cara" d="M1000 135 L1000 245 L772 245"/>
+        <circle cx="1000" cy="135" r="4" fill="#0d1218"/>
+        <rect class="blok" x="620" y="215" width="150" height="60" rx="6"/>
+        <text x="695" y="241" class="nazev">Snímač</text>
+        <text x="695" y="261" class="maly">měří rychlost</text>
+        <path class="cara" d="M620 245 L180 245 L180 155" marker-end="url(#t-sipka)"/>
+        <text x="400" y="235" class="maly">naměřená hodnota v</text>
+        <text x="885" y="235" class="nazev" style="font-size:14px">zpětná vazba</text>
+      </svg>
+      <figcaption>Uzavřený regulační obvod tempomatu. Regulátor nevidí sklon ani vítr; pozná je jen podle toho, jak se změní naměřená rychlost. Bloky se značkou <strong>i</strong> po najetí myší (nebo klepnutí) ukážou svůj model.</figcaption>
+    </figure>
+    <div class="schema-popis" id="t-model-dodavka" role="tooltip" hidden>
+      <strong>Model dodávky</strong>
+      <div class="vzorec"><math display="block">
+        <mtable columnalign="right left" class="vpravo">
+          <mtr><mtd><mi>m</mi><mo>⋅</mo><mi>a</mi></mtd><mtd><mo>=</mo><mi>F</mi><mo>−</mo><mi>b</mi><mo>⋅</mo><mrow><mo>(</mo><mi>v</mi><mo>+</mo><msub><mi>v</mi><mtext>větru</mtext></msub><mo>)</mo></mrow><mo>−</mo><mi>m</mi><mo>⋅</mo><mi>g</mi><mo>⋅</mo><mi>s</mi></mtd></mtr>
+          <mtr><mtd><mi>a</mi></mtd><mtd><mo>=</mo><mfrac><mrow><mi mathvariant="normal">d</mi><mi>v</mi></mrow><mrow><mi mathvariant="normal">d</mi><mi>t</mi></mrow></mfrac></mtd></mtr>
+        </mtable>
+      </math></div>
+      <p>Zrychlení <em>a</em> určuje součet sil: tažná síla motoru <em>F</em> mínus odpor vzduchu a složka tíhy do svahu. Když je součet nulový, rychlost <em>v</em> se nemění.</p>
+      <p>Zápis <em>dv</em>/<em>dt</em> čtěte jako „o kolik se změní rychlost za velmi krátkou chvíli, vyděleno délkou té chvíle“ — tedy jak rychle rychlost roste nebo klesá.</p>
+      <p>Vítr <em>v</em><sub>větru</sub> a sklon <em>s</em> jsou poruchy — do dodávky vstupují, ale regulátor je nezná. Každý symbol je vysvětlen níže v odstavci <em>Model dodávky</em>.</p>
+    </div>
+    <div class="schema-popis" id="t-model-motor" role="tooltip" hidden>
+      <strong>Model motoru</strong>
+      <div class="vzorec"><math display="block">
+        <mi>τ</mi><mo>⋅</mo><mfrac><mrow><mi mathvariant="normal">d</mi><mi>F</mi></mrow><mrow><mi mathvariant="normal">d</mi><mi>t</mi></mrow></mfrac><mo>=</mo><mi>u</mi><mrow><mo>(</mo><mi>t</mi><mo>−</mo><msub><mi>T</mi><mi>z</mi></msub><mo>)</mo></mrow><mo>−</mo><mi>F</mi>
+      </math></div>
+      <p>Motor dostane pokyn <em>u</em> a první <em>T</em><sub>z</sub> = 0,8 s nedělá nic — pracuje se starším pokynem <em>u</em>(<em>t</em> − <em>T</em><sub>z</sub>). Tomu se říká <em>dopravní zpoždění</em>.</p>
+      <p>Potom se síla <em>F</em> k pokynu postupně blíží: čím větší rozdíl, tím rychleji. Za <em>τ</em> = 0,8 s (časová konstanta) urazí asi dvě třetiny cesty, téměř celou asi za 2,5 s.</p>
+      <p>Pokyn je navíc omezen na rozsah −5 kN (brzda) až +6 kN — víc motor ani brzdy nedají.</p>
+    </div>
+    <div class="schema-popis" id="t-model-regulator" role="tooltip" hidden>
+      <strong>Model regulátoru (PID)</strong>
+      <div class="vzorec"><math display="block">
+        <mtable columnalign="right left" class="vpravo">
+          <mtr><mtd><mi>u</mi></mtd><mtd><mo>=</mo><msub><mi>K</mi><mi>p</mi></msub><mo>⋅</mo><mi>e</mi><mo>+</mo><mi>I</mi><mo>+</mo><msub><mi>K</mi><mi>d</mi></msub><mo>⋅</mo><mfrac><mrow><mi mathvariant="normal">d</mi><mi>e</mi></mrow><mrow><mi mathvariant="normal">d</mi><mi>t</mi></mrow></mfrac></mtd></mtr>
+          <mtr><mtd><msub><mi>I</mi><mtext>nové</mtext></msub></mtd><mtd><mo>=</mo><msub><mi>I</mi><mtext>minulé</mtext></msub><mo>+</mo><msub><mi>K</mi><mi>i</mi></msub><mo>⋅</mo><mi>e</mi><mo>⋅</mo><mi mathvariant="normal">Δ</mi><mi>t</mi></mtd></mtr>
+        </mtable>
+      </math></div>
+      <p>Regulátor z odchylky <em>e</em> vypočítá pokyn pro motor <em>u</em>. Má tři části: <strong>P</strong> reaguje na to, jak velká je odchylka teď, <strong>I</strong> sčítá odchylky z minulosti a <strong>D</strong> sleduje, jak rychle se odchylka mění (<em>de</em>/<em>dt</em>).</p>
+      <p>P regulátor používá jen první člen, PI první dva, PID všechny tři. Konstanty <em>K</em><sub>p</sub>, <em>K</em><sub>i</sub>, <em>K</em><sub>d</sub> se nastavují posuvníky v interaktivní části.</p>
+    </div>
+
     <h3>Pojmy regulačního obvodu</h3>
     <div class="pojmy">
       <div class="pojem"><strong>Žádaná hodnota w</strong><span>Rychlost, kterou má dodávka držet, zde 90 km/h.</span></div>
@@ -641,7 +767,30 @@
   </section>
 
   <!-- ============ 4. KDE SE TO UČÍ ============ -->
-  <section class="sekce prazdny-blok"><h2>4. Kde se to učí</h2></section>
+  <section class="predmety">
+    <h2>4. Kde se to učí</h2>
+    <p class="sekce">Regulace a PID regulátory se na Fakultě strojní ČVUT probírají ve třech navazujících předmětech. Každý jde o krok dál: od toho, jak regulátor funguje a jak ho seřídit, přes matematický popis dynamiky, až po návrh regulátorů, které vydrží i nepřesný model.</p>
+    <div class="predmety-grid">
+      <article class="predmet">
+        <p class="predmet-stupen">Základní kurz</p>
+        <h3>Automatické řízení</h3>
+        <p>Základní pojmy regulace, PID regulátor a jeho seřizování — zkusmo i výpočtem, stabilita regulačního obvodu. Řeší se i to, co se v této lekci objevilo mimochodem: omezení akční veličiny a vyhlazení derivační složky. Návrhy v Matlabu/Simulinku a cvičení na skutečných úlohách.</p>
+        <p class="predmet-odkaz"><a href="https://kos.fs.cvut.cz/synopsis/2371047" target="_blank" rel="noopener">Anotace předmětu ↗</a></p>
+      </article>
+      <article class="predmet">
+        <p class="predmet-stupen">Pokračovací kurz, magisterské studium</p>
+        <h3>Matematické a simulační modely</h3>
+        <p>Jak z rovnic, jako je model dodávky a motoru, sestavit model, se kterým jde počítat: přenos, stavový popis, stabilita a frekvenční vlastnosti. A jak takový model řešit numericky v počítači — přesně to dělá simulace v této lekci.</p>
+        <p class="predmet-odkaz"><a href="https://kos.fs.cvut.cz/synopsis/course/2371097" target="_blank" rel="noopener">Anotace předmětu ↗</a></p>
+      </article>
+      <article class="predmet">
+        <p class="predmet-stupen">Navazuje na Matematické a simulační modely</p>
+        <h3>Řízení systémů a procesů</h3>
+        <p>Návrh PID a stavových regulátorů z modelu, ochrana proti „přetečení“ integrační složky (anti-windup), robustní návrh, který snese změnu soustavy — třeba jinou hmotnost dodávky —, a řízení soustav s dopravním zpožděním, jako je motor v této lekci.</p>
+        <p class="predmet-odkaz"><a href="https://kos.fs.cvut.cz/synopsis/course/2371002" target="_blank" rel="noopener">Anotace předmětu ↗</a></p>
+      </article>
+    </div>
+  </section>
 
   <p class="paticka"><a href="../index.html">← Zpět na rozcestník</a></p>
 </main>
@@ -1324,7 +1473,7 @@
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     const t = e.target instanceof Element ? e.target : document.body;
     if (t.closest('select, textarea, input:not([type="range"]):not([type="checkbox"])')) return;
-    if (e.key === ' ' && t.closest('button, input, [role="slider"], a')) return;
+    if (e.key === ' ' && t.closest('button, input, [role="slider"], [role="button"], a')) return;
     const videt = s => {
       const r = s.koren.getBoundingClientRect();
       return Math.max(0, Math.min(r.bottom, innerHeight) - Math.max(r.top, 0));
@@ -1332,6 +1481,39 @@
     const cil = SIMULATORY.find(s => s.koren.contains(t)) ||
       SIMULATORY.reduce((a, b) => (videt(b) > videt(a) ? b : a));
     if (videt(cil) > 0 && cil.klavesa(e)) e.preventDefault();
+  });
+
+  /* ================= interaktivní regulační schéma (část 3) =================
+     Blok s data-popis ukáže svůj model: myší po najetí, klávesnicí po fokusu,
+     klepnutím / kliknutím se popis „připne“ (další klepnutí nebo Esc ho zavře). */
+
+  document.querySelectorAll('.aktivni-blok').forEach(blok => {
+    const popis = document.getElementById(blok.dataset.popis);
+    let pripnuto = false;
+
+    function umisti() {
+      const r = blok.getBoundingClientRect(), p = popis.getBoundingClientRect();
+      const x = Math.max(8, Math.min(innerWidth - p.width - 8, r.left + r.width / 2 - p.width / 2));
+      let y = r.bottom + 10;
+      if (y + p.height > innerHeight - 8) y = Math.max(8, r.top - p.height - 10);
+      popis.style.left = x + 'px';
+      popis.style.top = y + 'px';
+    }
+    function ukaz() { popis.hidden = false; blok.setAttribute('aria-expanded', 'true'); umisti(); }
+    function skryj() { pripnuto = false; popis.hidden = true; blok.setAttribute('aria-expanded', 'false'); }
+    function prepni() { pripnuto = !pripnuto; if (pripnuto) ukaz(); else skryj(); }
+
+    blok.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') ukaz(); });
+    blok.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse' && !pripnuto) skryj(); });
+    blok.addEventListener('focus', ukaz);
+    blok.addEventListener('blur', skryj);
+    blok.addEventListener('click', prepni);
+    blok.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { prepni(); e.preventDefault(); }
+      else if (e.key === 'Escape') skryj();
+    });
+    addEventListener('scroll', () => { if (!popis.hidden) umisti(); }, { passive: true });
+    addEventListener('resize', () => { if (!popis.hidden) umisti(); });
   });
 })();
 </script>
