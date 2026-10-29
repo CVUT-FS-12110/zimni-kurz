@@ -31,7 +31,7 @@ window.LEKCE = [
     nazev: 'Lekce 3b — Tempomat pro rozvážku',
     popis: 'Dodávka rozváží balíky a po každé zastávce je lehčí. Pojede tempomat naladěný na plnou dodávku stejně dobře i s prázdnou?',
     soubor: 'ulohy/08-tempomat-rozvazka.html',
-    verejna: false,
+    verejna: true,
     tema: 'Plánování zesílení (gain scheduling) podle hmotnosti',
     okruh: 'řízení a regulace'
   },
