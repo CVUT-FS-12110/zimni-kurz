@@ -1,0 +1,1380 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tempomat pro rozvážku — Zimní kurz</title>
+<link rel="stylesheet" href="../assets/css/styl.css">
+<style>
+  .schema { max-width: 820px; margin: 1rem 0; }
+  .schema svg { display: block; width: 100%; height: auto; border: 2px solid var(--ram-silny); border-radius: var(--radius); background: #fff; }
+  .schema text { font-family: "Segoe UI", system-ui, sans-serif; fill: var(--text); }
+  .schema .popis { font-size: 15px; font-weight: 700; }
+  .schema .dopln { font-size: 13px; fill: var(--text-slaby); }
+  .schema figcaption { margin-top: .4rem; font-size: .9rem; color: var(--text-slaby); }
+
+  .podsekce { margin-top: 2.5rem; padding-top: 1rem; border-top: 2px solid var(--ram-silny); font-size: 1.3rem; }
+  h4 { margin: 1.6rem 0 .5rem; font-size: 1.05rem; }
+  .dilna .platno-ram { aspect-ratio: 16 / 10; }
+  @media (max-width: 560px) { .dilna .platno-ram { aspect-ratio: 16 / 14; } }
+  .scena { position: relative; min-width: 0; }
+  .scena .tlacitka { margin-top: .6rem; }
+  .panel .zalozka-obsah { padding-top: 1rem; }
+  .ovladac[hidden] { display: none; }
+  .cil-hlaska { margin: 0 0 .6rem; padding: .5rem .6rem; border-left: 5px solid var(--shluk-3); background: #fff; font-weight: 700; }
+  .cil-hlaska[hidden] { display: none; }
+
+  .graf-ram { position: relative; height: 340px; border: 2px solid var(--ram-silny); border-radius: var(--radius); background: #fff; overflow: hidden; }
+  .graf-ram canvas { display: block; width: 100%; height: 100%; }
+  .graf-ram.tri { height: 430px; }
+  @media (max-width: 600px) { .graf-ram { height: 420px; } .graf-ram.tri { height: 520px; } }
+
+  .tabulka { width: 100%; max-width: 900px; border-collapse: collapse; font-size: .92rem; }
+  .tabulka th, .tabulka td { padding: .4rem .5rem; border: 1px solid var(--ram); text-align: left; vertical-align: top; }
+  .tabulka thead { background: var(--pozadi-panel); }
+  .tabulka td.cislo, .tabulka th.cislo { text-align: right; font-variant-numeric: tabular-nums; }
+  .tabulka tr.nejlepsi td { background: #e2f4e8; font-weight: 700; }
+  .tabulka td.spatne { background: #fbe4e8; }
+  .tabulka-obal { overflow-x: auto; max-width: 900px; }
+  .pokusy-hlava { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .5rem; max-width: 900px; }
+  .pokusy-hlava .akce { flex: 0 0 auto; padding: .35rem .7rem; font-size: .9rem; }
+  @media (max-width: 560px) { .tabulka { font-size: .8rem; } }
+
+  .vzorec { width: fit-content; max-width: 100%; box-sizing: border-box; margin: .7rem 0; padding: .6rem 1.2rem; border: 2px solid var(--ram); border-radius: var(--radius); background: var(--pozadi-panel); overflow-x: auto; }
+  .vzorec math { margin: 0; font-size: 1.2rem; font-family: "Cambria Math", "STIX Two Math", "Latin Modern Math", math; }
+  .vzorec mtd { padding: .25em .35em; text-align: left; math-style: normal; }
+  .vzorec mtable.vpravo mtd:first-child { text-align: right; }
+  .vzorec .komentar { font-family: "Segoe UI", system-ui, sans-serif; font-size: .8em; color: var(--text-slaby); }
+  .postup { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .8rem; margin: 0 0 1rem; padding: .45rem .7rem; border: 2px solid var(--ram-silny); border-radius: var(--radius); background: #fff; font-size: .9rem; font-weight: 700; }
+  .postup-cara { flex: 0 0 120px; height: 8px; border-radius: 4px; background: var(--pozadi-zvyraz); overflow: hidden; }
+  .postup-cara span { display: block; height: 100%; width: 0; background: var(--akcent); transition: width .3s; }
+  .postup-vse { margin-left: auto; padding: .2rem .5rem; border: 0; background: none; color: var(--akcent); font: inherit; font-weight: 600; text-decoration: underline; cursor: pointer; }
+  .postup-vse[hidden] { display: none; }
+  .kroky { max-width: 70ch; border: 2px solid var(--ram-silny); border-radius: var(--radius); background: var(--pozadi-panel); }
+  .krok { padding: .8rem 1rem .4rem; }
+  .odkryti, .dilna { scroll-margin-top: 4rem; }
+  .krok[hidden], .krok-vysvetleni[hidden], .odkryti[hidden], .brana[hidden] { display: none; }
+  .krok-ukol { margin: 0 0 .6rem; }
+  .krok-ukaz { padding: .35rem .8rem; font-size: .9rem; }
+  .krok-vysvetleni { margin: .6rem 0 .2rem; padding: .5rem .8rem; border-left: 5px solid var(--shluk-3); background: #fff; }
+  .krok-vysvetleni p { margin: 0; }
+  .kroky-ovladani { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: .6rem 1rem; border-top: 2px solid var(--ram); }
+  .kroky-ovladani .akce { flex: 0 0 auto; padding: .4rem .8rem; }
+  .kroky-ovladani .akce[hidden] { display: none; }
+  .kroky-uro .akce[hidden] { display: none; }
+  .kroky-pocet { font-weight: 700; color: var(--text-slaby); font-variant-numeric: tabular-nums; }
+  .brana { margin: 1.2rem 0; }
+  .pravidlo { margin: 0 0 .9rem; }
+  .pravidlo[hidden] { display: none; }
+  .pravidlo .akce { width: 100%; }
+  .teorie-blok { margin: .5rem 0; border: 2px solid var(--ram); border-radius: var(--radius); }
+  .teorie-blok > summary { padding: .5rem .8rem; cursor: pointer; background: var(--pozadi-panel); }
+  .teorie-blok > summary h3 { display: inline; margin: 0; font-size: 1.08rem; }
+  .teorie-blok[open] > summary { border-bottom: 2px solid var(--ram); }
+  .teorie-blok > :not(summary) { margin-left: .9rem; margin-right: .9rem; }
+  /* schéma je širší než textový sloupec, aby bylo čitelné i při promítání */
+  .uro, .kroky-uro { width: min(1140px, calc(100vw - 2.5rem)); max-width: none; box-sizing: border-box; }
+  .uro { margin: 1rem 0 0; }
+  .uro-plocha { overflow-x: auto; }   /* na úzkém displeji se schéma posouvá, popis zůstává */
+  .uro svg { display: block; width: 100%; min-width: 640px; height: auto; border: 2px solid var(--ram-silny); border-radius: var(--radius) var(--radius) 0 0; background: #fff; }
+  .uro text { font-family: "Segoe UI", system-ui, sans-serif; fill: var(--text); font-size: 17px; }
+  .uro .blok { fill: var(--pozadi-panel); stroke: var(--ram-silny); stroke-width: 2.5; }
+  .uro .blok-reg { fill: #dce7ff; stroke: var(--akcent); }
+  .uro .cara { fill: none; stroke: var(--ram-silny); stroke-width: 2.5; }
+  .uro .porucha { fill: none; stroke: var(--shluk-4); stroke-width: 2.5; stroke-dasharray: 7 5; }
+  .uro .nazev { font-weight: 700; text-anchor: middle; }
+  .uro .maly { font-size: 15px; fill: var(--text-slaby); text-anchor: middle; }
+  .uro [data-k] { transition: opacity .35s; }
+  .uro [data-k].skryto { opacity: 0; }
+  .uro figcaption { margin: 0; min-height: 4.6em; padding: .6rem .9rem; border: 2px solid var(--ram-silny); border-top: 0; background: var(--pozadi-panel); font-size: 1.1rem; }
+  .kroky-uro { border: 2px solid var(--ram-silny); border-top: 0; border-radius: 0 0 var(--radius) var(--radius); }
+  .navaznost { max-width: 70ch; padding: .6rem .9rem; border: 2px solid var(--ram); border-radius: var(--radius); background: var(--pozadi-panel); }
+  .navaznost p { margin: .3rem 0; }
+  .predmety-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; max-width: 1000px; margin-top: 1rem; }
+  .predmet { display: flex; flex-direction: column; padding: .8rem 1rem; border: 2px solid var(--ram); border-radius: var(--radius); background: var(--pozadi-panel); }
+  .predmet h3 { margin: .1rem 0 .4rem; font-size: 1.05rem; }
+  .predmet p { margin: 0; }
+  .predmet .predmet-stupen { color: var(--akcent); font-size: .75rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+  .predmet .predmet-odkaz { margin-top: auto; padding-top: .6rem; font-size: .9rem; font-weight: 700; }
+  @media (max-width: 800px) { .predmety-grid { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body>
+<main class="stranka">
+  <a class="zpet" href="../index.html">← Zpět na rozcestník</a>
+  <p class="pod-nadpisem">Lekce 3b — Navazuje na lekci Tempomat doručovací dodávky</p>
+  <h1>Tempomat pro rozvážku</h1>
+  <div class="postup" id="postup">
+    <span class="postup-cara" aria-hidden="true"><span id="postup-vypln"></span></span>
+    <span id="postup-text" aria-live="polite"></span>
+    <button class="postup-vse" id="odkryt-vse">Odkrýt celou lekci</button>
+  </div>
+
+  <!-- ============ 1. PŘEDSTAVENÍ PROBLÉMU ============ -->
+  <section class="sekce">
+    <h2>1. Jeden tempomat, různý náklad</h2>
+    <p class="uvod">Dodávka ráno vyjede z depa plně naložená a cestou rozváží balíky. Na každé zastávce řidič část nákladu vyloží, takže dodávka je čím dál lehčí. Tempomat ale někdo naladil ráno ve skladu — na plnou dodávku. Pojede stejně dobře, i když dodávka cestou zlehčí?</p>
+
+    <figure class="schema" role="img" aria-label="Trasa rozvážky z depa přes tři zastávky do cíle. Plná dodávka váží 3 500 kg, po každé zastávce je o 500 kg lehčí, na posledním úseku váží 2 000 kg. Tempomat zná hmotnost nákladu.">
+      <svg viewBox="0 0 760 300">
+        <defs>
+          <g id="s-dod">
+            <rect x="-46" y="-40" width="64" height="34" rx="3" fill="#fff" stroke="#0d1218" stroke-width="2.5"/>
+            <path d="M18 -32 L32 -32 L44 -18 L44 -6 L18 -6 z" fill="#fff" stroke="#0d1218" stroke-width="2.5"/>
+            <circle cx="-30" cy="-4" r="8" fill="#0d1218"/><circle cx="30" cy="-4" r="8" fill="#0d1218"/>
+          </g>
+          <marker id="s-modra" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="12" refX="4" refY="6" orient="auto"><path d="M0,0 L0,12 L15,6 z" fill="#1145cf"/></marker>
+        </defs>
+        <!-- silnice -->
+        <path d="M30 250 L730 250" stroke="#4a5768" stroke-width="12"/>
+        <path d="M30 250 L730 250" stroke="#fff" stroke-width="2" stroke-dasharray="22 16"/>
+        <!-- zastávky -->
+        <g font-size="13">
+          <rect x="22" y="262" width="56" height="24" rx="4" fill="#eef1f6" stroke="#0d1218"/><text x="50" y="279" text-anchor="middle" class="popis" style="font-size:13px">depo</text>
+          <g><path d="M222 250 L222 214" stroke="#0d1218" stroke-width="2"/><path d="M222 214 L246 222 L222 230 z" fill="#d97000"/><text x="222" y="279" text-anchor="middle" class="dopln">zastávka 1</text></g>
+          <g><path d="M392 250 L392 214" stroke="#0d1218" stroke-width="2"/><path d="M392 214 L416 222 L392 230 z" fill="#d97000"/><text x="392" y="279" text-anchor="middle" class="dopln">zastávka 2</text></g>
+          <g><path d="M562 250 L562 214" stroke="#0d1218" stroke-width="2"/><path d="M562 214 L586 222 L562 230 z" fill="#d97000"/><text x="562" y="279" text-anchor="middle" class="dopln">zastávka 3</text></g>
+          <rect x="690" y="262" width="56" height="24" rx="4" fill="#eef1f6" stroke="#0d1218"/><text x="718" y="279" text-anchor="middle" class="popis" style="font-size:13px">cíl</text>
+        </g>
+        <!-- dodávky na jednotlivých úsecích: 6, 4, 2 a 0 balíků -->
+        <g transform="translate(118 246)">
+          <use href="#s-dod"/>
+          <g fill="#d97000" stroke="#0d1218" stroke-width="1"><rect x="-41" y="-35" width="12" height="11"/><rect x="-27" y="-35" width="12" height="11"/><rect x="-13" y="-35" width="12" height="11"/><rect x="-41" y="-22" width="12" height="11"/><rect x="-27" y="-22" width="12" height="11"/><rect x="-13" y="-22" width="12" height="11"/></g>
+          <text x="0" y="-52" text-anchor="middle" class="popis">3 500 kg</text>
+        </g>
+        <g transform="translate(300 246)">
+          <use href="#s-dod"/>
+          <g fill="#d97000" stroke="#0d1218" stroke-width="1"><rect x="-41" y="-22" width="12" height="11"/><rect x="-27" y="-22" width="12" height="11"/><rect x="-13" y="-22" width="12" height="11"/><rect x="-41" y="-35" width="12" height="11"/></g>
+          <text x="0" y="-52" text-anchor="middle" class="popis">3 000 kg</text>
+        </g>
+        <g transform="translate(470 246)">
+          <use href="#s-dod"/>
+          <g fill="#d97000" stroke="#0d1218" stroke-width="1"><rect x="-41" y="-22" width="12" height="11"/><rect x="-27" y="-22" width="12" height="11"/></g>
+          <text x="0" y="-52" text-anchor="middle" class="popis">2 500 kg</text>
+        </g>
+        <g transform="translate(640 246)">
+          <use href="#s-dod"/>
+          <text x="0" y="-52" text-anchor="middle" class="popis" style="fill:#cc1233">2 000 kg</text>
+        </g>
+        <!-- tempomat -->
+        <rect x="18" y="14" width="352" height="112" rx="6" fill="#eef1f6" stroke="#0d1218" stroke-width="2"/>
+        <text x="32" y="38" class="popis">Tempomat ví, kolik veze</text>
+        <text x="32" y="62" class="dopln">náklad (podle balíků)</text><text x="356" y="62" class="popis" text-anchor="end">3 500 → 2 000 kg</text>
+        <text x="32" y="86" class="dopln">žádaná rychlost</text><text x="356" y="86" class="popis" text-anchor="end">90 km/h</text>
+        <text x="32" y="112" class="dopln">„Vezu o 1,5 t méně. Mám něco změnit?“</text>
+        <path d="M370 70 C 480 70, 610 100, 638 172" fill="none" stroke="#1145cf" stroke-width="2.5" stroke-dasharray="6 5" marker-end="url(#s-modra)"/>
+      </svg>
+      <figcaption>Rozvážka: čtyři úseky stejnou silnicí, mezi nimi tři zastávky. Po každé zastávce dodávka veze o 500 kg méně. Tempomat hmotnost nákladu zná — otázka je, co s tou informací udělat.</figcaption>
+    </figure>
+
+    <div class="navaznost">
+      <p><strong>Navazuje na lekci <a href="07-tempomat.html">Tempomat doručovací dodávky</a>.</strong> Model dodávky i motoru je stejný, mění se jen hmotnost. Tempomat ji <strong>zná</strong> — vykládku zadává řidič nebo ji spočítá ze skeneru balíků.</p>
+    </div>
+    <h3 class="podsekce" style="margin-top:1.5rem">Opakování: regulační obvod tempomatu</h3>
+    <p>Schéma z lekce Tempomat se odkrývá po krocích. U každého kroku si řekněte, co nová část znamená.</p>
+    <figure class="uro" id="uro">
+      <div class="uro-plocha" id="uro-plocha"><svg viewBox="0 0 1100 300" role="img" aria-label="Regulační schéma tempomatu, které se odkrývá po částech: regulovaná soustava (motor a dodávka), regulovaná veličina v, akční veličina u, poruchy, snímač a zpětná vazba, žádaná hodnota a odchylka, regulátor.">
+        <defs>
+          <marker id="r-sipka" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="10" refX="12" refY="5" orient="auto"><path d="M0,0 L0,10 L13,5 z" fill="#0d1218"/></marker>
+          <marker id="r-oranz" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="10" refX="12" refY="5" orient="auto"><path d="M0,0 L0,10 L13,5 z" fill="#d97000"/></marker>
+        </defs>
+        <g data-k="1">
+          <rect x="553" y="64" width="400" height="126" rx="10" fill="none" stroke="#4a5768" stroke-width="2" stroke-dasharray="8 6"/>
+          <text x="565" y="84" class="maly" style="text-anchor:start;font-weight:700">regulovaná soustava</text>
+          <rect class="blok" x="575" y="100" width="130" height="70" rx="6"/>
+          <text x="640" y="130" class="nazev">Motor</text>
+          <text x="640" y="152" class="maly">zpoždění 0,8 s</text>
+          <path class="cara" d="M705 135 L803 135" marker-end="url(#r-sipka)"/>
+          <text x="748" y="118" class="maly">tažná síla F</text>
+          <rect class="blok" x="805" y="100" width="130" height="70" rx="6"/>
+          <text x="870" y="130" class="nazev">Dodávka</text>
+          <text x="870" y="152" class="maly">hmotnost m</text>
+        </g>
+        <g data-k="2">
+          <path class="cara" d="M935 135 L1088 135" marker-end="url(#r-sipka)"/>
+          <text x="1040" y="100" class="nazev">regulovaná</text>
+          <text x="1040" y="118" class="nazev">veličina v</text>
+          <text x="1040" y="160" class="maly">rychlost</text>
+        </g>
+        <g data-k="3">
+          <path class="cara" d="M445 135 L573 135" marker-end="url(#r-sipka)"/>
+          <text x="499" y="100" class="nazev" style="font-size:14px">akční</text>
+          <text x="499" y="118" class="nazev" style="font-size:14px">veličina u</text>
+          <text x="499" y="156" class="maly">požadovaná</text>
+          <text x="499" y="172" class="maly">síla</text>
+        </g>
+        <g data-k="4">
+          <path class="porucha" d="M870 12 L870 98" marker-end="url(#r-oranz)"/>
+          <text x="884" y="30" style="font-weight:700;fill:#d97000">poruchy</text>
+          <text x="884" y="50" style="font-size:13px;fill:#d97000">sklon, vítr</text>
+        </g>
+        <g data-k="5">
+          <path class="cara" d="M1000 135 L1000 245 L772 245"/>
+          <circle cx="1000" cy="135" r="4" fill="#0d1218"/>
+          <rect class="blok" x="620" y="215" width="150" height="60" rx="6"/>
+          <text x="695" y="241" class="nazev">Snímač</text>
+          <text x="695" y="261" class="maly">měří rychlost</text>
+          <path class="cara" d="M620 245 L180 245 L180 155" marker-end="url(#r-sipka)"/>
+          <text x="400" y="235" class="maly">naměřená hodnota v</text>
+          <text x="885" y="235" class="nazev" style="font-size:14px">zpětná vazba</text>
+        </g>
+        <g data-k="6">
+          <text x="58" y="100" class="nazev">žádaná</text>
+          <text x="58" y="118" class="nazev">hodnota w</text>
+          <text x="58" y="160" class="maly">90 km/h</text>
+          <path class="cara" d="M108 135 L161 135" marker-end="url(#r-sipka)"/>
+          <circle cx="180" cy="135" r="18" fill="#fff" stroke="#0d1218" stroke-width="2.5"/>
+          <path d="M169 135 L191 135 M180 124 L180 146" stroke="#0d1218" stroke-width="2"/>
+          <text x="146" y="123" style="font-weight:700">+</text>
+          <text x="188" y="175" style="font-weight:700">−</text>
+          <path class="cara" d="M198 135 L283 135" marker-end="url(#r-sipka)"/>
+          <text x="240" y="100" class="nazev" style="font-size:14px">odchylka e</text>
+          <text x="240" y="118" class="maly">e = w − v</text>
+        </g>
+        <g data-k="7">
+          <rect class="blok blok-reg" x="285" y="100" width="160" height="70" rx="6"/>
+          <text x="365" y="130" class="nazev">Regulátor</text>
+          <text x="365" y="152" class="maly">PI</text>
+        </g>
+        <g data-k="8">
+          <rect x="797" y="92" width="146" height="86" rx="9" fill="none" stroke="#cc1233" stroke-width="4"/>
+          <text x="870" y="211" class="nazev" style="fill:#cc1233;font-size:14px">dnes se mění!</text>
+        </g>
+      </svg></div>
+      <figcaption id="uro-popis" aria-live="polite"></figcaption>
+    </figure>
+    <div class="kroky-ovladani kroky-uro" id="uro-ovladani">
+      <button class="akce" id="uro-zpet">← Předchozí</button>
+      <span class="kroky-pocet" id="uro-pocet"></span>
+      <button class="akce hlavni" id="uro-dalsi">Další část →</button>
+    </div>
+    <p class="brana" id="brana-uloha" hidden><button class="akce hlavni" id="dal-uloha">Pokračovat na úlohu →</button></p>
+
+  </section>
+
+  <div class="odkryti" id="cast-uloha" hidden>
+  <!-- ============ 2. INTERAKTIVNÍ ÚLOHA ============ -->
+  <section>
+    <h2>2. Vyzkoušejte jeden tempomat s různým nákladem</h2>
+    <p class="sekce">Ukázka má dvě navazující části. Nejdřív jedou <strong>tři dodávky vedle sebe</strong> se stejným tempomatem do stejného kopce, takže je přímo vidět, co dělá hmotnost. Potom jedna dodávka <strong>rozváží balíky na trase</strong> se zastávkami a jízdy se dají porovnat v tabulce.</p>
+
+    <!-- ---------- 2.1 TŘI DODÁVKY ---------- -->
+    <h3 class="podsekce">2.1 Tři dodávky, jeden tempomat</h3>
+    <p class="sekce">Prázdná (2 000 kg), poloplná (2 750 kg) a plná dodávka (3 500 kg) jedou 90 km/h. Pět sekund po startu všechny najedou do stejného stoupání. Svislá čárkovaná čára znamená přesných 90 km/h. Dodávka, která jede rychleji, je nakreslená před ní, pomalejší za ní. Při zrychlování zvedá příď, při brzdění ji sklápí. Posun i náklon jsou pro názornost zveličené.</p>
+
+    <div class="dilna">
+      <div class="scena">
+        <div class="platno-ram"><canvas id="a-platno" role="img" aria-label="Tři dodávky s různým nákladem nad sebou jedou do stejného kopce. U každé je vidět rychlost a zesílení, které tempomat právě používá."></canvas></div>
+        <div class="tlacitka">
+          <button class="akce hlavni" id="a-spustit">Spustit</button>
+          <button class="akce" id="a-nastart">Na start</button>
+          <button class="akce" id="a-reset">Reset</button>
+        </div>
+      </div>
+
+      <div class="panel" id="a-panel">
+        <div class="zalozka-obsah">
+          <label class="prepinac"><input type="checkbox" id="a-stejne" checked> Stejné Kp pro všechny dodávky</label>
+          <div class="ovladac" id="a-blok-kp-0">
+            <label for="a-kp-0"><span id="a-kp-0-popis">Kp</span> <output id="a-kp-0-hodnota"></output></label>
+            <input type="range" id="a-kp-0" min="0" max="1600" step="10" value="1000">
+          </div>
+          <div class="ovladac" id="a-blok-kp-1">
+            <label for="a-kp-1"><span id="a-kp-1-popis">Kp</span> <output id="a-kp-1-hodnota"></output></label>
+            <input type="range" id="a-kp-1" min="0" max="1600" step="10" value="1000">
+          </div>
+          <div class="ovladac" id="a-blok-kp-2">
+            <label for="a-kp-2"><span id="a-kp-2-popis">Kp</span> <output id="a-kp-2-hodnota"></output></label>
+            <input type="range" id="a-kp-2" min="0" max="1600" step="10" value="1000">
+          </div>
+          <div class="ovladac">
+            <label for="a-ki">Ki — společné pro všechny <output id="a-ki-hodnota"></output></label>
+            <input type="range" id="a-ki" min="0" max="150" step="5" value="50">
+          </div>
+          <div class="ovladac">
+            <label for="a-kopec">Stoupání kopce <output id="a-kopec-hodnota"></output></label>
+            <input type="range" id="a-kopec" min="0" max="6" step="0.5" value="4">
+          </div>
+          <div class="ovladac">
+            <label for="a-prehravani">Rychlost přehrávání</label>
+            <select id="a-prehravani">
+              <option value="1">skutečný čas (×1)</option>
+              <option value="2" selected>dvakrát rychleji (×2)</option>
+              <option value="4">čtyřikrát rychleji (×4)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h4>Průběh jízdy</h4>
+    <p class="sekce">Grafy ukazují posledních 60 sekund. Barvy dodávek odlišuje i typ čáry: prázdná plná čára, poloplná čárkovaná, plná tečkovaná.</p>
+    <div class="graf-ram"><canvas id="a-grafy" role="img" aria-label="Dva grafy v čase: rychlost a tažná síla všech tří dodávek"></canvas></div>
+
+    <h4>Co si zkuste</h4>
+    <p class="sekce poznamka">Úkoly jdou po krocích: nejdřív pozorujte, pak si rozbalte vysvětlení.</p>
+    <div class="kroky" id="kroky-a">
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>Pozorujte.</strong> Spusťte jízdu s výchozím nastavením (stejné Kp = 1 000 pro všechny, Ki = 50). Která dodávka se v kopci rozkmitá a která jede klidně?</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden><p>Rozkmitá se prázdná dodávka, plná se po propadu v kopci klidně vrátí na 90 km/h. Tempomat dává všem třem stejnou sílu, ale prázdnou dodávku tatáž síla zrychlí skoro dvakrát víc (zrychlení = síla / hmotnost). Motor reaguje se zpožděním, takže prudký zásah přestřelí, tempomat pak prudce ubírá — a dodávka se rozhoupe. Všimněte si i poloplné dodávky: houpe se taky, jen slabě (asi o 1–2 km/h), a kmity pomalu slábnou. Je těsně pod hranicí, kdy by se rozkmitala.</p></div>
+      </div>
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>Změřte, kolik která dodávka snese.</strong> Vypněte <em>Stejné Kp</em>, nastavte Ki = 0 a zvyšujte Kp každé dodávky zvlášť po stovkách od 500 (po změně <em>Na start</em> a <em>Spustit</em>). Při jakém Kp se rozkmitá prázdná a při jakém plná dodávka? Za rozkmitanou považujte dodávku, jejíž kmity do konce grafu neslábnou.</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden><p>Prázdná se rozkmitá zhruba od Kp = 800, plná až zhruba od Kp = 1 400. Plná dodávka je 1,75× těžší (3 500 / 2 000 kg) a snese 1,75× větší Kp (1 400 / 800). To není náhoda: zesílení, které dodávka snese, roste úměrně hmotnosti.</p></div>
+      </div>
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>Srovnejte dodávky.</strong> Nastavte Ki = 50 a plné dodávce Kp = 1 000. Prázdné a poloplné dodávce najděte takové Kp, aby v kopci jely <em>stejně</em> jako plná — křivky v grafu rychlosti mají skoro splynout. Jaká čísla vám vyšla?</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden><p>Vychází prázdná zhruba Kp = 570 a poloplná zhruba Kp = 790. Poměr je stejný jako poměr hmotností: 1 000 · 2 000 / 3 500 ≈ 571 a 1 000 · 2 750 / 3 500 ≈ 786. Slabší zásah zrychlí lehkou dodávku stejně jako silnější zásah těžkou, takže všechny tři reagují na kopec stejně. V grafu síly se křivky dál liší: těžší dodávka potřebuje do kopce víc síly.</p></div>
+      </div>
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>Hledejte kompromis.</strong> Zapněte znovu <em>Stejné Kp</em>: tempomat teď hmotnost nezná. Najděte jedno Kp, se kterým se nerozkmitá žádná dodávka. Jak hluboko teď v kopci klesne plná dodávka ve srovnání s vaším nastavením z minulého kroku?</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden><p>Funguje například Kp = 500 (Ki = 50). Plná dodávka ale v kopci klesne hlouběji — asi na 86,9 km/h místo 87,8 km/h, které měla s Kp = 1 000. V jednom kopci je to malý rozdíl; naplno se ukáže v rozvážce, kde se kopce opakují. Jedno společné nastavení musí vyhovět nejlehčí dodávce, a těžší proto dostávají slabší zásahy, než by snesly.</p></div>
+      </div>
+      <div class="kroky-ovladani">
+        <button class="akce" data-zpet>← Předchozí</button>
+        <span class="kroky-pocet" aria-live="polite"></span>
+        <button class="akce hlavni" data-dalsi>Další krok →</button>
+      </div>
+    </div>
+    <p class="brana" id="brana-rozvazka" hidden><button class="akce hlavni" id="dal-rozvazka">Pokračovat na rozvážku →</button></p>
+
+  <div class="odkryti" id="cast-rozvazka" hidden>
+    <!-- ---------- 2.2 ROZVÁŽKA ---------- -->
+    <h3 class="podsekce">2.2 Rozvážka na trase</h3>
+    <div class="sekce">
+      <p>Dodávka projede čtyři úseky po 1,8 km. Každý úsek má stejný kopec nahoru (4 %) a dolů (−4 %) a za ním kilometr roviny, takže se úseky liší jen hmotností. Na rovině je vidět, jestli se tempomat po kopcích zase uklidní. V animaci se dodávka stejně jako v ukázce 2.1 posouvá před čárkovanou čáru 90 km/h a za ni. Mezi úseky je zastávka: <strong>řidič</strong> zabrzdí, vyloží 500 kg, rozjede se na 90 km/h a teprve pak zapne tempomat — stejně jako v autě, kde se tempomat zapíná až při jízdě. Úseky, kdy řídí řidič, jsou v grafech šedé, přehrávají se rychleji a do SSE se nepočítají.</p>
+      <p>Jízdu hodnotí číslo <em>SSE</em> z lekce Tempomat: každou sekundu se odchylka od 90 km/h umocní na druhou a přičte, menší je lepší. V tabulce pod grafy je SSE každého úseku zvlášť i celkem.</p>
+    </div>
+
+    <div class="dilna">
+      <div class="scena">
+        <div class="platno-ram"><canvas id="b-platno" role="img" aria-label="Animace rozvážkové dodávky s nákladem, se šipkami sil a profilem trasy se zastávkami"></canvas></div>
+        <div class="tlacitka">
+          <button class="akce hlavni" id="b-spustit">Spustit</button>
+          <button class="akce" id="b-nastart">Na start</button>
+          <button class="akce" id="b-reset">Reset</button>
+        </div>
+      </div>
+
+      <div class="panel" id="b-panel">
+        <div class="zalozka-obsah">
+          <p class="cil-hlaska" id="b-cil-hlaska" aria-live="polite" hidden></p>
+          <label class="prepinac"><input type="checkbox" id="b-stejne" checked> Stejné Kp pro všechny úseky</label>
+          <div class="ovladac" id="b-blok-kp-0">
+            <label for="b-kp-0"><span id="b-kp-0-popis">Kp</span> <output id="b-kp-0-hodnota"></output></label>
+            <input type="range" id="b-kp-0" min="0" max="1600" step="10" value="1000">
+          </div>
+          <div class="ovladac" id="b-blok-kp-1">
+            <label for="b-kp-1"><span id="b-kp-1-popis">Kp</span> <output id="b-kp-1-hodnota"></output></label>
+            <input type="range" id="b-kp-1" min="0" max="1600" step="10" value="1000">
+          </div>
+          <div class="ovladac" id="b-blok-kp-2">
+            <label for="b-kp-2"><span id="b-kp-2-popis">Kp</span> <output id="b-kp-2-hodnota"></output></label>
+            <input type="range" id="b-kp-2" min="0" max="1600" step="10" value="1000">
+          </div>
+          <div class="ovladac" id="b-blok-kp-3">
+            <label for="b-kp-3"><span id="b-kp-3-popis">Kp</span> <output id="b-kp-3-hodnota"></output></label>
+            <input type="range" id="b-kp-3" min="0" max="1600" step="10" value="1000">
+          </div>
+          <div class="ovladac">
+            <label for="b-ki">Ki — společné pro všechny úseky <output id="b-ki-hodnota"></output></label>
+            <input type="range" id="b-ki" min="0" max="150" step="5" value="50">
+          </div>
+          <p class="pravidlo" id="b-pravidlo-obal" hidden><button class="akce" id="b-pravidlo">Kp podle hmotnosti (z úseku 1)</button></p>
+          <div class="ovladac">
+            <label for="b-prehravani">Rychlost přehrávání</label>
+            <select id="b-prehravani">
+              <option value="2">dvakrát rychleji (×2)</option>
+              <option value="4" selected>čtyřikrát rychleji (×4)</option>
+              <option value="8">osmkrát rychleji (×8)</option>
+            </select>
+          </div>
+          <div class="stav">
+            <dl>
+              <dt>Úsek</dt><dd id="b-st-usek">–</dd>
+              <dt>Hmotnost</dt><dd id="b-st-m">–</dd>
+              <dt>Řídí</dt><dd id="b-st-ridi">–</dd>
+              <dt>Použité zesílení</dt><dd id="b-st-zes">–</dd>
+              <dt>Rychlost v</dt><dd id="b-st-v">–</dd>
+              <dt>Odchylka e</dt><dd id="b-st-e">–</dd>
+              <dt>SSE tohoto úseku</dt><dd id="b-st-sse">–</dd>
+              <dt>Kmitání na konci úseku</dt><dd id="b-st-kmit">–</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h4>Průběh jízdy</h4>
+    <p class="sekce">Grafy ukazují celou trasu. Šedé pruhy jsou zastávky, kdy řídí řidič. Graf rychlosti je oříznutý kolem 90 km/h, aby byly vidět i malé odchylky — brzdění na zastávku proto „zmizí“ pod jeho spodní okraj.</p>
+    <div class="graf-ram tri"><canvas id="b-grafy" role="img" aria-label="Tři grafy v čase: rychlost, tažná síla a regulační odchylka na celé trase rozvážky"></canvas></div>
+
+    <h4 id="b-pokusy-nadpis">Tabulka pokusů</h4>
+    <div class="pokusy-hlava">
+      <p class="poznamka">Pokus se zapíše po dojetí do cíle. U každého úseku jsou dvě čísla: <strong>SSE / kmitání na konci</strong>. SSE říká, jak přesně tempomat jel celý úsek. Kmitání na konci je největší odchylka v km/h na posledních 400 m roviny — říká, jestli se tempomat po kopcích uklidnil (dobře je pod 1 km/h). Nejmenší celkové SSE má hvězdičku, úsek s SSE nad 150 nebo kmitáním nad 1 km/h značku ⚠ a červenou barvu. Tabulku smaže jen tlačítko vpravo, Reset ne — výsledky soutěže se tak neztratí.</p>
+      <button class="akce" id="b-vymazat">Vymazat tabulku</button>
+    </div>
+    <div class="tabulka-obal">
+      <table class="tabulka" aria-labelledby="b-pokusy-nadpis">
+        <thead><tr><th>#</th><th>Konstanty</th><th class="cislo">Úsek 1<br>3 500 kg</th><th class="cislo">Úsek 2<br>3 000 kg</th><th class="cislo">Úsek 3<br>2 500 kg</th><th class="cislo">Úsek 4<br>2 000 kg</th><th class="cislo">SSE celkem</th></tr></thead>
+        <tbody id="b-pokusy"><tr><td colspan="7">Zatím žádný dokončený pokus.</td></tr></tbody>
+      </table>
+    </div>
+
+    <h4>Co si zkuste</h4>
+    <div class="kroky" id="kroky-b">
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>Pozorujte.</strong> Projeďte trasu s výchozím nastavením (stejné Kp = 1 000 ve všech úsecích, Ki = 50). Ve kterém úseku se jízda pokazí? Co se v tu chvíli změnilo — trasa, nebo dodávka?</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden><p>Pokazí se čtvrtý úsek — SSE vyjde kolem 1 500 místo zhruba 50 — a náznak je vidět už ve třetím (kolem 100). Na konci čtvrtého úseku tempomat pořád kmitá o víc než 9 km/h. Trasa je ve všech úsecích stejná, změnila se jen hmotnost. Po vykládkách veze dodávka čím dál méně a Kp naladěné na plnou dodávku je pro ni příliš ostré: na rovině za kopci se kmity nezastaví, ale rostou.</p></div>
+      </div>
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>Sestavte vlastní plán.</strong> Vypněte <em>Stejné Kp</em> a nastavte každému úseku vlastní Kp tak, aby se žádný úsek nerozkmital a SSE každého úseku bylo pod 60. Pomůže vám, co jste naměřili v ukázce 2.1.</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden><p>Funguje například Kp 1 000 / 850 / 700 / 570 (Ki = 50): všechny úseky vyjdou kolem 49 a na rovině se dodávka pokaždé uklidní. Čím lehčí dodávka, tím menší Kp — každý úsek má stejný kopec a s takovým plánem dodávka v každém úseku zrychluje stejně. Takovému postupu se říká <em>plánování zesílení</em>.</p></div>
+      </div>
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>Zkuste to bez plánu.</strong> Zapněte <em>Stejné Kp</em> a snižujte Kp po stovkách od 1 000, dokud se nepřestane kmitat ani na posledním úseku. Jak se tím změnil první úsek s plnou dodávkou?</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden><p>Při Kp = 800 poslední úsek ještě pomalu kmitá (SSE kolem 106 a na konci úseku kmitání asi 3 km/h). Uklidní se až při Kp = 700 a celkové SSE pak vyjde kolem 260 — víc než s plánem (asi 196). Navíc se zhorší první úsek, ze 49 na 83. Jedno společné Kp musí vyhovět nejlehčí dodávce, takže plná dostává slabší zásahy, než by snesla.</p></div>
+      </div>
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>Hledejte nejlepší jízdu.</strong> Soutěž: s vlastním plánem najděte co nejmenší celkové SSE. Dá se dostat pod 200? A se stejným Kp ve všech úsecích?</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden><p>S plánem ano — například Kp 1 100 / 940 / 790 / 630 a Ki = 20 dá celkem asi 177. Se stejným Kp ve všech úsecích vychází nejlépe asi 230 (Kp 750, Ki 20) — a i tak je poslední úsek na hraně a na konci pořád trochu kmitá. Co pomůže plné dodávce, rozkmitá prázdnou. Pozor na přehnaný plán: kdo dá i s plánem moc velká Kp (třeba 1 400 / 1 200 / 1 000 / 800), uvidí kmitání na konci každého úseku přes 3 km/h a SSE přes 400.</p></div>
+      </div>
+      <div class="kroky-ovladani">
+        <button class="akce" data-zpet>← Předchozí</button>
+        <span class="kroky-pocet" aria-live="polite"></span>
+        <button class="akce hlavni" data-dalsi>Další krok →</button>
+      </div>
+    </div>
+    <p class="brana" id="brana-teorie" hidden><button class="akce hlavni" id="dal-teorie">Pokračovat na vysvětlení →</button></p>
+  </div>
+  </section>
+
+  </div>
+  <div class="odkryti" id="cast-teorie" hidden>
+  <!-- ============ 3. TEORETICKÉ VYSVĚTLENÍ ============ -->
+  <section class="sekce">
+    <h2>3. Proč hmotnost mění nastavení tempomatu</h2>
+
+<p class="poznamka">Kliknutím na nadpis se část rozbalí. Pointa celé lekce je v rámečku <em>Proč je to těžké</em> na konci.</p>
+    <details class="teorie-blok" open>
+      <summary><h3>Stejná síla, různé zrychlení</h3></summary>
+    <p>Tempomat neovládá rychlost přímo. Ovládá sílu motoru a rychlost se mění podle toho, jak dodávku tato síla zrychlí. To popisuje druhý Newtonův zákon:</p>
+    <div class="vzorec"><math display="block">
+      <mi>a</mi><mo>=</mo><mfrac><mi>F</mi><mi>m</mi></mfrac>
+    </math></div>
+    <p><em>a</em> je zrychlení, <em>F</em> výsledná síla a <em>m</em> hmotnost. Když tempomat při odchylce 2 km/h přidá s <em>K</em><sub>p</sub> = 1 000 sílu 2 000 N, zrychlí ji plná dodávka (3 500 kg) o 0,57 m/s², ale prázdná (2 000 kg) o 1,0 m/s² — skoro dvakrát víc.</p>
+    <p>Pro prázdnou dodávku je tedy stejný zásah „prudší“. Motor ale reaguje se zpožděním, a tak se přehnaný zásah projeví až ve chvíli, kdy už rychlost přestřelila. Tempomat pak prudce ubírá, zase přestřelí — a dodávka se rozhoupe. Přesně to se v ukázce 2.1 stalo prázdné dodávce.</p>
+    </details>
+    <details class="teorie-blok">
+      <summary><h3>Pozor: hmotnost nemění, kolik síly je potřeba na rovině</h3></summary>
+    <p>Na rovině bez větru drží dodávku na 90 km/h jen odpor vzduchu: 11,1 N na každý km/h, tedy asi 1 000 N — <strong>stejně pro plnou i prázdnou</strong>. Hmotnost přidá potřebnou sílu jen do kopce (složka tíhy <em>m</em> · <em>g</em> · <em>s</em>). To, co hmotnost mění vždycky, je <em>setrvačnost</em>: jak rychle dodávka na změnu síly odpoví. A na tom závisí, jak silně smí tempomat zasahovat.</p>
+    </details>
+    <details class="teorie-blok">
+      <summary><h3>Kritické zesílení roste s hmotností</h3></summary>
+    <p>V lekci Tempomat se zvyšovalo Kp u P regulátoru tak dlouho, až rychlost začala trvale kmitat — to je <em>kritické zesílení</em> K<sub>k</sub>. Stejný pokus pro různé hmotnosti (v simulaci z této lekce) dává:</p>
+    <div class="tabulka-obal">
+      <table class="tabulka" style="max-width:520px">
+        <thead><tr><th class="cislo">Hmotnost m</th><th class="cislo">Kritické zesílení K<sub>k</sub></th><th class="cislo">K<sub>k</sub> / m</th></tr></thead>
+        <tbody>
+          <tr><td class="cislo">2 000 kg</td><td class="cislo">asi 790</td><td class="cislo">0,39</td></tr>
+          <tr><td class="cislo">2 500 kg</td><td class="cislo">asi 950–980</td><td class="cislo">0,39</td></tr>
+          <tr><td class="cislo">3 000 kg</td><td class="cislo">asi 1 170</td><td class="cislo">0,39</td></tr>
+          <tr><td class="cislo">3 500 kg</td><td class="cislo">asi 1 360</td><td class="cislo">0,39</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Poměr v posledním sloupci je pořád stejný: kritické zesílení roste přímo úměrně hmotnosti. Dvakrát těžší dodávka snese dvakrát silnější zásah.</p>
+    <p>Proč? Rytmus kmitů určuje zpoždění motoru, ne hmotnost — jeden kmit trvá u prázdné i plné dodávky asi 6 s. Za tuto dobu ale stejná síla změní rychlost lehké dodávky víc, protože zrychlení je síla dělená hmotností. Aby se rychlost obou dodávek měnila stejně, musí mít těžší dodávka úměrně větší zesílení.</p>
+    <p>Tabulka platí pro P regulátor (jen Kp). S PI regulátorem je hranice o něco níž, protože část <em>I</em> reaguje opožděně — pro prázdnou dodávku s Ki = 50 asi u Kp = 730. Úměra k hmotnosti ale platí dál.</p>
+    </details>
+    <details class="teorie-blok">
+      <summary><h3>Plánování zesílení (gain scheduling)</h3></summary>
+    <p>Z úměry plyne jednoduché pravidlo — přesně to, k čemu jste v ukázkách došli posouváním posuvníků. Kp se naladí jednou, pro plnou dodávku, a pro jinou hmotnost se přepočítá:</p>
+    <div class="vzorec"><math display="block">
+      <msub><mi>K</mi><mi>p</mi></msub><mo>=</mo><msub><mi>K</mi><mrow><mi>p</mi><mo>,</mo><mtext>plná</mtext></mrow></msub><mo>⋅</mo><mfrac><mi>m</mi><mrow><mn>3</mn><mo>&#8239;</mo><mn>500</mn><mtext>&nbsp;kg</mtext></mrow></mfrac>
+    </math></div>
+    <p><em>K</em><sub>p,plná</sub> je zesílení naladěné pro plnou dodávku, <em>m</em> aktuální hmotnost. Příklad pro prázdnou dodávku, když plná má Kp = 1 000:</p>
+    <div class="vzorec"><math display="block">
+      <msub><mi>K</mi><mi>p</mi></msub><mo>=</mo><mn>1</mn><mo>&#8239;</mo><mn>000</mn><mo>⋅</mo><mfrac><mrow><mn>2</mn><mo>&#8239;</mo><mn>000</mn></mrow><mrow><mn>3</mn><mo>&#8239;</mo><mn>500</mn></mrow></mfrac><mo>≈</mo><mn>571</mn>
+    </math></div>
+    <p>Prázdná dodávka tedy dostane asi o 43 % slabší zásahy. Zpět k příkladu s odchylkou 2 km/h: tempomat přidá jen 1 142 N a prázdnou dodávku zrychlí o 0,57 m/s² — stejně jako plnou. Proto se v ukázce 2.1 tři křivky daly „srovnat“ do jedné.</p>
+    <p>Stejně se dá přepočítat i Ki. V naší dodávce na něm ale tolik nezáleží, protože integrační část reaguje pomalu — proto mají v ukázkách všechny dodávky Ki společné.</p>
+    <p>Tomuto postupu se říká <em>plánování zesílení</em> (anglicky <em>gain scheduling</em>). Veličina, podle které se zesílení mění — tady hmotnost —, se jmenuje <em>plánovací veličina</em>. Regulátor sám zůstává obyčejný PI, jen jeho konstanty se mění podle toho, v jaké situaci zrovna pracuje.</p>
+    <p class="poznamka">V ukázce 2.2 teď v panelu přibylo tlačítko <em>Kp podle hmotnosti</em>: z Kp prvního úseku spočítá podle tohoto pravidla Kp ostatních úseků. Porovnejte ho se svým plánem.</p>
+    </details>
+    <details class="teorie-blok">
+      <summary><h3>Jeden krok výpočtu</h3></summary>
+    <p>Oproti lekci Tempomat přibudou dva řádky — plánovací veličina a přepočet zesílení:</p>
+    <pre class="vzorec" style="font: .94rem/1.65 ui-monospace, Consolas, monospace; white-space: pre">opakuj každých 0,05 s:
+    m = hmotnost podle nákladu          ← nové: plánovací veličina
+    Kp = Kp_plná · m / 3500             ← nové: přepočet zesílení
+    e = w − v_změřená
+    I = I + Ki · e · 0,05
+    u = Kp · e + I
+    u omez na rozsah −5 000 až 6 000 N
+    pošli u motoru</pre>
+    <p>Konstanty se v ukázce mění jen na zastávce, kdy tempomat neběží. Za jízdy by změna Kp mohla způsobit skok síly — u skutečných regulátorů se proto konstanty mění plynule.</p>
+    </details>
+    <details class="teorie-blok">
+      <summary><h3>Kdy se to vyplatí</h3></summary>
+    <p>Plánování zesílení má smysl, když se plánovací veličina mění hodně. Kolik, ukazuje poměr nejtěžšího a nejlehčího stavu (hmotnosti jsou orientační):</p>
+    <div class="tabulka-obal">
+      <table class="tabulka">
+        <thead><tr><th>Vozidlo</th><th class="cislo">Prázdné</th><th class="cislo">Plně naložené</th><th class="cislo">Poměr</th><th>Potřebuje plánování?</th></tr></thead>
+        <tbody>
+          <tr><td>Osobní auto (jen řidič / 5 lidí se zavazadly)</td><td class="cislo">asi 1 400 kg</td><td class="cislo">asi 1 800 kg</td><td class="cislo">1,3×</td><td>spíš ne — jedno opatrné nastavení stačí</td></tr>
+          <tr><td>Rozvážková dodávka z této lekce</td><td class="cislo">2 000 kg</td><td class="cislo">3 500 kg</td><td class="cislo">1,75×</td><td>ano, pokud má tempomat reagovat rychle</td></tr>
+          <tr><td>Kamion s návěsem</td><td class="cislo">asi 15 t</td><td class="cislo">až 40 t</td><td class="cislo">2,7×</td><td>ano — bez něj je buď líný, nebo nebezpečný</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Bez plánování existují jen dvě možnosti. Naladit tempomat <strong>na plnou dodávku</strong> — pak je s prázdnou neklidný až nestabilní. Nebo ho naladit <strong>opatrně, na prázdnou</strong> — pak se nikdy nerozkmitá, ale s plnou dodávkou reaguje zbytečně pomalu. Takovému opatrnému nastavení se říká <em>robustní</em>: snese všechny situace, ale v žádné není nejlepší. Plánování zesílení dovolí být rychlý v každé situaci zvlášť.</p>
+    <p>Pozor také na to, co ukazuje SSE. S plánem podle hmotnosti nemusí vyjít menší SSE v každém úseku — prázdná dodávka se společným, „ostřejším“ Kp může v kopci jet i přesněji, dokud se nerozkmitá. Hlavní výhoda plánování je, že se tempomat <strong>chová pořád stejně</strong>, a proto se dá bezpečně naladit ostřeji.</p>
+    </details>
+    <details class="teorie-blok">
+      <summary><h3>Shrnutí</h3></summary>
+    <div class="tabulka-obal">
+      <table class="tabulka">
+        <thead><tr><th>Nastavení</th><th>Co zaručuje</th><th>Co potřebuje</th><th>Kdy selhává</th></tr></thead>
+        <tbody>
+          <tr><td>Jedno Kp, naladěné na plnou dodávku</td><td>rychlou reakci s plnou dodávkou</td><td>nic navíc</td><td>s lehkou dodávkou kmitá</td></tr>
+          <tr><td>Jedno Kp, opatrné (robustní)</td><td>klid při každém nákladu</td><td>nic navíc</td><td>s těžkou dodávkou zbytečně pomalé</td></tr>
+          <tr><td>Plán podle hmotnosti</td><td>stejné chování při každém nákladu</td><td>znát hmotnost; vědět, jak konstanty přepočítat</td><td>když je hmotnost zadaná špatně, nebo když přepočet neodpovídá skutečnosti</td></tr>
+        </tbody>
+      </table>
+    </div>
+    </details>
+    <div class="pointa">
+      <h2>Proč je to těžké</h2>
+      <p>V této lekci to vypadá jednoduše: jedna úměra a hotovo. To je ale dáno tím, že model dodávky je jednoduchý: hmotnost v něm mění setrvačnost i sílu potřebnou do kopce, a obojí přesně úměrně. U skutečného vozidla úměra přesně neplatí. Motor má převodové stupně, odpor vzduchu roste s druhou mocninou rychlosti a chování závisí na víc veličinách najednou. Konstanty se pak ladí zvlášť v mnoha bodech — pro několik hmotností, rychlostí a převodových stupňů — a ukládají se do tabulky, mezi jejímž řádky se dopočítává. Každý bod tabulky je potřeba naladit a ověřit, a ověřit je třeba i to, co se děje <em>mezi</em> body.</p>
+      <p>Záludné je i ověřování. Tempomat těsně za hranicí stability se rozkmitává jen pomalu, takže krátká jízda může vypadat výborně. Proto má trasa za kopci kilometr roviny — a proto se skutečné regulátory nezkoušejí jen jednou krátkou jízdou.</p>
+      <p>Druhá potíž je plánovací veličina. Tady ji tempomat zná přesně, protože ji zadá řidič. Kamion ale hmotnost nákladu často nezná a musí ji <em>odhadnout</em> z toho, jak vozidlo reaguje na sílu motoru. Regulátor, který si sám odhaduje vlastnosti soustavy a podle nich se upravuje, se jmenuje <em>adaptivní</em>. Je to mocnější, ale i zrádnější: když se odhad splete, regulátor se „přizpůsobí“ špatně.</p>
+      <p>A nakonec: plánování funguje jen tehdy, když se plánovací veličina mění pomalu oproti tomu, jak rychle regulátor reaguje. Hmotnost dodávky se mění skokem na zastávce, kdy tempomat neběží — to je ten nejpříjemnější případ. U letadel, odkud metoda pochází, se konstanty autopilota plánují podle výšky a rychlosti letu. Ty se mění neustále, ale obvykle pomalu; při prudkých manévrech tento předpoklad přestává platit.</p>
+    </div>
+  </section>
+
+  <!-- ============ 4. KDE SE TO UČÍ ============ -->
+  <section class="predmety">
+    <h2>4. Kde se to učí</h2>
+    <p class="sekce">Regulace a PID regulátory se na Fakultě strojní ČVUT probírají ve třech navazujících předmětech — stejných jako u lekce Tempomat. Každý jde o krok dál: od toho, jak regulátor funguje a jak ho seřídit, přes matematický popis dynamiky, až po návrh regulátorů, které vydrží i změnu soustavy.</p>
+    <div class="predmety-grid">
+      <article class="predmet">
+        <p class="predmet-stupen">Základní kurz</p>
+        <h3>Automatické řízení</h3>
+        <p>Základní pojmy regulace, PID regulátor a jeho seřizování — zkusmo i výpočtem — a stabilita regulačního obvodu: přesně ta hranice, za kterou se v této lekci dodávka rozkmitá. Návrhy v Matlabu/Simulinku a cvičení na skutečných úlohách.</p>
+        <p class="predmet-odkaz"><a href="https://kos.fs.cvut.cz/synopsis/2371047" target="_blank" rel="noopener">Anotace předmětu ↗</a></p>
+      </article>
+      <article class="predmet">
+        <p class="predmet-stupen">Pokračovací kurz, magisterské studium</p>
+        <h3>Matematické a simulační modely</h3>
+        <p>Jak z rovnic, jako je model dodávky a motoru, sestavit model, se kterým jde počítat: přenos, stavový popis, stabilita a frekvenční vlastnosti. Z takového modelu se dá dopředu spočítat, jak hranice stability závisí na hmotnosti — tady jste ji hledali zkusmo. A jak model řešit numericky v počítači, přesně jako simulace v této lekci.</p>
+        <p class="predmet-odkaz"><a href="https://kos.fs.cvut.cz/synopsis/course/2371097" target="_blank" rel="noopener">Anotace předmětu ↗</a></p>
+      </article>
+      <article class="predmet">
+        <p class="predmet-stupen">Navazuje na Matematické a simulační modely</p>
+        <h3>Řízení systémů a procesů</h3>
+        <p>Návrh PID a stavových regulátorů z modelu a robustní návrh, který snese změnu soustavy — třeba jinou hmotnost dodávky. To je druhá cesta k problému z této lekce: místo přepočítávání konstant jedno nastavení, které vydrží každý náklad. A také řízení soustav s dopravním zpožděním, jako je motor v této lekci.</p>
+        <p class="predmet-odkaz"><a href="https://kos.fs.cvut.cz/synopsis/course/2371002" target="_blank" rel="noopener">Anotace předmětu ↗</a></p>
+      </article>
+    </div>
+  </section>
+  </div>
+
+  <p class="paticka"><a href="../index.html">← Zpět na rozcestník</a></p>
+</main>
+
+<script src="../assets/js/spolecne.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  /* ================= model (stejný jako v lekci 07-tempomat) ================= */
+
+  // b = 40 N na m/s, tj. 11,1 N na km/h. Motor: dopravní zpoždění + setrvačnost.
+  const K = { g: 9.81, b: 40, tau: 0.8, mrtva: 0.8, Fmax: 6000, Fmin: -5000, dt: 0.01, Ts: 0.05 };
+  const ZPOZDENI = Math.round(K.mrtva / K.Ts);
+  const W = 90;                   // žádaná rychlost [km/h]
+  const M_PLNA = 3500;            // pro tuto hmotnost platí posuvníky Kp a Ki
+
+  const silaSvahu = (m, sklon) => m * K.g * Math.sin(Math.atan(sklon / 100));
+
+  /* Dodávka v ustálené jízdě rychlostí v [m/s]: síla motoru právě vyrovnává odpor a svah. */
+  function novaDodavka(m, v, sklon) {
+    const F = K.b * v + silaSvahu(m, sklon);
+    return { m, v, F, u: F, I: F, e: 0, a: 0, fronta: Array(ZPOZDENI).fill(F), uZpozdene: F };
+  }
+
+  /* Jeden krok PI regulátoru (každých K.Ts sekund), s anti-windupem jako v lekci 07. */
+  function krokRegulatoru(d, kp, ki) {
+    const e = W - d.v * 3.6;
+    let u = kp * e + d.I;
+    const nasycen = (u > K.Fmax && e > 0) || (u < K.Fmin && e < 0);
+    if (!nasycen) d.I += ki * e * K.Ts;
+    u = Math.max(K.Fmin, Math.min(K.Fmax, u));
+    d.u = u; d.e = e;
+    d.fronta.push(u);
+    d.uZpozdene = d.fronta.shift();
+  }
+
+  /* Jeden fyzikální krok o K.dt: motor se blíží zpožděnému pokynu, dodávka zrychlí podle součtu sil. */
+  function krokFyziky(d, sklon) {
+    d.F += (d.uZpozdene - d.F) * K.dt / K.tau;
+    const a = (d.F - K.b * d.v - silaSvahu(d.m, sklon)) / d.m;
+    d.v = Math.max(0, d.v + a * K.dt);
+    d.a = a;
+  }
+
+  /* Animace zveličuje, aby houpání bylo vidět i bez grafu: dodávka se posouvá před / za čáru 90 km/h
+     podle odchylky rychlosti a při zrychlování zvedá příď (náklon úměrný zrychlení, nejvýš asi 7°). */
+  const naklon = a => Math.max(-0.12, Math.min(0.12, a * 0.05));
+  function kresliNaklonenou(c, d, otoceni) {
+    c.translate(0, -10); c.rotate(-naklon(d.a)); c.translate(0, 10);
+    kresliDodavku(c, otoceni, balikyPro(d.m));
+  }
+
+  /* ================= pomocné ================= */
+
+  const el = id => document.getElementById(id);
+  const pis = (id, text) => { const e = el(id); if (e) e.textContent = text; };
+  function cislo(x, des) { return x.toLocaleString('cs-CZ', { minimumFractionDigits: des, maximumFractionDigits: des }); }
+  function znamenko(x, des) { return (x > 0 ? '+' : x < 0 ? '−' : '') + cislo(Math.abs(x), des); }
+  function velikost(x) { x = Math.abs(x); return x >= 1000 ? cislo(x / 1000, 2) + ' kN' : cislo(x, 0) + ' N'; }
+  function sila(x) { return Math.abs(x) >= 1000 ? znamenko(x / 1000, 2) + ' kN' : znamenko(x, 0) + ' N'; }
+  const popisZesileni = (kp, ki) => 'Kp ' + cislo(kp, 0) + ' · Ki ' + cislo(ki, 0);
+  const balikyPro = m => Math.max(0, Math.round((m - 2000) / 250));   // 3 500 kg = 6 balíků po 250 kg
+
+  function sipka(c, x1, y1, x2, y2, barva, tloustka) {
+    const uhel = Math.atan2(y2 - y1, x2 - x1), hl = 11;
+    c.strokeStyle = barva; c.fillStyle = barva; c.lineWidth = tloustka;
+    c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2 - Math.cos(uhel) * hl * 0.6, y2 - Math.sin(uhel) * hl * 0.6); c.stroke();
+    c.beginPath(); c.moveTo(x2, y2);
+    c.lineTo(x2 - hl * Math.cos(uhel - 0.45), y2 - hl * Math.sin(uhel - 0.45));
+    c.lineTo(x2 - hl * Math.cos(uhel + 0.45), y2 - hl * Math.sin(uhel + 0.45));
+    c.closePath(); c.fill();
+  }
+
+  function stitek(c, text, x, y, zarovnani, barva, tucne, velikostPisma) {
+    c.font = (tucne ? '700 ' : '600 ') + (velikostPisma || 13) + 'px "Segoe UI", system-ui, sans-serif';
+    c.textAlign = zarovnani; c.textBaseline = 'middle';
+    const sirka = c.measureText(text).width;
+    const x0 = zarovnani === 'right' ? x - sirka : zarovnani === 'center' ? x - sirka / 2 : x;
+    c.fillStyle = 'rgba(255,255,255,0.85)'; c.fillRect(x0 - 3, y - 9, sirka + 6, 18);
+    c.fillStyle = barva; c.fillText(text, x, y);
+  }
+
+  /* Dodávka z lekce 07, v nákladovém prostoru 0–6 balíků. */
+  function kresliDodavku(c, otoceni, baliky) {
+    c.lineWidth = 2.5; c.strokeStyle = '#0d1218';
+    c.fillStyle = '#ffffff';
+    c.beginPath(); c.roundRect(-70, -62, 104, 50, 4); c.fill(); c.stroke();
+    c.beginPath(); c.moveTo(34, -50); c.lineTo(56, -50); c.lineTo(74, -28); c.lineTo(74, -12); c.lineTo(34, -12); c.closePath(); c.fill(); c.stroke();
+    c.fillStyle = '#dce7ff';
+    c.beginPath(); c.moveTo(39, -45); c.lineTo(54, -45); c.lineTo(66, -30); c.lineTo(39, -30); c.closePath(); c.fill(); c.lineWidth = 1.5; c.stroke();
+    c.fillStyle = '#d97000'; c.lineWidth = 1.5;
+    for (let i = 0; i < baliky; i++) {
+      const x = -64 + (i % 3) * 28, y = -36 - Math.floor(i / 3) * 21;
+      c.fillRect(x, y, 24, 19); c.strokeRect(x, y, 24, 19);
+    }
+    [-44, 50].forEach(x => {
+      c.fillStyle = '#0d1218'; c.beginPath(); c.arc(x, -10, 12, 0, Math.PI * 2); c.fill();
+      c.strokeStyle = '#fff'; c.lineWidth = 2;
+      for (let k = 0; k < 3; k++) {
+        const a = otoceni + k * Math.PI / 1.5;
+        c.beginPath(); c.moveTo(x, -10); c.lineTo(x + Math.cos(a) * 8, -10 + Math.sin(a) * 8); c.stroke();
+      }
+      c.strokeStyle = '#0d1218';
+    });
+  }
+
+  function osaY(min, max) {
+    const rozsah = max - min;
+    const krok = [0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000].find(k => rozsah / k <= 4) || 20000;
+    const ticks = [];
+    for (let v = Math.ceil(min / krok) * krok; v <= max + 1e-9; v += krok) ticks.push(v);
+    return ticks;
+  }
+
+  /* Nakreslí pod sebou řádky grafů se společnou časovou osou.
+     radky: { nazev, min, max, nula?, meze?, rady: [{ hodnota(d) → číslo nebo null, barva, sirka, carky }] }
+     pozadi(c, X, hore, dole): volitelné podbarvení (pruhy zastávek apod.) */
+  function kresliRadky(plocha, data, tZac, tKonec, radky, pozadi) {
+    const c = plocha.ctx, w = plocha.sirka, h = plocha.vyska;
+    if (!c || !w) return;
+    c.fillStyle = '#fff'; c.fillRect(0, 0, w, h);
+    const vlevo = 58, vpravo = w - 12, nadpis = 20, dole = 24;
+    const X = t => vlevo + (vpravo - vlevo) * (t - tZac) / (tKonec - tZac);
+    if (pozadi) pozadi(c, X, 4, h - dole);
+    const vyskaRadku = (h - dole - nadpis * radky.length - 4) / radky.length;
+
+    radky.forEach((r, i) => {
+      const y0 = nadpis + i * (vyskaRadku + nadpis), y1 = y0 + vyskaRadku;
+      const Y = v => y1 - (y1 - y0) * (v - r.min) / (r.max - r.min);
+      c.strokeStyle = '#aab4c2'; c.lineWidth = 1; c.strokeRect(vlevo, y0, vpravo - vlevo, vyskaRadku);
+      c.font = '600 11px "Segoe UI", system-ui, sans-serif'; c.fillStyle = '#4a5768'; c.textAlign = 'right'; c.textBaseline = 'middle';
+      osaY(r.min, r.max).forEach(v => {
+        const y = Y(v);
+        c.strokeStyle = 'rgba(170,180,194,0.35)'; c.beginPath(); c.moveTo(vlevo + 1, y); c.lineTo(vpravo - 1, y); c.stroke();
+        c.fillText(cislo(v, 0), vlevo - 5, y);
+      });
+      if (r.nula) { c.strokeStyle = '#4a5768'; c.lineWidth = 1; c.beginPath(); c.moveTo(vlevo, Y(0)); c.lineTo(vpravo, Y(0)); c.stroke(); }
+      if (r.meze) {
+        c.strokeStyle = '#4a5768'; c.lineWidth = 1; c.setLineDash([2, 3]);
+        r.meze.forEach(m => { c.beginPath(); c.moveTo(vlevo, Y(m)); c.lineTo(vpravo, Y(m)); c.stroke(); });
+        c.setLineDash([]);
+      }
+      c.save(); c.beginPath(); c.rect(vlevo, y0, vpravo - vlevo, vyskaRadku); c.clip();
+      r.rady.forEach(rd => {
+        c.strokeStyle = rd.barva; c.lineWidth = rd.sirka; c.setLineDash(rd.carky || []);
+        c.beginPath();
+        let kresli = false;
+        data.forEach(d => {
+          const hod = rd.hodnota(d);
+          if (hod === null) { kresli = false; return; }
+          const x = X(d.t), y = Y(hod);
+          if (kresli) c.lineTo(x, y); else c.moveTo(x, y);
+          kresli = true;
+        });
+        c.stroke();
+      });
+      c.setLineDash([]); c.restore();
+      c.font = '700 12px "Segoe UI", system-ui, sans-serif'; c.textAlign = 'left'; c.textBaseline = 'top';
+      const nazev = r.kratky && c.measureText(r.nazev).width > vpravo - vlevo ? r.kratky : r.nazev;
+      c.fillStyle = '#0d1218'; c.fillText(nazev, vlevo, y0 - 16);
+    });
+
+    c.fillStyle = '#4a5768'; c.font = '600 11px "Segoe UI", system-ui, sans-serif'; c.textAlign = 'center'; c.textBaseline = 'top';
+    const krokT = (tKonec - tZac) > 150 ? 30 : (tKonec - tZac) > 90 ? 20 : 10;
+    for (let t = Math.ceil(tZac / krokT) * krokT; t <= tKonec; t += krokT) c.fillText(t + ' s', X(t), h - dole + 5);
+  }
+
+  /* Posuvníky Kp (jeden pro každou dodávku / úsek) a společné Ki, pro obě ukázky.
+     Se zaškrtnutým „Stejné Kp“ je vidět jen první posuvník a platí pro všechny. */
+  function ovladaniKp(pre, P, popisy, spolecny, zmena) {
+    const n = P.kp.length;
+    function zobraz() {
+      for (let i = 0; i < n; i++) {
+        el(pre + 'blok-kp-' + i).hidden = P.stejne && i > 0;
+        pis(pre + 'kp-' + i + '-popis', P.stejne ? spolecny : popisy[i]);
+      }
+    }
+    function nastavKp() {
+      P.kp.slice().forEach((v, i) => { const e = el(pre + 'kp-' + i); e.value = v; e.dispatchEvent(new Event('input')); });
+    }
+    for (let i = 0; i < n; i++) {
+      Kurz.posuvnik(pre + 'kp-' + i, v => { if (P.stejne) P.kp.fill(v); else P.kp[i] = v; zmena(); }, v => v + ' N na km/h');
+    }
+    Kurz.posuvnik(pre + 'ki', v => { P.ki = v; zmena(); }, v => v + ' N na km/h za s');
+    el(pre + 'stejne').addEventListener('change', e => {
+      P.stejne = e.target.checked;
+      if (P.stejne) P.kp.fill(P.kp[0]);
+      zobraz(); nastavKp(); zmena();
+    });
+    el(pre + 'prehravani').addEventListener('change', e => { P.prehravani = Number(e.target.value); });
+    zobraz();
+    return {
+      nastavKp: () => { el(pre + 'stejne').checked = P.stejne; zobraz(); nastavKp(); },
+      nastavVse() {
+        el(pre + 'stejne').checked = P.stejne;
+        el(pre + 'prehravani').value = String(P.prehravani);
+        zobraz(); nastavKp();
+        const k = el(pre + 'ki'); k.value = P.ki; k.dispatchEvent(new Event('input'));
+      }
+    };
+  }
+
+  // Překreslení simulací po odkrytí skryté části (plátno ve skryté části nemá rozměry).
+  const PREKRESLI = [];
+
+  /* =====================================================================
+     2.1 Tři dodávky, jeden tempomat
+     ===================================================================== */
+  (function () {
+    const T_KOPEC = 5, NAJEZD = 3;          // kopec začíná v 5. sekundě, stoupání naroste za 3 s
+    const DODAVKY = [
+      { m: 2000, nazev: 'prázdná', barva: '#cc1233', carky: [] },
+      { m: 2750, nazev: 'poloplná', barva: '#d97000', carky: [9, 5] },
+      { m: 3500, nazev: 'plná', barva: '#1145cf', carky: [2, 4] }
+    ];
+    const vychozi = () => ({ kp: [1000, 1000, 1000], ki: 50, stejne: true, kopec: 4, prehravani: 2 });
+    const P = vychozi();
+    let S, log;
+
+    function sklon(t) { return t < T_KOPEC ? 0 : P.kopec * Math.min(1, (t - T_KOPEC) / NAJEZD); }
+
+    function start() {
+      S = { t: 0, doKroku: 0, sRef: 0, d: DODAVKY.map(x => Object.assign(novaDodavka(x.m, W / 3.6, 0), { s: 0 })) };
+      log = []; zapis();
+    }
+    function zapis() {
+      log.push({ t: S.t, v: S.d.map(d => d.v * 3.6), F: S.d.map(d => d.F) });
+      if (log.length > 700) log.splice(0, log.length - 610);
+    }
+    function krok() {
+      if (S.doKroku <= 1e-9) {
+        S.d.forEach((d, i) => krokRegulatoru(d, P.kp[i], P.ki));
+        S.doKroku += K.Ts;
+      }
+      const sk = sklon(S.t);
+      S.d.forEach(d => { krokFyziky(d, sk); d.s += d.v * K.dt; });
+      S.sRef += W / 3.6 * K.dt;
+      S.t += K.dt; S.doKroku -= K.dt;
+      if (S.t >= log[log.length - 1].t + 0.1 - 1e-9) zapis();
+    }
+
+    /* ---- animace: tři pruhy nad sebou ---- */
+    const plocha = Kurz.platno(el('a-platno'), () => kresli());
+    function kresli() {
+      const c = plocha.ctx, w = plocha.sirka, h = plocha.vyska;
+      if (!c || !w || !S) return;
+      c.fillStyle = '#fff'; c.fillRect(0, 0, w, h);
+      const hlava = 34, pata = w < 520 ? 4 : 18, vyskaPruhu = (h - hlava - pata) / 3;
+      const meritko = Math.min(1, vyskaPruhu / 120, w / 620);
+      const cx = w * 0.5;
+      const sk = sklon(S.t);
+      const uhel = Math.atan(sk / 100 * 3);   // sklon kreslen zveličeně
+
+      stitek(c, sk > 0.01 ? 'stoupání ' + cislo(sk, 1) + ' % (kresleno zveličeně)' : 'rovina', 10, 17, 'left', '#0d1218', true);
+      stitek(c, 'čas ' + cislo(S.t, 1) + ' s', w - 10, 17, 'right', '#4a5768', true);
+
+      DODAVKY.forEach((x, i) => {
+        const d = S.d[i], yZem = hlava + vyskaPruhu * (i + 0.78);
+        c.save();
+        c.translate(cx, yZem); c.rotate(-uhel);
+        c.fillStyle = '#dfe5ef'; c.fillRect(-w, 0, w * 2, vyskaPruhu * 0.22 + 4);
+        c.fillStyle = '#4a5768'; c.fillRect(-w, -2, w * 2, 8);
+        c.fillStyle = '#fff';
+        for (let xx = -((d.s * 6) % 40) - w; xx < w; xx += 40) c.fillRect(xx, 1, 20, 2);
+        // čára přesných 90 km/h; dodávka je před ní, když jede rychleji, za ní, když pomaleji
+        c.strokeStyle = '#0d1218'; c.lineWidth = 1.5; c.setLineDash([5, 4]);
+        c.beginPath(); c.moveTo(0, -vyskaPruhu * 0.62); c.lineTo(0, 6); c.stroke(); c.setLineDash([]);
+        const odstup = Math.max(-w * 0.38, Math.min(w * 0.38, (d.v * 3.6 - W) * w * 0.025));
+        c.translate(odstup, -2); c.scale(meritko, meritko);
+        kresliNaklonenou(c, d, d.s * 0.5);
+        c.restore();
+
+        const yText = hlava + vyskaPruhu * i + 14;
+        stitek(c, x.nazev + ' · ' + cislo(x.m, 0) + ' kg', 10, yText, 'left', x.barva, true);
+        stitek(c, cislo(d.v * 3.6, 1) + ' km/h', w - 10, yText, 'right', x.barva, true, 15);
+        stitek(c, popisZesileni(P.kp[i], P.ki), w - 10, yText + 19, 'right', '#4a5768', false, 12);
+      });
+      if (pata > 4) {
+        c.fillStyle = '#fff'; c.fillRect(0, h - pata, w, pata);
+        c.fillStyle = '#4a5768'; c.font = '600 11px "Segoe UI", system-ui, sans-serif'; c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+        c.fillText('čárkovaně 90 km/h · před čarou rychleji, za ní pomaleji · posun i náklon zveličené', cx, h - 5);
+      }
+    }
+
+    /* ---- grafy ---- */
+    const grafy = Kurz.platno(el('a-grafy'), () => kresliGrafy());
+    function kresliGrafy() {
+      if (!log) return;
+      const tKonec = Math.max(60, S.t), tZac = tKonec - 60;
+      const data = log.filter(d => d.t >= tZac - 0.1);
+      let vMin = W - 4, vMax = W + 4;
+      data.forEach(d => d.v.forEach(v => { vMin = Math.min(vMin, v); vMax = Math.max(vMax, v); }));
+      const rady = k => DODAVKY.map((x, i) => ({ hodnota: d => d[k][i], barva: x.barva, sirka: 2.2, carky: x.carky }));
+      kresliRadky(grafy, data, tZac, tKonec, [
+        { nazev: 'Rychlost [km/h] — prázdná plná čára, poloplná čárkovaná, plná tečkovaná; tenká černá: žádaná', kratky: 'Rychlost [km/h]',
+          min: Math.floor(vMin - 1), max: Math.ceil(vMax + 1),
+          rady: [{ hodnota: () => W, barva: '#0d1218', sirka: 1, carky: [6, 4] }].concat(rady('v')) },
+        { nazev: 'Tažná síla motoru F [N] — tečkovaně meze motoru', kratky: 'Tažná síla F [N]', min: K.Fmin - 500, max: K.Fmax + 500, meze: [K.Fmin, K.Fmax],
+          rady: rady('F') }
+      ]);
+    }
+
+    function vse() { kresli(); kresliGrafy(); }
+
+    let zbytek = 0;   // nevyčerpaný čas z minulého snímku, aby rychlost nezávisela na obnovovací frekvenci
+    const smycka = Kurz.smycka(dt => {
+      zbytek += dt * P.prehravani;
+      while (zbytek >= K.dt) { krok(); zbytek -= K.dt; }
+      vse();
+    });
+    function zastav() { smycka.stop(); el('a-spustit').textContent = 'Spustit'; }
+
+    el('a-spustit').addEventListener('click', () => {
+      if (smycka.bezi) { zastav(); return; }
+      smycka.start(); el('a-spustit').textContent = 'Pozastavit';
+    });
+    el('a-nastart').addEventListener('click', () => { zastav(); start(); vse(); });
+
+    const ovladani = ovladaniKp('a-', P, DODAVKY.map(x => 'Kp ' + x.nazev + ' (' + cislo(x.m, 0) + ' kg)'), 'Kp — všechny dodávky', () => { if (S) vse(); });
+    Kurz.posuvnik('a-kopec', v => { P.kopec = v; vse(); }, v => cislo(v, 1) + ' %');
+    el('a-reset').addEventListener('click', () => {
+      zastav(); Object.assign(P, vychozi()); ovladani.nastavVse();
+      const k = el('a-kopec'); k.value = P.kopec; k.dispatchEvent(new Event('input'));
+      start(); vse();
+    });
+
+    PREKRESLI.push(vse);
+    start(); vse();
+  })();
+
+  /* =====================================================================
+     2.2 Rozvážka na trase
+     Čtyři stejné úseky s tempomatem, mezi nimi zastávka. Na zastávce řídí řidič
+     podle pevného plánu: brzdí, stojí (vykládka), rozjíždí se a na 90 km/h předá
+     tempomatu. Do SSE se počítají jen sekundy, kdy řídí tempomat.
+     ===================================================================== */
+  (function () {
+    const USEK = 1800;                                      // úsek s tempomatem: kopce a pak 1 km roviny [m]
+    const KOPCE = [[0, 0], [150, 4], [450, 0], [600, -4], [800, 0]];   // stejné v každém úseku
+    const PRECHOD = 80;                                     // plynulý přechod sklonu [m]
+    const A_BRZDA = 1.3, A_ROZJEZD = 1.4, STANI = 3, VYKLADKA = 500;
+    const V = W / 3.6;
+    const D_BRZDA = V * V / (2 * A_BRZDA), D_ROZJEZD = V * V / (2 * A_ROZJEZD);
+    const MEZERA = D_BRZDA + D_ROZJEZD;
+    const POCET = 4;
+    const ZACATKY = Array.from({ length: POCET }, (_, i) => i * (USEK + MEZERA));   // kde začíná úsek (plán)
+    const DELKA = ZACATKY[POCET - 1] + USEK;
+    const HMOTNOSTI = Array.from({ length: POCET }, (_, i) => M_PLNA - i * VYKLADKA);
+    const LIMIT_SPATNE = 150;      // SSE úseku, nad kterým se úsek označí
+    const KONEC = 400;             // kmitání se měří na posledních 400 m úseku
+    const LIMIT_KMIT = 1;          // km/h; víc znamená, že se tempomat na konci roviny neuklidnil
+
+    function profil(s) {
+      let i = 0;
+      while (i + 1 < KOPCE.length && KOPCE[i + 1][0] <= s) i++;
+      const [s0, h] = KOPCE[i];
+      const pred = i > 0 ? KOPCE[i - 1][1] : h;
+      return pred + (h - pred) * Math.min(1, (s - s0) / PRECHOD);
+    }
+    // Sklon v místě s trasy: uvnitř úseku podle profilu, na zastávkách rovina.
+    function sklonTrasy(s, zacatek) { return s >= zacatek && s < zacatek + USEK ? profil(s - zacatek) : 0; }
+
+    const VYSKY = [];   // výškový profil po 10 m (pro kreslení)
+    (function () {
+      let z = 0;
+      for (let s = 0; s <= DELKA; s += 10) {
+        VYSKY.push(z);
+        const i = ZACATKY.findIndex(z0 => s >= z0 && s < z0 + USEK);
+        z += (i >= 0 ? profil(s - ZACATKY[i]) : 0) / 100 * 10;
+      }
+    })();
+
+    const vychozi = () => ({ kp: [1000, 1000, 1000, 1000], ki: 50, stejne: true, prehravani: 4 });
+    const P = vychozi();
+    let S, log, pokusy = [];
+
+    function start() {
+      S = {
+        t: 0, s: 0, doKroku: 0, usek: 0, zacatek: 0, faze: 'tempomat', tFaze: 0,
+        d: novaDodavka(HMOTNOSTI[0], V, 0), sklon: 0,
+        sse: Array(POCET).fill(0), maxE: Array(POCET).fill(0), kmit: Array(POCET).fill(0), dalsiSekunda: 1,
+        zastavky: [], meneno: false, vCili: false
+      };
+      log = []; zapis();
+      el('b-cil-hlaska').hidden = true;
+    }
+
+    function zapis() {
+      const d = S.d;
+      log.push({ t: S.t, v: d.v * 3.6, F: d.F, e: S.faze === 'tempomat' ? W - d.v * 3.6 : null });
+    }
+
+    function krok() {
+      const d = S.d;
+      if (S.faze === 'tempomat') {
+        if (S.doKroku <= 1e-9) { krokRegulatoru(d, P.kp[S.usek], P.ki); S.doKroku += K.Ts; }
+        S.sklon = sklonTrasy(S.s, S.zacatek);
+        krokFyziky(d, S.sklon);
+        S.doKroku -= K.dt;
+      } else {
+        // Řidič jede podle plánu: brzdí, stojí, rozjíždí se. Síla se dopočítá z pohybu (jen pro zobrazení).
+        S.sklon = 0;
+        const a = S.faze === 'brzdi' ? -A_BRZDA : S.faze === 'rozjizdi' ? A_ROZJEZD : 0;
+        d.v = Math.max(0, d.v + a * K.dt);
+        d.a = d.v > 0 ? a : 0;
+        d.F = S.faze === 'stoji' ? 0 : d.m * a + K.b * d.v;
+        d.u = d.F;
+        S.tFaze += K.dt;
+        if (S.faze === 'brzdi' && d.v <= 0) { S.faze = 'stoji'; S.tFaze = 0; }
+        else if (S.faze === 'stoji' && S.tFaze >= STANI / 2 && d.m > HMOTNOSTI[S.usek + 1]) d.m = HMOTNOSTI[S.usek + 1];   // vykládka
+        else if (S.faze === 'stoji' && S.tFaze >= STANI) { S.faze = 'rozjizdi'; S.tFaze = 0; }
+        else if (S.faze === 'rozjizdi' && d.v >= V) {
+          // Řidič zapne tempomat: ten převezme jízdu z ustáleného stavu (bez skoku síly).
+          S.usek++; S.zacatek = S.s; S.faze = 'tempomat'; S.doKroku = 0;
+          S.d = novaDodavka(d.m, V, 0);
+          S.zastavky[S.zastavky.length - 1].t1 = S.t;
+        }
+      }
+      S.s += S.d.v * K.dt;
+      S.t += K.dt;
+      if (S.faze === 'tempomat' && S.s > S.zacatek + USEK - KONEC)
+        S.kmit[S.usek] = Math.max(S.kmit[S.usek], Math.abs(W - S.d.v * 3.6));
+
+      if (S.t >= S.dalsiSekunda - 1e-9) {
+        if (S.faze === 'tempomat') {
+          const e = W - S.d.v * 3.6;
+          S.sse[S.usek] += e * e;
+          S.maxE[S.usek] = Math.max(S.maxE[S.usek], Math.abs(e));
+        }
+        S.dalsiSekunda += 1;
+      }
+      if (S.faze === 'tempomat' && S.s >= S.zacatek + USEK) {
+        if (S.usek === POCET - 1) { S.vCili = true; dojelDoCile(); }
+        else { S.faze = 'brzdi'; S.tFaze = 0; S.zastavky.push({ t0: S.t, t1: null, cislo: S.usek + 1 }); }
+      }
+      if (S.t >= log[log.length - 1].t + 0.1 - 1e-9) zapis();
+    }
+
+    /* ---- pokusy ---- */
+    function popisKonstant() {
+      return (P.stejne ? 'stejné Kp ' + P.kp[0] : 'plán Kp ' + P.kp.join(' / ')) + ', Ki ' + P.ki;
+    }
+    function dojelDoCile() {
+      zastav();
+      const celkem = S.sse.reduce((a, b) => a + b, 0);
+      pokusy.push({ nastaveni: popisKonstant(), sse: S.sse.slice(), kmit: S.kmit.slice(), celkem, meneno: S.meneno });
+      vypisPokusy();
+      const h = el('b-cil-hlaska');
+      const neklidne = S.kmit.map((k, i) => k > LIMIT_KMIT ? i + 1 : 0).filter(Boolean);
+      h.textContent = 'Cíl! SSE celkem ' + cislo(celkem, 0) + ' (úseky ' + S.sse.map(x => cislo(x, 0)).join(' · ') + '). ' +
+        (neklidne.length ? 'Na konci úseku ' + neklidne.join(', ') + ' tempomat pořád kmitá. ' : 'Na konci každého úseku se tempomat uklidnil. ') +
+        'Pokus je v tabulce pod grafy.';
+      h.hidden = false;
+    }
+    function vypisPokusy() {
+      const tb = el('b-pokusy');
+      tb.textContent = '';
+      if (!pokusy.length) {
+        const r = tb.insertRow(); const c = r.insertCell(); c.colSpan = 7; c.textContent = 'Zatím žádný dokončený pokus.';
+        return;
+      }
+      let nej = 0;
+      pokusy.forEach((p, i) => { if (p.celkem < pokusy[nej].celkem) nej = i; });
+      pokusy.forEach((p, i) => {
+        const r = tb.insertRow();
+        if (i === nej) r.className = 'nejlepsi';
+        const hodnoty = [(i + 1) + (i === nej ? ' ★' : ''), p.nastaveni + (p.meneno ? ' (měněno za jízdy)' : '')]
+          .concat(p.sse.map((x, k) => cislo(x, 0) + ' / ' + cislo(p.kmit[k], 1)), [cislo(p.celkem, 0)]);
+        hodnoty.forEach((h, j) => {
+          const c = r.insertCell(); c.textContent = h;
+          const spatne = j >= 2 && j < 6 && (p.sse[j - 2] > LIMIT_SPATNE || p.kmit[j - 2] > LIMIT_KMIT);
+          if (spatne) c.textContent = '⚠ ' + h;
+          if (j >= 2) c.className = 'cislo' + (spatne ? ' spatne' : '');
+        });
+      });
+    }
+
+    /* ---- animace ---- */
+    const plocha = Kurz.platno(el('b-platno'), () => kresli());
+    const PX_NA_M = 6, ZVETSENI_SKLONU = 3;
+    let odstupB = 0;   // vyhlazený posun dodávky v animaci
+    let zbytekB = 0;   // nevyčerpaný čas z minulého snímku
+
+    function textFaze() {
+      if (S.vCili) return 'cíl';
+      if (S.faze === 'tempomat') return 'tempomat · úsek ' + (S.usek + 1);
+      if (S.faze === 'brzdi') return 'řidič brzdí na zastávku ' + (S.usek + 1);
+      if (S.faze === 'stoji') return S.d.m > HMOTNOSTI[S.usek + 1] ? 'zastávka ' + (S.usek + 1) + ': vykládka…' : 'zastávka ' + (S.usek + 1) + ': vyloženo 500 kg';
+      return 'řidič se rozjíždí, na 90 km/h zapne tempomat';
+    }
+
+    function kresli() {
+      const c = plocha.ctx, w = plocha.sirka, h = plocha.vyska;
+      if (!c || !w || !S) return;
+      c.fillStyle = '#fff'; c.fillRect(0, 0, w, h);
+      const d = S.d;
+      const hPohled = h * 0.7;
+      const uzky = w < 520;
+      const cx = w * 0.45, cy = hPohled * (uzky ? 0.8 : 0.7);
+      const uhel = Math.atan(S.sklon / 100 * ZVETSENI_SKLONU);
+      const posun = S.s * PX_NA_M;
+      const meritko = Math.min(1.2, w / 560);
+
+      c.save();
+      c.translate(cx, cy); c.rotate(-uhel);
+      c.fillStyle = '#dfe5ef'; c.fillRect(-w * 1.5, 0, w * 3, h * 2);
+      const roztec = 25 * PX_NA_M;
+      c.fillStyle = '#aab4c2';
+      for (let x = -(posun % roztec) - roztec * 6; x < w * 1.5; x += roztec) { c.fillRect(x - 2, -38, 4, 38); c.fillRect(x - 5, -42, 10, 8); }
+      c.fillStyle = '#4a5768'; c.fillRect(-w * 1.5, -2, w * 3, 12);
+      c.fillStyle = '#ffffff';
+      for (let x = -(posun % 40) - 40 * 40; x < w * 1.5; x += 40) c.fillRect(x, 3, 22, 2);
+      // jako v ukázce 2.1: čára 90 km/h a posun dodávky podle odchylky rychlosti (jen když řídí tempomat)
+      const cil = S.faze === 'tempomat' ? Math.max(-w * 0.25, Math.min(w * 0.25, (d.v * 3.6 - W) * w * 0.02)) : 0;
+      odstupB += (cil - odstupB) * 0.25;
+      if (S.faze === 'tempomat') {
+        c.strokeStyle = '#0d1218'; c.lineWidth = 1.5; c.setLineDash([5, 4]);
+        c.beginPath(); c.moveTo(0, -150 * meritko); c.lineTo(0, 8); c.stroke(); c.setLineDash([]);
+      }
+      c.translate(odstupB, 0);
+      c.save(); c.scale(meritko, meritko); kresliNaklonenou(c, d, posun / 12); c.restore();
+
+      // síly podél silnice (1 kN = 24 px)
+      const mer = 0.024, max = 140;
+      const delka = F => Math.max(-max, Math.min(max, F * mer));
+      const odpor = K.b * d.v, svah = silaSvahu(d.m, S.sklon);
+      const radky = [
+        { F: d.F, y: -86 * meritko, barva: '#1145cf', text: (d.F < 0 ? 'brzdná síla ' : 'tažná síla ') + velikost(d.F) },
+        { F: -odpor, y: -106 * meritko, barva: '#cc1233', text: 'odpor vzduchu ' + velikost(odpor) },
+        { F: -svah, y: -126 * meritko, barva: '#d97000', text: 'složka tíhy ' + velikost(svah) }
+      ];
+      radky.forEach(r => {
+        if (Math.abs(r.F) < 30 || uzky) return;
+        const l = delka(r.F), x0 = r.F > 0 ? 50 * meritko : -50 * meritko;
+        sipka(c, x0, r.y, x0 + l, r.y, r.barva, 4);
+        // na úzkém displeji jen šipky (popisy sil jsou v lekci Tempomat), jinak by zakryly ukazatel
+        if (!uzky) stitek(c, r.text, r.F > 0 ? x0 - 8 : x0 + 8, r.y, r.F > 0 ? 'right' : 'left', r.barva, true);
+      });
+      c.restore();
+
+      // ukazatel rychlosti a hmotnosti
+      const e = W - d.v * 3.6;
+      c.fillStyle = '#eef1f6'; c.strokeStyle = '#0d1218'; c.lineWidth = 2;
+      const [bw, bh, f1, f2] = uzky ? [168, 64, 20, 11] : [210, 78, 26, 13];
+      c.beginPath(); c.roundRect(10, 10, bw, bh, 6); c.fill(); c.stroke();
+      c.fillStyle = '#0d1218'; c.textAlign = 'left'; c.textBaseline = 'alphabetic';
+      c.font = '800 ' + f1 + 'px "Segoe UI", system-ui, sans-serif';
+      c.fillText(cislo(d.v * 3.6, 1) + ' km/h', 18, 10 + f1 * 1.25);
+      c.font = '600 ' + f2 + 'px "Segoe UI", system-ui, sans-serif'; c.fillStyle = '#4a5768';
+      c.fillText('náklad: ' + cislo(d.m, 0) + ' kg', 18, 10 + bh * 0.67);
+      if (S.faze === 'tempomat') {
+        c.fillStyle = Math.abs(e) < 1 ? '#0a7d38' : '#cc1233'; c.font = '700 ' + f2 + 'px "Segoe UI", system-ui, sans-serif';
+        c.fillText('odchylka e = ' + znamenko(e, 1) + ' km/h', 18, 10 + bh * 0.9);
+      } else {
+        c.fillText('tempomat vypnutý', 18, 10 + bh * 0.9);
+      }
+      // na úzkém displeji se popisy nevejdou vedle ukazatele, jdou pod něj
+      const [px, py, pz] = uzky ? [10, 90, 'left'] : [w - 10, 20, 'right'];
+      stitek(c, textFaze(), px, py, pz, S.faze === 'tempomat' ? '#1145cf' : '#0d1218', true, uzky ? 12 : 13);
+      if (S.faze === 'tempomat') stitek(c, popisZesileni(P.kp[S.usek], P.ki), px, py + 19, pz, '#4a5768', true, uzky ? 12 : 13);
+      if (Math.abs(S.sklon) > 0.05 && !uzky) stitek(c, 'sklon ' + znamenko(S.sklon, 1) + ' % (kresleno zveličeně)', w - 10, 60, 'right', '#0d1218', false);
+
+      kresliProfil(c, w, h, hPohled);
+    }
+
+    function kresliProfil(c, w, h, y0) {
+      const x0 = 46, x1 = w - 16, yH = y0 + 26, yD = h - 24;
+      c.fillStyle = '#fff'; c.fillRect(0, y0, w, h - y0);
+      c.strokeStyle = '#0d1218'; c.lineWidth = 2;
+      c.beginPath(); c.moveTo(0, y0); c.lineTo(w, y0); c.stroke();
+      const zMin = Math.min(...VYSKY), zMax = Math.max(...VYSKY);
+      const X = s => x0 + (x1 - x0) * s / DELKA;
+      const Y = z => yD - (yD - yH) * (z - zMin) / Math.max(1, zMax - zMin);
+
+      c.fillStyle = '#dfe5ef'; c.beginPath(); c.moveTo(X(0), yD + 8);
+      VYSKY.forEach((z, i) => c.lineTo(X(i * 10), Y(z)));
+      c.lineTo(X(DELKA), yD + 8); c.closePath(); c.fill();
+      c.strokeStyle = '#4a5768'; c.lineWidth = 3; c.beginPath();
+      VYSKY.forEach((z, i) => i ? c.lineTo(X(i * 10), Y(z)) : c.moveTo(X(0), Y(z)));
+      c.stroke();
+
+      c.font = '600 11px "Segoe UI", system-ui, sans-serif'; c.textBaseline = 'alphabetic'; c.textAlign = 'center';
+      ZACATKY.forEach((z0, i) => {
+        c.fillStyle = '#0d1218';
+        const misto = X(z0 + USEK) - X(z0) + 10;
+        const popisy = ['úsek ' + (i + 1) + ' · ' + cislo(HMOTNOSTI[i], 0) + ' kg', cislo(HMOTNOSTI[i], 0) + ' kg', cislo(HMOTNOSTI[i] / 1000, 1) + ' t'];
+        c.fillText(popisy.find(t => c.measureText(t).width < misto) || popisy[2], X(z0 + USEK / 2), y0 + 15);
+        if (i < POCET - 1) {   // zastávka: praporek v místě, kde dodávka stojí
+          const xz = X(z0 + USEK + D_BRZDA), yz = Y(VYSKY[Math.round((z0 + USEK + D_BRZDA) / 10)]);
+          c.strokeStyle = '#0d1218'; c.lineWidth = 2; c.beginPath(); c.moveTo(xz, yz); c.lineTo(xz, yz - 22); c.stroke();
+          c.fillStyle = '#d97000'; c.beginPath(); c.moveTo(xz, yz - 22); c.lineTo(xz + 13, yz - 17); c.lineTo(xz, yz - 12); c.closePath(); c.fill();
+        }
+      });
+      c.fillStyle = '#4a5768'; c.textAlign = 'left'; c.fillText('depo', 4, h - 6);
+      c.textAlign = 'right'; c.fillText('cíl', w - 4, h - 6);
+
+      const s = Math.min(S.s, DELKA), xa = X(s), ya = Y(VYSKY[Math.min(VYSKY.length - 1, Math.round(s / 10))]);
+      c.strokeStyle = '#1145cf'; c.lineWidth = 2; c.setLineDash([4, 3]);
+      c.beginPath(); c.moveTo(xa, y0 + 20); c.lineTo(xa, yD + 8); c.stroke(); c.setLineDash([]);
+      c.fillStyle = '#1145cf'; c.beginPath(); c.moveTo(xa, ya - 3); c.lineTo(xa - 7, ya - 16); c.lineTo(xa + 7, ya - 16); c.closePath(); c.fill();
+    }
+
+    /* ---- grafy ---- */
+    const grafy = Kurz.platno(el('b-grafy'), () => kresliGrafy());
+    const T_ODHAD = 410;   // přibližná délka celé jízdy, aby se osa za jízdy nepřeměřovala
+    function kresliGrafy() {
+      if (!log) return;
+      const tKonec = Math.max(T_ODHAD, S.t);
+      let eMax = 4; log.forEach(d => { if (d.e !== null) eMax = Math.max(eMax, Math.abs(d.e)); });
+      eMax = Math.min(eMax, 15);
+      kresliRadky(grafy, log, 0, tKonec, [
+        { nazev: 'Rychlost [km/h] — plná: skutečná, čárkovaná: žádaná (oříznuto kolem 90 km/h)', kratky: 'Rychlost [km/h]', min: W - 12, max: W + 12,
+          rady: [{ hodnota: () => W, barva: '#0d1218', sirka: 1.2, carky: [6, 4] }, { hodnota: d => d.v, barva: '#1145cf', sirka: 2.2 }] },
+        { nazev: 'Síla [N] — tečkovaně meze motoru', kratky: 'Síla [N]', min: K.Fmin - 500, max: K.Fmax + 500, meze: [K.Fmin, K.Fmax],
+          rady: [{ hodnota: d => d.F, barva: '#1145cf', sirka: 2 }] },
+        { nazev: 'Regulační odchylka e = w − v [km/h] (jen když řídí tempomat)', kratky: 'Odchylka e [km/h]', min: -Math.ceil(eMax * 1.1), max: Math.ceil(eMax * 1.1), nula: true,
+          rady: [{ hodnota: d => d.e, barva: '#cc1233', sirka: 2 }] }
+      ], (c, X, hore, dole) => {
+        c.font = '700 11px "Segoe UI", system-ui, sans-serif'; c.textAlign = 'center'; c.textBaseline = 'top';
+        S.zastavky.forEach(z => {
+          const x0 = X(z.t0), x1 = X(z.t1 === null ? S.t : z.t1);
+          c.fillStyle = 'rgba(74,87,104,0.16)'; c.fillRect(x0, hore, x1 - x0, dole - hore);
+          c.fillStyle = '#4a5768'; c.fillText('zastávka ' + z.cislo, (x0 + x1) / 2, dole - 14);
+        });
+      });
+    }
+
+    function obnovVypisy() {
+      const d = S.d;
+      pis('b-st-usek', S.usek + 1 + ' ze ' + POCET);
+      pis('b-st-m', cislo(d.m, 0) + ' kg');
+      pis('b-st-ridi', S.faze === 'tempomat' ? 'tempomat' : 'řidič');
+      pis('b-st-zes', popisZesileni(P.kp[S.usek], P.ki));
+      pis('b-st-v', cislo(d.v * 3.6, 1) + ' km/h');
+      pis('b-st-e', S.faze === 'tempomat' ? znamenko(W - d.v * 3.6, 1) + ' km/h' : '–');
+      pis('b-st-sse', cislo(S.sse[S.usek], 0));
+      pis('b-st-kmit', S.faze === 'tempomat' && S.s > S.zacatek + USEK - KONEC ? cislo(S.kmit[S.usek], 1) + ' km/h' : 'měří se na posledních 400 m');
+    }
+    function vse() { kresli(); kresliGrafy(); obnovVypisy(); }
+
+    const smycka = Kurz.smycka(dt => {
+      // Zastávky (řídí řidič) se přehrávají čtyřikrát rychleji, aby se čekalo hlavně na jízdu s tempomatem.
+      zbytekB += dt * P.prehravani;
+      while (!S.vCili) {
+        const krokCasu = K.dt / (S.faze === 'tempomat' ? 1 : 4);
+        if (zbytekB < krokCasu) break;
+        krok(); zbytekB -= krokCasu;
+      }
+      vse();
+    });
+    function zastav() { smycka.stop(); el('b-spustit').textContent = S && S.vCili ? 'Jet znovu' : 'Spustit'; }
+
+    el('b-spustit').addEventListener('click', () => {
+      if (smycka.bezi) { zastav(); return; }
+      if (S.vCili) start();
+      smycka.start(); el('b-spustit').textContent = 'Pozastavit';
+    });
+    el('b-nastart').addEventListener('click', () => { zastav(); start(); el('b-spustit').textContent = 'Spustit'; vse(); });
+    el('b-vymazat').addEventListener('click', () => { pokusy = []; vypisPokusy(); });
+
+    const ovladani = ovladaniKp('b-', P, HMOTNOSTI.map((m, i) => 'Kp úsek ' + (i + 1) + ' (' + cislo(m, 0) + ' kg)'), 'Kp — všechny úseky',
+      () => { if (S && S.t > 0 && !S.vCili) S.meneno = true; if (S) vse(); });
+    // Pravidlo z vysvětlení: Kp ostatních úseků úměrně hmotnosti, podle Kp prvního úseku (tlačítko se ukáže s teorií).
+    el('b-pravidlo').addEventListener('click', () => {
+      const kp1 = P.kp[0];
+      P.stejne = false;
+      P.kp = HMOTNOSTI.map(m => Math.round(kp1 * m / M_PLNA / 10) * 10);
+      ovladani.nastavKp();
+      if (S && S.t > 0 && !S.vCili) S.meneno = true;
+      vse();
+    });
+    el('b-reset').addEventListener('click', () => {
+      zastav(); Object.assign(P, vychozi()); ovladani.nastavVse();
+      start(); el('b-spustit').textContent = 'Spustit'; vse();
+    });
+
+    PREKRESLI.push(vse);
+    start(); vse();
+  })();
+
+  /* =====================================================================
+     Postupné odkrývání: úkoly po krocích, další část až po kliknutí.
+     Stav se nikam neukládá — po načtení začíná lekce vždy od začátku.
+     ===================================================================== */
+  (function () {
+    const CELKEM = 17;   // 8 kroků schématu + 4 kroky 2.1 + 4 kroky 2.2 + vysvětlení
+    const postup = { uro: 0, a: 0, b: 0, faze: 'uro', max: 1, vse: false };
+
+    function obnovPostup() {
+      const [krok, nazev] = postup.faze === 'uro' ? [postup.uro + 1, 'Opakování: regulační obvod']
+        : postup.faze === 'a' ? [9 + postup.a, 'Tři dodávky, jeden tempomat']
+        : postup.faze === 'b' ? [13 + postup.b, 'Rozvážka na trase'] : [CELKEM, 'Vysvětlení'];
+      postup.max = Math.max(postup.max, krok);
+      pis('postup-text', postup.vse ? 'Celá lekce je odkrytá · právě: ' + nazev
+        : 'Krok ' + krok + ' z ' + CELKEM + ' · ' + nazev + (postup.max > krok ? ' (nejdál: krok ' + postup.max + ')' : ''));
+      el('postup-vypln').style.width = (postup.vse ? 100 : 100 * postup.max / CELKEM) + '%';
+      el('odkryt-vse').hidden = !el('cast-uloha').hidden && !el('cast-rozvazka').hidden && !el('cast-teorie').hidden;   // vše odkryto
+    }
+
+    function prekresli() { requestAnimationFrame(() => requestAnimationFrame(() => PREKRESLI.forEach(f => f()))); }
+
+    function odkryj(cast, brana, faze, posun) {
+      el(cast).hidden = false; el(brana).hidden = true;
+      postup.faze = faze; obnovPostup(); prekresli();
+      if (posun) el(cast).scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function kroky(id, klic, brana, cast) {
+      const koren = el(id), polozky = [...koren.querySelectorAll('.krok')];
+      const zpet = koren.querySelector('[data-zpet]'), dalsi = koren.querySelector('[data-dalsi]');
+      let i = 0;
+      function ukaz(uzivatel) {
+        polozky.forEach((k, j) => { k.hidden = j !== i; });
+        koren.querySelector('.kroky-pocet').textContent = 'Krok ' + (i + 1) + ' ze ' + polozky.length;
+        zpet.disabled = i === 0;
+        dalsi.hidden = i === polozky.length - 1;
+        if (i === polozky.length - 1 && el(cast).hidden) el(brana).hidden = false;   // na posledním kroku se ukáže pokračování
+        postup[klic] = i;
+        if (uzivatel) postup.faze = klic;
+        obnovPostup();
+      }
+      zpet.addEventListener('click', () => { i--; ukaz(true); });
+      dalsi.addEventListener('click', () => { i++; ukaz(true); });
+      polozky.forEach(k => {
+        const b = k.querySelector('.krok-ukaz'), v = k.querySelector('.krok-vysvetleni');
+        b.addEventListener('click', () => {
+          v.hidden = !v.hidden;
+          b.textContent = v.hidden ? 'Ukázat vysvětlení' : 'Skrýt vysvětlení';
+          b.setAttribute('aria-expanded', String(!v.hidden));
+        });
+      });
+      ukaz(false);
+    }
+
+    /* Schéma regulačního obvodu: krok i ukáže části data-k ≤ i a k nim popis. */
+    const URO_POPISY = [
+      '<strong>Regulovaná soustava</strong> — zařízení, které chceme ovládat: motor a dodávka. Motor vyvine tažnou sílu <em>F</em> a ta dodávku pohání.',
+      '<strong>Regulovaná veličina v</strong> — to, co chceme udržet: rychlost dodávky.',
+      '<strong>Akční veličina u</strong> — jediné, čím lze soustavu ovlivnit: požadovaná síla motoru (plyn; záporná hodnota znamená brzdu). Motor ji vytvoří až se zpožděním 0,8 s.',
+      '<strong>Poruchy</strong> — vlivy, které rychlost mění, ale nikdo je neovládá: sklon silnice a vítr.',
+      '<strong>Snímač a zpětná vazba</strong> — rychlost se měří a vrací zpět na začátek. Bez zpětné vazby by řízení nevědělo, jak dodávka doopravdy jede.',
+      '<strong>Žádaná hodnota w a odchylka e</strong> — žádaných 90 km/h se porovná s naměřenou rychlostí. Rozdíl <em>e</em> = <em>w</em> − <em>v</em> je kladný, když jedeme pomaleji, než máme.',
+      '<strong>Regulátor</strong> z odchylky vypočítá zásah: PI regulátor <em>u</em> = <em>K</em><sub>p</sub> · <em>e</em> + <em>I</em>. Kp říká, jak silně zasáhnout podle odchylky teď, část <em>I</em> sčítá odchylky z minulosti (rychlostí Ki). Kvůli zpoždění motoru se příliš silný zásah projeví pozdě a rychlost se rozkmitá. Kolečko je uzavřené: <strong>uzavřený regulační obvod</strong>.',
+      '<strong>Dnes se mění jedna věc uvnitř soustavy: hmotnost dodávky <em>m</em>.</strong> Kp a Ki regulátoru byly naladěné pro jednu hmotnost. Co se stane, když dodávka po vykládce zlehčí?'
+    ];
+    (function () {
+      const casti = [...el('uro').querySelectorAll('[data-k]')];
+      let i = 0;
+      function ukaz(uzivatel) {
+        casti.forEach(c => c.classList.toggle('skryto', Number(c.dataset.k) > i + 1));
+        // Na úzkém displeji se schéma nevejde: posunout výřez na právě přidanou část.
+        const plocha = el('uro-plocha');
+        if (plocha.scrollWidth > plocha.clientWidth + 2) {
+          const nova = casti.find(c => Number(c.dataset.k) === i + 1), bb = nova.getBBox();
+          const meritko = plocha.scrollWidth / 1100;
+          plocha.scrollTo({ left: (bb.x + bb.width / 2) * meritko - plocha.clientWidth / 2, behavior: uzivatel ? 'smooth' : 'auto' });
+        }
+        el('uro-popis').innerHTML = URO_POPISY[i];
+        pis('uro-pocet', 'Krok ' + (i + 1) + ' z ' + URO_POPISY.length);
+        el('uro-zpet').disabled = i === 0;
+        el('uro-dalsi').hidden = i === URO_POPISY.length - 1;
+        if (i === URO_POPISY.length - 1 && el('cast-uloha').hidden) el('brana-uloha').hidden = false;
+        postup.uro = i;
+        if (uzivatel) postup.faze = 'uro';
+        obnovPostup();
+      }
+      el('uro-zpet').addEventListener('click', () => { i--; ukaz(true); });
+      el('uro-dalsi').addEventListener('click', () => { i++; ukaz(true); });
+      ukaz(false);
+    })();
+
+    kroky('kroky-a', 'a', 'brana-rozvazka', 'cast-rozvazka');
+    kroky('kroky-b', 'b', 'brana-teorie', 'cast-teorie');
+    el('dal-uloha').addEventListener('click', () => odkryj('cast-uloha', 'brana-uloha', 'a', true));
+    el('dal-rozvazka').addEventListener('click', () => odkryj('cast-rozvazka', 'brana-rozvazka', 'b', true));
+    el('dal-teorie').addEventListener('click', () => odkryj('cast-teorie', 'brana-teorie', 'teorie', true));
+    const pravidlo = () => { el('b-pravidlo-obal').hidden = false; };
+    el('dal-teorie').addEventListener('click', pravidlo);
+    el('odkryt-vse').addEventListener('click', () => {
+      postup.vse = true;
+      odkryj('cast-uloha', 'brana-uloha', postup.faze, false);
+      odkryj('cast-rozvazka', 'brana-rozvazka', postup.faze, false);
+      odkryj('cast-teorie', 'brana-teorie', postup.faze, false);
+      pravidlo();
+    });
+  })();
+})();
+</script>
+</body>
+</html>

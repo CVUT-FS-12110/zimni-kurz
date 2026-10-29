@@ -28,6 +28,14 @@ window.LEKCE = [
     okruh: 'řízení a regulace'
   },
   {
+    nazev: 'Lekce 3b — Tempomat pro rozvážku',
+    popis: 'Dodávka rozváží balíky a po každé zastávce je lehčí. Pojede tempomat naladěný na plnou dodávku stejně dobře i s prázdnou?',
+    soubor: 'ulohy/08-tempomat-rozvazka.html',
+    verejna: false,
+    tema: 'Plánování zesílení (gain scheduling) podle hmotnosti',
+    okruh: 'řízení a regulace'
+  },
+  {
     nazev: 'Lekce 3 — Třídění zásilek',
     popis: 'V centru se smíchaly různé zásilky. Lze z jejich naměřených vlastností odhadnout skupinu, ve které budou přihlášky ke studiu?',
     soubor: 'ulohy/03-kmeans.html',
