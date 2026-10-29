@@ -56,6 +56,7 @@
   .krok[hidden], .krok-vysvetleni[hidden], .odkryti[hidden], .brana[hidden] { display: none; }
   .krok-ukol { margin: 0 0 .6rem; }
   .krok-ukaz { padding: .35rem .8rem; font-size: .9rem; }
+  .krok-ukaz:disabled { opacity: 1; border-style: dashed; color: var(--text-slaby); font-weight: 600; cursor: not-allowed; }
   .krok-vysvetleni { margin: .6rem 0 .2rem; padding: .5rem .8rem; border-left: 5px solid var(--shluk-3); background: #fff; }
   .krok-vysvetleni p { margin: 0; }
   .kroky-ovladani { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: .6rem 1rem; border-top: 2px solid var(--ram); }
@@ -107,7 +108,7 @@
   <div class="postup" id="postup">
     <span class="postup-cara" aria-hidden="true"><span id="postup-vypln"></span></span>
     <span id="postup-text" aria-live="polite"></span>
-    <button class="postup-vse" id="odkryt-vse">Odkrýt celou lekci</button>
+    <button class="postup-vse" id="odkryt-vse" hidden>Odkrýt celou lekci</button>
   </div>
 
   <!-- ============ 1. PŘEDSTAVENÍ PROBLÉMU ============ -->
@@ -312,7 +313,7 @@
     <div class="graf-ram"><canvas id="a-grafy" role="img" aria-label="Dva grafy v čase: rychlost a tažná síla všech tří dodávek"></canvas></div>
 
     <h4>Co si zkuste</h4>
-    <p class="sekce poznamka">Úkoly jdou po krocích: nejdřív pozorujte, pak si rozbalte vysvětlení.</p>
+    <p class="sekce poznamka">Úkoly jdou po krocích: nejdřív to vyzkoušejte, pak si rozbalte vysvětlení. Vysvětlení i další krok se odemknou, až v daném kroku chvíli jezdíte.</p>
     <div class="kroky" id="kroky-a">
       <div class="krok" hidden>
         <p class="krok-ukol"><strong>Pozorujte.</strong> Spusťte jízdu s výchozím nastavením (stejné Kp = 1 000 pro všechny, Ki = 50). Která dodávka se v kopci rozkmitá a která jede klidně?</p>
@@ -792,6 +793,8 @@
 
   // Překreslení simulací po odkrytí skryté části (plátno ve skryté části nemá rozměry).
   const PREKRESLI = [];
+  // Kolik se v ukázkách jezdilo: 2.1 sekundy simulace, 2.2 dokončené trasy (odemyká vysvětlení úkolů).
+  const JIZDY = { a: 0, b: 0 };
 
   /* =====================================================================
      2.1 Tři dodávky, jeden tempomat
@@ -826,6 +829,7 @@
       S.d.forEach(d => { krokFyziky(d, sk); d.s += d.v * K.dt; });
       S.sRef += W / 3.6 * K.dt;
       S.t += K.dt; S.doKroku -= K.dt;
+      JIZDY.a += K.dt;
       if (S.t >= log[log.length - 1].t + 0.1 - 1e-9) zapis();
     }
 
@@ -1031,6 +1035,7 @@
       return (P.stejne ? 'stejné Kp ' + P.kp[0] : 'plán Kp ' + P.kp.join(' / ')) + ', Ki ' + P.ki;
     }
     function dojelDoCile() {
+      JIZDY.b += 1;
       zastav();
       const celkem = S.sse.reduce((a, b) => a + b, 0);
       pokusy.push({ nastaveni: popisKonstant(), sse: S.sse.slice(), kmit: S.kmit.slice(), celkem, meneno: S.meneno });
@@ -1273,6 +1278,7 @@
      Stav se nikam neukládá — po načtení začíná lekce vždy od začátku.
      ===================================================================== */
   (function () {
+    const UCITEL = new URLSearchParams(location.search).has('ucitel');
     const CELKEM = 17;   // 8 kroků schématu + 4 kroky 2.1 + 4 kroky 2.2 + vysvětlení
     const postup = { uro: 0, a: 0, b: 0, faze: 'uro', max: 1, vse: false };
 
@@ -1284,7 +1290,8 @@
       pis('postup-text', postup.vse ? 'Celá lekce je odkrytá · právě: ' + nazev
         : 'Krok ' + krok + ' z ' + CELKEM + ' · ' + nazev + (postup.max > krok ? ' (nejdál: krok ' + postup.max + ')' : ''));
       el('postup-vypln').style.width = (postup.vse ? 100 : 100 * postup.max / CELKEM) + '%';
-      el('odkryt-vse').hidden = !el('cast-uloha').hidden && !el('cast-rozvazka').hidden && !el('cast-teorie').hidden;   // vše odkryto
+      // „Odkrýt celou lekci“ jen pro učitele: adresa s ?ucitel (studenti ho nevidí, aby kroky nepřeskakovali)
+      el('odkryt-vse').hidden = !UCITEL || (!el('cast-uloha').hidden && !el('cast-rozvazka').hidden && !el('cast-teorie').hidden);
     }
 
     function prekresli() { requestAnimationFrame(() => requestAnimationFrame(() => PREKRESLI.forEach(f => f()))); }
@@ -1295,16 +1302,38 @@
       if (posun) el(cast).scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
+    /* Vysvětlení úkolu se odemkne, až se v kroku opravdu zkoušelo: v 2.1 aspoň 20 s jízdy,
+       v 2.2 aspoň jedna dojetá trasa (počítá se od chvíle, kdy se krok ukázal). */
+    const POTREBA = { a: 20, b: 1 };
+    let odemknoutVse = false;
     function kroky(id, klic, brana, cast) {
       const koren = el(id), polozky = [...koren.querySelectorAll('.krok')];
       const zpet = koren.querySelector('[data-zpet]'), dalsi = koren.querySelector('[data-dalsi]');
+      const zaklad = polozky.map(() => null);   // stav počitadla, když se krok poprvé ukázal
       let i = 0;
+      const vyzkouseno = j => odemknoutVse || (zaklad[j] !== null && JIZDY[klic] - zaklad[j] >= POTREBA[klic]);
+      const UKOL = klic === 'a' ? 'po jízdě' : 'po dojetí trasy';
+      function zamky() {
+        polozky.forEach((k, j) => {
+          const b = k.querySelector('.krok-ukaz');
+          if (b.dataset.odemceno) return;
+          if (vyzkouseno(j)) { b.disabled = false; b.dataset.odemceno = '1'; b.textContent = 'Ukázat vysvětlení'; }
+          else { b.disabled = true; b.textContent = 'Nejdřív to vyzkoušejte (vysvětlení se odemkne ' + UKOL + ')'; }
+        });
+        // dál se jde, až je aktuální krok vyzkoušený; na posledním kroku se pak ukáže pokračování
+        const ok = vyzkouseno(i);
+        dalsi.disabled = !ok;
+        dalsi.textContent = ok ? 'Další krok →' : 'Další krok (' + UKOL + ')';
+        if (i === polozky.length - 1 && ok && el(cast).hidden) el(brana).hidden = false;
+      }
+      setInterval(zamky, 500);
       function ukaz(uzivatel) {
+        if (zaklad[i] === null) zaklad[i] = JIZDY[klic];
+        zamky();
         polozky.forEach((k, j) => { k.hidden = j !== i; });
         koren.querySelector('.kroky-pocet').textContent = 'Krok ' + (i + 1) + ' ze ' + polozky.length;
         zpet.disabled = i === 0;
         dalsi.hidden = i === polozky.length - 1;
-        if (i === polozky.length - 1 && el(cast).hidden) el(brana).hidden = false;   // na posledním kroku se ukáže pokračování
         postup[klic] = i;
         if (uzivatel) postup.faze = klic;
         obnovPostup();
@@ -1368,6 +1397,7 @@
     el('dal-teorie').addEventListener('click', pravidlo);
     el('odkryt-vse').addEventListener('click', () => {
       postup.vse = true;
+      odemknoutVse = true;   // kdo odkryje celou lekci (učitel), vidí i všechna vysvětlení
       odkryj('cast-uloha', 'brana-uloha', postup.faze, false);
       odkryj('cast-rozvazka', 'brana-rozvazka', postup.faze, false);
       odkryj('cast-teorie', 'brana-teorie', postup.faze, false);
