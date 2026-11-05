@@ -1,0 +1,1442 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dron doručí balík — Zimní kurz</title>
+<link rel="stylesheet" href="../assets/css/styl.css">
+<style>
+  .schema { max-width: 820px; margin: 1rem 0; }
+  .schema svg { display: block; width: 100%; height: auto; border: 2px solid var(--ram-silny); border-radius: var(--radius); background: #fff; }
+  .schema text { font-family: "Segoe UI", system-ui, sans-serif; fill: var(--text); }
+  .schema .popis { font-size: 15px; font-weight: 700; }
+  .schema .dopln { font-size: 13px; fill: var(--text-slaby); }
+  .schema figcaption { margin-top: .4rem; font-size: .9rem; color: var(--text-slaby); }
+
+  .podsekce { margin-top: 2.5rem; padding-top: 1rem; border-top: 2px solid var(--ram-silny); font-size: 1.3rem; }
+  h4 { margin: 1.6rem 0 .5rem; font-size: 1.05rem; }
+  .dilna .platno-ram { aspect-ratio: 16 / 9; }
+  @media (max-width: 560px) { .dilna .platno-ram { aspect-ratio: 4 / 3; } }
+  .scena { position: relative; min-width: 0; }
+  .scena .tlacitka { margin-top: .6rem; }
+  .ovladac[hidden] { display: none; }
+  .hlaska { margin: 0 0 .6rem; padding: .5rem .6rem; border-left: 5px solid var(--shluk-3); background: #fff; font-weight: 700; }
+  .hlaska.spatne { border-left-color: var(--shluk-2); }
+  .hlaska[hidden] { display: none; }
+  .skupina { margin: .9rem 0 .3rem; font-weight: 700; color: var(--akcent); }
+  .skupina:first-of-type { margin-top: 0; }
+
+  .graf-ram { position: relative; height: 340px; border: 2px solid var(--ram-silny); border-radius: var(--radius); background: #fff; overflow: hidden; }
+  .graf-ram canvas { display: block; width: 100%; height: 100%; }
+  @media (max-width: 600px) { .graf-ram { height: 400px; } }
+
+  .tabulka { width: 100%; max-width: 900px; border-collapse: collapse; font-size: .92rem; }
+  .tabulka th, .tabulka td { padding: .4rem .5rem; border: 1px solid var(--ram); text-align: left; vertical-align: top; }
+  .tabulka thead { background: var(--pozadi-panel); }
+  .tabulka td.cislo, .tabulka th.cislo { text-align: right; font-variant-numeric: tabular-nums; }
+  .tabulka tr.nejlepsi td { background: #e2f4e8; font-weight: 700; }
+  .tabulka td.spatne { background: #fbe4e8; }
+  .tabulka-obal { overflow-x: auto; max-width: 900px; }
+  .pokusy-hlava { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .5rem; max-width: 900px; }
+  .pokusy-hlava .akce { flex: 0 0 auto; padding: .35rem .7rem; font-size: .9rem; }
+  @media (max-width: 560px) { .tabulka { font-size: .8rem; } }
+
+  .vzorec { width: fit-content; max-width: 100%; box-sizing: border-box; margin: .7rem 0; padding: .6rem 1.2rem; border: 2px solid var(--ram); border-radius: var(--radius); background: var(--pozadi-panel); overflow-x: auto; }
+  .vzorec math { margin: 0; font-size: 1.2rem; font-family: "Cambria Math", "STIX Two Math", "Latin Modern Math", math; }
+  .retez { font-weight: 700; }
+  .navaznost { max-width: 70ch; padding: .6rem .9rem; border: 2px solid var(--ram); border-radius: var(--radius); background: var(--pozadi-panel); }
+  .navaznost p { margin: .3rem 0; }
+
+  .postup { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .8rem; margin: 0 0 1rem; padding: .45rem .7rem; border: 2px solid var(--ram-silny); border-radius: var(--radius); background: #fff; font-size: .9rem; font-weight: 700; }
+  .postup-cara { flex: 0 0 120px; height: 8px; border-radius: 4px; background: var(--pozadi-zvyraz); overflow: hidden; }
+  .postup-cara span { display: block; height: 100%; width: 0; background: var(--akcent); transition: width .3s; }
+  .postup-vse { margin-left: auto; padding: .2rem .5rem; border: 0; background: none; color: var(--akcent); font: inherit; font-weight: 600; text-decoration: underline; cursor: pointer; }
+  .postup-vse[hidden] { display: none; }
+  .odkryti, .dilna { scroll-margin-top: 4rem; }
+  .kroky { max-width: 70ch; border: 2px solid var(--ram-silny); border-radius: var(--radius); background: var(--pozadi-panel); }
+  .krok { padding: .8rem 1rem .4rem; }
+  .krok[hidden], .krok-vysvetleni[hidden], .odkryti[hidden], .brana[hidden] { display: none; }
+  .krok-ukol { margin: 0 0 .6rem; }
+  .krok-ukaz { padding: .35rem .8rem; font-size: .9rem; }
+  .krok-ukaz:disabled { opacity: 1; border-style: dashed; color: var(--text-slaby); font-weight: 600; cursor: not-allowed; }
+  .krok-vysvetleni { margin: .6rem 0 .2rem; padding: .5rem .8rem; border-left: 5px solid var(--shluk-3); background: #fff; }
+  .krok-vysvetleni p { margin: 0; }
+  .krok-vysvetleni p + p, .krok-vysvetleni ol + p, .krok-vysvetleni p + ol { margin-top: .5rem; }
+  .vypocet { margin: .4rem 0 0; padding-left: 1.4rem; }
+  .dilna input:disabled, .dilna select:disabled { opacity: .5; cursor: not-allowed; }
+  .kod { max-width: 100%; box-sizing: border-box; margin: .7rem 0; padding: .8rem 1rem; overflow-x: auto; border: 2px solid var(--ram); border-radius: var(--radius); background: #fafbfc; font: 14px/1.55 ui-monospace, "Cascadia Code", Consolas, "DejaVu Sans Mono", monospace; tab-size: 4; }
+  .kod .k-klic { color: #a626a4; font-weight: 600; }
+  .kod .k-fun { color: #1e5bd8; font-weight: 700; }
+  .kod .k-str { color: #3f8a3a; }
+  .kod .k-cis { color: #986801; }
+  .kod .k-kom { color: #6a737d; font-style: italic; }
+  .kod .k-spec { color: #c4402f; }
+  .kod .k-vest { color: #0b7fa8; }
+  .vypocet li { margin: .15rem 0; }
+  .vypocet-zaver { padding: .4rem .6rem; border-left: 4px solid var(--akcent); background: var(--pozadi-panel); }
+  .kroky-ovladani { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: .6rem 1rem; border-top: 2px solid var(--ram); }
+  .kroky-ovladani { flex-wrap: wrap; }
+  .kroky-ovladani .akce { flex: 0 1 auto; padding: .4rem .8rem; white-space: normal; }
+  .kroky-ovladani .akce[hidden] { display: none; }
+  .kroky-pocet { font-weight: 700; color: var(--text-slaby); font-variant-numeric: tabular-nums; }
+  .brana { margin: 1.2rem 0; }
+  .teorie-blok { margin: .5rem 0; border: 2px solid var(--ram); border-radius: var(--radius); }
+  .teorie-blok > summary { padding: .5rem .8rem; cursor: pointer; background: var(--pozadi-panel); }
+  .teorie-blok > summary h3 { display: inline; margin: 0; font-size: 1.08rem; }
+  .teorie-blok[open] > summary { border-bottom: 2px solid var(--ram); }
+  .teorie-blok > :not(summary) { margin-left: .9rem; margin-right: .9rem; }
+
+  /* schéma kaskády (odkrývá se po krocích) */
+  .uro, .kroky-uro { width: min(1140px, calc(100vw - 2.5rem)); max-width: none; box-sizing: border-box; }
+  .uro { margin: 1rem 0 0; }
+  .uro-plocha { overflow-x: auto; }
+  .uro svg { display: block; width: 100%; min-width: 680px; height: auto; border: 2px solid var(--ram-silny); border-radius: var(--radius) var(--radius) 0 0; background: #fff; }
+  .uro text { font-family: "Segoe UI", system-ui, sans-serif; fill: var(--text); font-size: 16px; }
+  .uro .blok { fill: var(--pozadi-panel); stroke: var(--ram-silny); stroke-width: 2.5; }
+  .uro .blok-reg { fill: #dce7ff; stroke: var(--akcent); }
+  .uro .cara { fill: none; stroke: var(--ram-silny); stroke-width: 2.5; }
+  .uro .porucha { fill: none; stroke: var(--shluk-4); stroke-width: 2.5; stroke-dasharray: 7 5; }
+  .uro .nazev { font-weight: 700; text-anchor: middle; }
+  .uro .maly { font-size: 14px; fill: var(--text-slaby); text-anchor: middle; }
+  .uro [data-k] { transition: opacity .35s; }
+  .uro [data-k].skryto { opacity: 0; }
+  #m-tycka { transform-box: view-box; transform-origin: 380px 190px; transition: transform .7s; }
+  #m-tycka.naklon { transform: rotate(25deg); }
+  .uro figcaption { margin: 0; min-height: 4.6em; padding: .6rem .9rem; border: 2px solid var(--ram-silny); border-top: 0; background: var(--pozadi-panel); font-size: 1.1rem; }
+  .kroky-uro { border: 2px solid var(--ram-silny); border-top: 0; border-radius: 0 0 var(--radius) var(--radius); }
+  .kroky-uro .akce[hidden] { display: none; }
+  .predmety-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; max-width: 1000px; margin-top: 1rem; }
+  .predmet { display: flex; flex-direction: column; padding: .8rem 1rem; border: 2px solid var(--ram); border-radius: var(--radius); background: var(--pozadi-panel); }
+  .predmet h3 { margin: .1rem 0 .4rem; font-size: 1.05rem; }
+  .predmet p { margin: 0; }
+  .predmet .predmet-stupen { color: var(--akcent); font-size: .75rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+  .predmet .predmet-odkaz { margin-top: auto; padding-top: .6rem; font-size: .9rem; font-weight: 700; }
+  @media (max-width: 800px) { .predmety-grid { grid-template-columns: minmax(0, 1fr); } }
+  /* úvodní obrázek po krocích */
+  .uvod-schema, .uvod-schema + .kroky-uro { width: auto; max-width: 820px; }
+  .uvod-schema svg { min-width: 560px; }
+  .uro .popis { font-size: 15px; font-weight: 700; }
+  .uro .dopln { font-size: 13px; fill: var(--text-slaby); }
+</style>
+</head>
+<body>
+<main class="stranka">
+  <a class="zpet" href="../index.html">← Zpět na rozcestník</a>
+  <p class="pod-nadpisem">Lekce 3c — Poslední metry vzduchem</p>
+  <h1>Dron doručí balík</h1>
+  <div class="postup" id="postup">
+    <span class="postup-cara" aria-hidden="true"><span id="postup-vypln"></span></span>
+    <span id="postup-text" aria-live="polite"></span>
+    <button class="postup-vse" id="odkryt-vse" hidden>Odkrýt celou lekci</button>
+  </div>
+
+  <!-- ============ 1. PŘEDSTAVENÍ PROBLÉMU ============ -->
+  <section class="sekce">
+    <h2>1. Poslední metry k oknu</h2>
+    <p class="uvod">Dodávka s balíkem zastavila před fakultou. Poslední metry doletí balík dronem — přímo k otevřenému oknu. Dron musí u okna zastavit přesně: kousek před ním balík nikdo nepřevezme, kousek za ním dron narazí do zdi. A venku fouká.</p>
+    <p class="sekce">Než dron pustíme do vzduchu, sestavíme si jeho model — stejný, se kterým počítají všechny ukázky níže. Obrázek se odkrývá po krocích.</p>
+
+    <figure class="uro uvod-schema" id="uvod">
+      <div class="uro-plocha" id="uvod-plocha"><svg viewBox="0 0 760 400" role="img" aria-label="Model dronu po krocích: tyčka s hmotností a momentem setrvačnosti, těžiště, souřadnice x a z, úhel náklonu θ, tahy vrtulí F1 a F2 na koncích, tíha v těžišti; součet tahů posouvá, rozdíl tahů otáčí; úkolem je doletět k oknu.">
+        <defs>
+          <marker id="u-modra" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="10" refX="3" refY="5" orient="auto"><path d="M0,0 L0,10 L13,5 z" fill="#1145cf"/></marker>
+          <marker id="u-seda" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="10" refX="3" refY="5" orient="auto"><path d="M0,0 L0,10 L13,5 z" fill="#4a5768"/></marker>
+          <marker id="u-cerna" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="10" refX="3" refY="5" orient="auto"><path d="M0,0 L0,10 L13,5 z" fill="#0d1218"/></marker>
+          <marker id="u-oranz" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="10" refX="3" refY="5" orient="auto"><path d="M0,0 L0,10 L13,5 z" fill="#d97000"/></marker>
+          <g id="u-dron">
+            <rect x="-46" y="-6" width="92" height="12" rx="4" fill="#fff" stroke="#0d1218" stroke-width="2.5"/>
+            <path d="M-40 -6 L-40 -16 M40 -6 L40 -16" stroke="#0d1218" stroke-width="2.5"/>
+            <path d="M-58 -18 L-22 -18 M22 -18 L58 -18" stroke="#0d1218" stroke-width="4"/>
+            <path d="M0 6 L0 22" stroke="#4a5768" stroke-width="2"/>
+            <rect x="-12" y="22" width="24" height="20" fill="#d97000" stroke="#0d1218" stroke-width="2"/>
+          </g>
+        </defs>
+        <rect x="0" y="360" width="760" height="40" fill="#dfe5ef"/>
+
+        <!-- 1: skutečný dron → tyčka (jen v kroku 1) -->
+        <g data-k="1" data-do="1">
+          <use href="#u-dron" transform="translate(380 190) scale(2.6)" opacity="0.3"/>
+          <text x="380" y="228" class="dopln" text-anchor="middle">rám s balíkem → tyčka</text>
+        </g>
+
+        <!-- 4: souřadnice (pevné, neotáčí se) -->
+        <g data-k="4">
+          <path d="M50 360 L668 360" stroke="#0d1218" stroke-width="2.5" marker-end="url(#u-cerna)"/>
+          <path d="M50 360 L50 42" stroke="#0d1218" stroke-width="2.5" marker-end="url(#u-cerna)"/>
+          <text x="676" y="365" class="popis">x</text>
+          <text x="60" y="40" class="popis">z</text>
+          <text x="40" y="378" class="dopln" text-anchor="end">0</text>
+          <path d="M380 199 L380 358 M371 190 L52 190" stroke="#4a5768" stroke-width="1.5" stroke-dasharray="5 4" fill="none"/>
+          <text x="380" y="384" class="popis" text-anchor="middle">x</text>
+          <text x="40" y="195" class="popis" text-anchor="end">z</text>
+        </g>
+
+        <!-- 5: úhel náklonu -->
+        <g data-k="5">
+          <path d="M300 190 L530 190" stroke="#4a5768" stroke-width="1.5" stroke-dasharray="5 4"/>
+          <path d="M450 190 A70 70 0 0 1 443.4 219.6" fill="none" stroke="#1145cf" stroke-width="3"/>
+          <text x="458" y="212" class="popis" style="fill:#1145cf">θ</text>
+        </g>
+
+        <!-- tyčka a vše, co se s ní otáčí -->
+        <g id="m-tycka">
+          <g data-k="1">
+            <rect x="260" y="184" width="240" height="12" rx="5" fill="#4a5768" stroke="#0d1218" stroke-width="2"/>
+            <rect x="262" y="172" width="16" height="12" fill="#0d1218"/>
+            <rect x="482" y="172" width="16" height="12" fill="#0d1218"/>
+          </g>
+          <g data-k="2">
+            <circle cx="380" cy="190" r="9" fill="#fff" stroke="#0d1218" stroke-width="2"/>
+            <path d="M380 190 L389 190 A9 9 0 0 1 380 199 Z M380 190 L371 190 A9 9 0 0 1 380 181 Z" fill="#0d1218"/>
+          </g>
+          <g data-k="3" data-do="4">
+            <path d="M348 168 A40 40 0 0 1 412 168" fill="none" stroke="#d97000" stroke-width="3" marker-end="url(#u-oranz)"/>
+            <text x="380" y="140" class="dopln" text-anchor="middle" style="fill:#d97000">J = 0,03 kg·m²</text>
+          </g>
+          <g data-k="6">
+            <path d="M270 168 L270 98" stroke="#1145cf" stroke-width="5" marker-end="url(#u-modra)"/>
+            <path d="M490 168 L490 122" stroke="#1145cf" stroke-width="5" marker-end="url(#u-modra)"/>
+            <text x="256" y="104" class="popis" text-anchor="end" style="fill:#1145cf">F₁</text>
+            <text x="504" y="128" class="popis" style="fill:#1145cf">F₂</text>
+            <path d="M384 208 L490 208 M384 202 L384 214 M490 202 L490 214" stroke="#0d1218" stroke-width="1.5"/>
+            <text x="400" y="224" class="dopln">L = 0,25 m</text>
+          </g>
+        </g>
+
+        <!-- 2: popisek těžiště (neotáčí se) -->
+        <g data-k="2">
+          <path d="M296 256 L373 197" stroke="#4a5768" stroke-width="1.2"/>
+          <text x="292" y="270" class="dopln" text-anchor="end">těžiště, m = 1,5 kg</text>
+        </g>
+
+        <!-- 7: tíha (vždy svisle) -->
+        <g data-k="7">
+          <path d="M380 200 L380 292" stroke="#4a5768" stroke-width="5" marker-end="url(#u-seda)"/>
+          <text x="392" y="292" class="popis" style="fill:#4a5768">G = m · g</text>
+        </g>
+
+        <!-- 8: součet tahů -->
+        <g data-k="8" data-do="8">
+          <path d="M380 54 L443 54 M443 54 L443 190" stroke="#1145cf" stroke-width="1.5" stroke-dasharray="5 4" fill="none"/>
+          <path d="M380 190 L380 70" stroke="#1145cf" stroke-width="2.5" stroke-dasharray="7 4" marker-end="url(#u-modra)"/>
+          <path d="M380 190 L437 66" stroke="#1145cf" stroke-width="5" marker-end="url(#u-modra)"/>
+          <text x="452" y="40" class="popis" style="fill:#1145cf">F₁ + F₂</text>
+          <text x="374" y="114" class="dopln" text-anchor="end">drží výšku</text>
+          <text x="412" y="46" class="dopln" text-anchor="middle">do strany →</text>
+        </g>
+
+        <!-- 9: rozdíl tahů otáčí -->
+        <g data-k="9" data-do="9">
+          <path d="M341 167 A45 45 0 0 1 417 165" fill="none" stroke="#d97000" stroke-width="4" marker-end="url(#u-oranz)"/>
+          <text x="90" y="326" class="popis" style="fill:#d97000">rozdíl tahů otáčí: M = (F₁ − F₂) · L</text>
+        </g>
+
+        <!-- 10–11: dva povely a automat výšky -->
+        <g data-k="10" data-do="11">
+          <rect x="494" y="256" width="252" height="92" rx="6" fill="#eef1f6" stroke="#0d1218" stroke-width="2"/>
+          <text x="506" y="280" class="popis" style="fill:#1145cf">T = F₁ + F₂ → výška</text>
+          <text x="506" y="304" class="popis" style="fill:#d97000">ΔF = F₁ − F₂ → otáčení</text>
+        </g>
+        <g data-k="11" data-do="11">
+          <text x="506" y="332" class="popis">automat: T · cos θ = m · g</text>
+        </g>
+
+        <!-- 12: úkol -->
+        <g data-k="12">
+          <rect x="690" y="50" width="70" height="310" fill="#eef1f6" stroke="#0d1218" stroke-width="2.5"/>
+          <rect x="684" y="150" width="12" height="64" fill="#fff" stroke="#0d1218" stroke-width="2"/>
+          <text x="704" y="240" class="dopln">okno</text>
+          <path d="M640 60 L640 356" stroke="#0a7d38" stroke-width="2" stroke-dasharray="6 5"/>
+          <text x="636" y="56" class="dopln" text-anchor="end" style="fill:#0a7d38">cíl</text>
+          <g stroke="#4a5768" stroke-width="2.5" marker-end="url(#u-seda)">
+            <path d="M130 90 L190 90"/><path d="M120 112 L170 112"/>
+          </g>
+          <text x="84" y="96" class="popis">vítr</text>
+        </g>
+      </svg></div>
+      <figcaption id="uvod-popis" aria-live="polite"></figcaption>
+    </figure>
+    <div class="kroky-ovladani kroky-uro">
+      <button class="akce" id="uvod-zpet">← Předchozí</button>
+      <span class="kroky-pocet" id="uvod-pocet"></span>
+      <button class="akce hlavni" id="uvod-dalsi">Další část →</button>
+    </div>
+
+    <div class="navaznost">
+      <p><strong>Navazuje na lekce o tempomatu.</strong> Tam regulátor měřil rychlost a přímo z ní počítal sílu motoru. Dron je těžší: mezi vrtulemi a polohou je otáčení, náklon a teprve pak pohyb. Projdeme to postupně — od dronu, který spadne, až k dronu, který doručí balík.</p>
+      <p>Kdo si nepamatuje: <em>Kp</em> říká, jak silně regulátor zasáhne podle odchylky teď, <em>Kd</em> přidává zásah podle toho, jak rychle se věci mění — funguje jako brzda.</p>
+    </div>
+  </section>
+
+  <!-- ============ 2. INTERAKTIVNÍ ÚLOHA ============ -->
+  <section>
+    <h2>2. Od pádu k oknu</h2>
+    <p class="sekce">Ukázka má tři navazující části. Každá přidá jednu věc. Další část se odkryje, až projdete úkoly té předchozí.</p>
+
+    <!-- ---------- 2.1 BEZ REGULÁTORU ---------- -->
+    <h3 class="podsekce">2.1 Dron bez regulátoru</h3>
+    <p class="sekce">Obě vrtule táhnou pořád stejně, přesně tolik, kolik dron váží. Dron visí ve výšce 2 m. V čase 1 s do něj na chvilku udeří poryv větru.</p>
+    <div class="dilna" id="a-dilna">
+      <div class="scena">
+        <div class="platno-ram"><canvas id="a-platno" role="img" aria-label="Dron visí nad zemí bez regulátoru; po poryvu větru se roztočí a spadne"></canvas></div>
+        <div class="tlacitka">
+          <button class="akce hlavni" id="a-spustit">Spustit</button>
+          <button class="akce" id="a-nastart">Na start</button>
+          <button class="akce" id="a-reset">Reset</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="zalozka-obsah">
+          <p class="hlaska" id="a-hlaska" aria-live="polite" hidden></p>
+          <div class="ovladac">
+            <label for="a-poryv">Síla poryvu</label>
+            <select id="a-poryv">
+              <option value="0.02">slaboučký</option>
+              <option value="0.1">střední</option>
+              <option value="0.4" selected>silný</option>
+            </select>
+          </div>
+          <div class="ovladac">
+            <label for="a-prehravani">Rychlost přehrávání</label>
+            <select id="a-prehravani">
+              <option value="0.5">zpomaleně (×0,5)</option>
+              <option value="1" selected>skutečný čas (×1)</option>
+            </select>
+          </div>
+          <div class="stav">
+            <dl>
+              <dt>Čas</dt><dd id="a-st-cas">–</dd>
+              <dt>Výška</dt><dd id="a-st-z">–</dd>
+              <dt>Náklon</dt><dd id="a-st-th">–</dd>
+              <dt>Posun do strany</dt><dd id="a-st-x">–</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="graf-ram"><canvas id="a-grafy" role="img" aria-label="Grafy v čase: náklon dronu a jeho výška"></canvas></div>
+    <h4>Co si zkuste</h4>
+    <div class="kroky" id="kroky-a">
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>Spusťte.</strong> Dron chvíli klidně visí. Co se s ním stane po poryvu?</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden><p>Poryv dron roztočí — a nic ho nezastaví. Dron se otáčí pořád dál, nakloněný táhne šikmo, takže ho tah přestane udržet ve vzduchu a zároveň ho táhne do strany. Asi 1 s po poryvu je na zemi.</p></div>
+      </div>
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>Slaboučký poryv.</strong> Nastavte nejslabší poryv a spusťte znovu. Vydrží dron?</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden><p>Nevydrží. Spadne jen později, asi 4 s po poryvu, a předtím uletí přes 10 m do strany. Dron nemá nic, co by ho vracelo do vodorovné polohy: jakmile se jednou začne otáčet, otáčí se dál jako roztočené kolo. Udržet ho ve vzduchu musí regulátor.</p></div>
+      </div>
+      <div class="kroky-ovladani">
+        <button class="akce" data-zpet>← Předchozí</button>
+        <span class="kroky-pocet" aria-live="polite"></span>
+        <button class="akce hlavni" data-dalsi>Další krok →</button>
+      </div>
+    </div>
+    <p class="brana" id="brana-c" hidden><button class="akce hlavni" id="dal-c">Pokračovat: regulátor náklonu →</button></p>
+
+    <div class="odkryti" id="cast-c" hidden>
+    <!-- ---------- 2.2 REGULÁTOR NÁKLONU (P → PD → PID) ---------- -->
+    <h3 class="podsekce">2.2 Regulátor náklonu</h3>
+    <p class="sekce">Nejdřív schéma: jak regulátor náklonu s dronem spolupracuje. Odkrývá se po krocích.</p>
+    <figure class="uro" id="urn">
+      <div class="uro-plocha" id="urn-plocha"><svg viewBox="0 0 900 250" role="img" aria-label="Regulační smyčka náklonu: regulátor z odchylky náklonu počítá rozdíl tahů vrtulí, ten dron otáčí; gyroskop měří náklon a vrací ho k porovnání s požadovaným náklonem.">
+        <defs>
+          <marker id="n-sipka" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="10" refX="12" refY="5" orient="auto"><path d="M0,0 L0,10 L13,5 z" fill="#0d1218"/></marker>
+          <marker id="n-oranz" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="10" refX="12" refY="5" orient="auto"><path d="M0,0 L0,10 L13,5 z" fill="#d97000"/></marker>
+        </defs>
+        <g data-k="1">
+          <path class="cara" d="M380 110 L438 110" marker-end="url(#n-sipka)"/>
+          <text x="405" y="97" class="maly">ΔF</text>
+          <rect class="blok" x="440" y="75" width="180" height="70" rx="6"/>
+          <text x="530" y="105" class="nazev">Dron: otáčení</text>
+          <text x="530" y="127" class="maly">moment M = ΔF · L</text>
+          <path class="cara" d="M620 110 L888 110" marker-end="url(#n-sipka)"/>
+          <text x="820" y="97" class="maly">náklon θ</text>
+        </g>
+        <g data-k="2">
+          <path class="cara" d="M700 110 L700 202 L562 202" marker-end="url(#n-sipka)"/>
+          <circle cx="700" cy="110" r="4" fill="#0d1218"/>
+          <rect class="blok" x="420" y="180" width="140" height="44" rx="6"/>
+          <text x="490" y="208" class="nazev" style="font-size:15px">gyroskop</text>
+        </g>
+        <g data-k="3">
+          <path class="cara" d="M420 202 L150 202 L150 130" marker-end="url(#n-sipka)"/>
+          <text x="285" y="194" class="maly">měřený náklon θ</text>
+          <circle cx="150" cy="110" r="16" fill="#fff" stroke="#0d1218" stroke-width="2.5"/>
+          <path d="M140 110 L160 110 M150 100 L150 120" stroke="#0d1218" stroke-width="2"/>
+          <text x="164" y="142" class="nazev">−</text>
+          <path class="cara" d="M14 110 L132 110" marker-end="url(#n-sipka)"/>
+          <text x="66" y="95" class="maly">chci θ = 0°</text>
+          <path class="cara" d="M166 110 L198 110" marker-end="url(#n-sipka)"/>
+          <text x="182" y="95" class="maly">e</text>
+        </g>
+        <g data-k="4">
+          <rect class="blok blok-reg" x="200" y="75" width="180" height="70" rx="6"/>
+          <text x="290" y="105" class="nazev">Regulátor</text>
+          <text x="290" y="127" class="maly">náklonu</text>
+        </g>
+        <g data-k="5">
+          <path class="porucha" d="M530 14 L530 73" marker-end="url(#n-oranz)"/>
+          <text x="545" y="32" style="font-weight:700;fill:#d97000">poryv, balík mimo střed</text>
+        </g>
+        <g data-k="6">
+          <text x="290" y="166" style="font-size:14px;font-weight:700;fill:#1145cf;text-anchor:middle">P pružina · I paměť · D brzda</text>
+        </g>
+      </svg></div>
+      <figcaption id="urn-popis" aria-live="polite"></figcaption>
+    </figure>
+    <div class="kroky-ovladani kroky-uro">
+      <button class="akce" id="urn-zpet">← Předchozí</button>
+      <span class="kroky-pocet" id="urn-pocet"></span>
+      <button class="akce hlavni" id="urn-dalsi">Další část →</button>
+    </div>
+    <div class="sekce">
+      <p>Dron dostal regulátor. Gyroskop měří náklon, a když je dron nakloněný, regulátor přidá tah vrtuli na nižší straně. Výšku od teď drží automat (viz úvodní obrázek: celkový tah T = m · g / cos θ), regulátor řeší jen rozdíl tahů ΔF. Poryv je silný, stejný jako v 2.1.</p>
+      <p>Regulátor má všechny tři složky jako tempomat, ale začneme jen s <strong>Kp</strong>: o kolik newtonů víc má táhnout jedna vrtule, když je dron nakloněný o 10°. Další dvě složky zatím zůstanou na nule:</p>
+      <ul>
+        <li><strong>Kd — brzda.</strong> Gyroskop měří i to, <em>jak rychle</em> se dron otáčí, a regulátor tím otáčení brzdí. Kd říká, o kolik newtonů brzdí, když se dron otáčí rychlostí 100° za sekundu.</li>
+        <li><strong>Ki — paměť.</strong> Regulátor sčítá náklon v čase a přitlačí tím víc, čím déle je dron nakloněný. Ki říká, o kolik newtonů přidá za každou sekundu, kdy je dron nakloněný o 10°.</li>
+      </ul>
+      <p><em>rozdíl tahů = Kp · (0° − náklon) + Ki · (nasčítaný náklon) − Kd · (rychlost otáčení)</em></p>
+    </div>
+    <div class="dilna" id="c-dilna">
+      <div class="scena">
+        <div class="platno-ram"><canvas id="c-platno" role="img" aria-label="Dron s regulátorem náklonu PID"></canvas></div>
+        <div class="tlacitka">
+          <button class="akce hlavni" id="c-spustit">Spustit</button>
+          <button class="akce" id="c-nastart">Na start</button>
+          <button class="akce" id="c-reset">Reset</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="zalozka-obsah">
+          <p class="hlaska" id="c-hlaska" aria-live="polite" hidden></p>
+          <div class="ovladac">
+            <label for="c-kp">Kp (náklon) <output id="c-kp-hodnota"></output></label>
+            <input type="range" id="c-kp" min="0" max="6" step="0.5" value="1">
+          </div>
+          <div class="ovladac">
+            <label for="c-ki">Ki (paměť) <output id="c-ki-hodnota"></output></label>
+            <input type="range" id="c-ki" min="0" max="10" step="0.5" value="0">
+          </div>
+          <div class="ovladac">
+            <label for="c-kd">Kd (brzda otáčení) <output id="c-kd-hodnota"></output></label>
+            <input type="range" id="c-kd" min="0" max="8" step="0.5" value="0">
+          </div>
+          <label class="prepinac"><input type="checkbox" id="c-mimo"> Balík posunutý mimo střed</label>
+          <div class="ovladac">
+            <label for="c-prehravani">Rychlost přehrávání</label>
+            <select id="c-prehravani">
+              <option value="0.25">čtyřikrát zpomaleně (×0,25)</option>
+              <option value="0.5" selected>zpomaleně (×0,5)</option>
+              <option value="1">skutečný čas (×1)</option>
+            </select>
+          </div>
+          <div class="stav">
+            <dl>
+              <dt>Čas</dt><dd id="c-st-cas">–</dd>
+              <dt>Výška</dt><dd id="c-st-z">–</dd>
+              <dt>Náklon</dt><dd id="c-st-th">–</dd>
+              <dt>Posun do strany</dt><dd id="c-st-x">–</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="graf-ram"><canvas id="c-grafy" role="img" aria-label="Grafy v čase: náklon dronu a jeho výška"></canvas></div>
+
+    <h4 id="c-pokusy-nadpis">Tabulka pokusů</h4>
+    <div class="pokusy-hlava">
+      <p class="poznamka">Každý dokončený let se zapíše. <strong>Srovnal se za</strong> = jak dlouho po poryvu trvalo, než se náklon ustálil pod 1°. Nejrychlejší srovnání má hvězdičku. <strong>Posun</strong> = jak daleko od startu dron na konci je.</p>
+      <button class="akce" id="c-vymazat">Vymazat tabulku</button>
+    </div>
+    <div class="tabulka-obal">
+      <table class="tabulka" aria-labelledby="c-pokusy-nadpis">
+        <thead><tr><th>#</th><th class="cislo">Kp</th><th class="cislo">Ki</th><th class="cislo">Kd</th><th>Balík mimo</th><th>Výsledek</th><th class="cislo">Srovnal se za</th><th class="cislo">Největší náklon</th><th class="cislo">Posun</th></tr></thead>
+        <tbody id="c-pokusy"></tbody>
+      </table>
+    </div>
+
+    <h4>Co si zkuste</h4>
+    <div class="kroky" id="kroky-c">
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>Jen P.</strong> Ki a Kd nechte na 0 a spusťte (přehrávání je zpomalené). Vrátí regulátor dron po poryvu do vodorovné polohy? Sledujte graf náklonu.</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden><p>Regulátor dron vrací — ale přestřelí na druhou stranu, pak zase zpátky. Dron se houpe a každý kmit je větší než předchozí. Asi za 3,5 s se převrátí a spadne.</p></div>
+      </div>
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>Zkuste jiné Kp.</strong> Pořád bez Ki a Kd: menší (0,5) i větší (2, 4). Najdete Kp, se kterým se dron uklidní?</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden><p>Nenajdete. S větším Kp se dron houpe rychleji a spadne dřív, s menším pomaleji — ale spadne taky. Regulátor dron k vodorovné poloze táhne jako pružina, ale nic nebrzdí otáčení: dron do vodorovné polohy přiletí plnou rychlostí a přeletí ji. Motory navíc reagují se zpožděním (asi 0,05 s), takže regulátor tlačí vždy o kousek pozdě — a kmity tím rostou.</p></div>
+      </div>
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>Přidejte brzdu.</strong> Kp nastavte zpět na 1 a zvyšte Kd z 0 na 2. Co udělá dron po poryvu?</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden><p>S Kd = 2 se dron po poryvu nakloní asi o 12° a za necelou sekundu je zase vodorovně — bez houpání. Brzda zpomalí otáčení dřív, než dron vodorovnou polohu přeletí.</p></div>
+      </div>
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>Co nejrychlejší srovnání.</strong> Ki zatím nechte na 0 a zkoušejte různé Kp a Kd. Které nastavení dron srovná nejrychleji? Zkuste i velké Kp (6) s malým Kd (2).</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden><p>Dobře funguje třeba Kp 3 a Kd 4 (srovná se asi za 0,5 s) nebo Kp 3 a Kd 6 (asi 0,3 s). Velké Kp s malou brzdou dron zase rozhoupe — s Kp 6 a Kd 2 se převrátí. A příliš velká brzda zase srovnání zdržuje. Kp a Kd tedy musí být v rovnováze: čím silněji regulátor táhne k vodorovné poloze, tím víc musí brzdit.</p></div>
+      </div>
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>Paměť místo brzdy? (volitelné)</strong> Nastavte Kp 1 a Kd 0 a místo brzdy zkuste Ki 1 a pak 3. Zvládne složka I to, co brzda?</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden><p>Nezvládne — dron spadne ještě dřív než se samotným P (asi za 2,5–2,8 s místo 3,4 s). Složka I sčítá náklon v čase, takže na poryv reaguje ještě později než P. Brzdit umí jen D, protože jako jediná vidí, jak rychle se dron otáčí <em>teď</em>.</p></div>
+      </div>
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>Balík mimo střed.</strong> Zaškrtněte <em>Balík posunutý mimo střed</em>, nastavte Kp 3, Ki 0, Kd 4 a spusťte. Sledujte náklon a posun do strany. Pak přidejte Ki 3.</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden>
+          <p>Bez Ki zůstane dron trvale nakloněný asi o 2°. Proč zrovna 2°? Spočítejte to:</p>
+          <ol class="vypocet">
+            <li>Balík dron pořád přetáčí momentem 0,15 N·m.</li>
+            <li>Aby dron stál, musí vrtule dávat stejný moment opačně: ΔF · L = 0,15 N·m, tedy <strong>ΔF = 0,15 / 0,25 = 0,6 N</strong>.</li>
+            <li><strong>D v klidu nepomůže</strong> — brzda reaguje jen na to, jak rychle se náklon mění, a když dron stojí, je to nula.</li>
+            <li>Zbývá P: ΔF = Kp · odchylka. Aby P dalo 0,6 N, <strong>musí nějaká odchylka zůstat</strong>: s Kp 3 N na 10° je to 0,6 / 3 · 10° = <strong>2°</strong>.</li>
+          </ol>
+          <p class="vypocet-zaver"><strong>P potřebuje odchylku, aby vůbec tlačilo.</strong> Větší Kp ji jen zmenší (Kp 6 → 1°, Kp 1 → 6°), nikdy neodstraní. Nakloněný dron přitom pořád zrychluje do strany a za 6 s je skoro 7 m od startu.</p>
+          <p>S Ki 3 se náklon vrátí na nulu a dron ujede jen asi 2 m: složka I sčítá odchylku, dokud nějaká je, a těch 0,6 N postupně dodá sama. Je to totéž jako ustálená odchylka u tempomatu v kopci: P ji nechá, I ji odstraní.</p>
+        </div>
+      </div>
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>Kde dron skončil?</strong> Vypněte balík mimo střed, nastavte Kp 3, Ki 0, Kd 4 a sledujte <em>posun do strany</em>. Je dron po poryvu tam, kde byl?</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden><p>Není. Během poryvu byl chvíli nakloněný, a tak se rozjel do strany — a jede dál, i když už je vodorovně. Regulátor hlídá jen náklon, o poloze nic neví. (S Ki se dron sice po chvíli zastaví, ale na start se nevrátí — o startu ani o oknu nic neví.) Aby dron doletěl k oknu, potřebuje další regulátor. Ten z této části mu zůstane: s Kp 3 a Kd 4 bude v další části držet náklon.</p></div>
+      </div>
+      <div class="kroky-ovladani">
+        <button class="akce" data-zpet>← Předchozí</button>
+        <span class="kroky-pocet" aria-live="polite"></span>
+        <button class="akce hlavni" data-dalsi>Další krok →</button>
+      </div>
+    </div>
+    <p class="brana" id="brana-f" hidden><button class="akce hlavni" id="dal-f">Pokračovat: dva regulátory →</button></p>
+    </div>
+
+    <div class="odkryti" id="cast-f" hidden>
+    <!-- ---------- 2.3 DVA REGULÁTORY: KASKÁDA ---------- -->
+    <h3 class="podsekce">2.3 Dva regulátory: let k oknu</h3>
+    <p class="sekce">Než dron pustíme k oknu, složíme si celé řízení do jednoho schématu — od dronu bez regulátoru přes regulátor náklonu z 2.2 až po nový regulátor polohy. Schéma se odkrývá po krocích.</p>
+    <figure class="uro" id="uro">
+      <div class="uro-plocha" id="uro-plocha"><svg viewBox="0 0 1100 370" role="img" aria-label="Kaskádové řízení dronu: vnější regulátor polohy určuje požadovaný náklon, vnitřní regulátor náklonu z náklonu a rychlosti otáčení určuje rozdíl tahů vrtulí; každá smyčka má vlastní snímač.">
+        <defs>
+          <marker id="r-sipka" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="10" refX="12" refY="5" orient="auto"><path d="M0,0 L0,10 L13,5 z" fill="#0d1218"/></marker>
+          <marker id="r-oranz" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="10" refX="12" refY="5" orient="auto"><path d="M0,0 L0,10 L13,5 z" fill="#d97000"/></marker>
+        </defs>
+        <g data-k="1">
+          <path class="cara" d="M580 145 L618 145" marker-end="url(#r-sipka)"/>
+          <text x="590" y="132" class="maly">ΔF</text>
+          <rect class="blok" x="620" y="110" width="160" height="70" rx="6"/>
+          <text x="700" y="140" class="nazev">Dron: otáčení</text>
+          <text x="700" y="162" class="maly">moment M = ΔF · L</text>
+          <path class="cara" d="M780 145 L858 145" marker-end="url(#r-sipka)"/>
+          <text x="838" y="132" class="maly">θ</text>
+          <rect class="blok" x="860" y="110" width="140" height="70" rx="6"/>
+          <text x="930" y="140" class="nazev">Dron: pohyb</text>
+          <text x="930" y="162" class="maly">náklon → poloha</text>
+          <path class="cara" d="M1000 145 L1088 145" marker-end="url(#r-sipka)"/>
+          <text x="1045" y="132" class="maly">poloha x</text>
+        </g>
+        <g data-k="2">
+          <rect class="blok blok-reg" x="420" y="110" width="140" height="70" rx="6"/>
+          <text x="490" y="140" class="nazev">Regulátor</text>
+          <text x="490" y="162" class="maly">náklonu</text>
+          <path class="cara" d="M560 145 L580 145"/>
+          <path class="cara" d="M814 145 L814 240 L762 240" marker-end="url(#r-sipka)"/>
+          <circle cx="814" cy="145" r="4" fill="#0d1218"/>
+          <rect class="blok" x="620" y="205" width="140" height="70" rx="6"/>
+          <text x="690" y="245" class="nazev" style="font-size:15px">gyroskop</text>
+          <path class="cara" d="M620 258 L380 258 L380 165" marker-end="url(#r-sipka)"/>
+          <text x="470" y="276" class="maly">náklon θ</text>
+          <circle cx="380" cy="145" r="16" fill="#fff" stroke="#0d1218" stroke-width="2.5"/>
+          <path d="M370 145 L390 145 M380 135 L380 155" stroke="#0d1218" stroke-width="2"/>
+          <path class="cara" d="M396 145 L418 145" marker-end="url(#r-sipka)"/>
+          <path class="cara" d="M300 145 L362 145" marker-end="url(#r-sipka)"/>
+          <text x="320" y="132" class="maly">chci θ</text>
+        </g>
+        <g data-k="3">
+          <rect x="345" y="92" width="485" height="200" rx="12" fill="none" stroke="#1145cf" stroke-width="2.5" stroke-dasharray="9 6"/>
+          <text x="355" y="86" style="font-weight:700;fill:#1145cf;font-size:15px">vnitřní smyčka: „chci náklon θ, zařiď ho“</text>
+        </g>
+        <g data-k="4">
+          <rect class="blok blok-reg" x="130" y="110" width="120" height="70" rx="6"/>
+          <text x="190" y="140" class="nazev">Regulátor</text>
+          <text x="190" y="162" class="maly">polohy</text>
+          <path class="cara" d="M250 145 L300 145"/>
+        </g>
+        <g data-k="5">
+          <path class="cara" d="M1045 145 L1045 330 L95 330 L95 165" marker-end="url(#r-sipka)"/>
+          <circle cx="1045" cy="145" r="4" fill="#0d1218"/>
+          <rect class="blok" x="640" y="308" width="170" height="44" rx="6"/>
+          <text x="725" y="336" class="nazev" style="font-size:15px">GPS / kamera</text>
+          <circle cx="95" cy="145" r="16" fill="#fff" stroke="#0d1218" stroke-width="2.5"/>
+          <path d="M85 145 L105 145 M95 135 L95 155" stroke="#0d1218" stroke-width="2"/>
+          <path class="cara" d="M111 145 L128 145" marker-end="url(#r-sipka)"/>
+          <path class="cara" d="M14 145 L77 145" marker-end="url(#r-sipka)"/>
+          <text x="40" y="130" class="nazev" style="font-size:15px">okno</text>
+        </g>
+        <g data-k="6">
+          <path class="porucha" d="M930 40 L930 108" marker-end="url(#r-oranz)"/>
+          <text x="945" y="58" style="font-weight:700;fill:#d97000">vítr</text>
+          <text x="190" y="40" class="nazev" style="fill:#0a7d38">pomalejší</text>
+          <text x="590" y="40" class="nazev" style="fill:#0a7d38">rychlejší</text>
+        </g>
+      </svg></div>
+      <figcaption id="uro-popis" aria-live="polite"></figcaption>
+    </figure>
+    <div class="kroky-ovladani kroky-uro">
+      <button class="akce" id="uro-zpet">← Předchozí</button>
+      <span class="kroky-pocet" id="uro-pocet"></span>
+      <button class="akce hlavni" id="uro-dalsi">Další část →</button>
+    </div>
+    <div class="sekce">
+      <p>Teď má dron dva PID regulátory. <strong>Vnitřní</strong> je regulátor náklonu z 2.2 (výchozí Kp 3, Kd 4): drží náklon, jaký se po něm chce. <strong>Vnější</strong> měří polohu a rozhoduje, jak se má dron naklonit: <em>požadovaný náklon = Kp · (vzdálenost k oknu) + Ki · (nasčítaná vzdálenost) − Kd · (rychlost)</em>. Vnější regulátor vrtule vůbec neřídí — jen „objednává“ náklon.</p>
+      <p>Šedý obrys ukazuje náklon, který vnější regulátor právě chce; je omezený na 25°. Za letu jsou posuvníky zamčené — nastavení se mění před startem.</p>
+    </div>
+    <div class="dilna" id="f-dilna">
+      <div class="scena">
+        <div class="platno-ram"><canvas id="f-platno" role="img" aria-label="Dron s nastavitelným vnitřním i vnějším regulátorem letí k oknu ve zdi fakulty"></canvas></div>
+        <div class="tlacitka">
+          <button class="akce hlavni" id="f-spustit">Spustit</button>
+          <button class="akce" id="f-nastart">Na start</button>
+          <button class="akce" id="f-reset">Reset</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="zalozka-obsah">
+          <p class="hlaska" id="f-hlaska" aria-live="polite" hidden></p>
+          <p class="skupina">Vnitřní regulátor (náklon)</p>
+          <div class="ovladac">
+            <label for="f-kpi">Kp <output id="f-kpi-hodnota"></output></label>
+            <input type="range" id="f-kpi" min="0" max="6" step="0.5" value="3">
+          </div>
+          <div class="ovladac">
+            <label for="f-kii">Ki <output id="f-kii-hodnota"></output></label>
+            <input type="range" id="f-kii" min="0" max="10" step="0.5" value="0">
+          </div>
+          <div class="ovladac">
+            <label for="f-kdi">Kd <output id="f-kdi-hodnota"></output></label>
+            <input type="range" id="f-kdi" min="0" max="8" step="0.5" value="4">
+          </div>
+          <p class="skupina">Vnější regulátor (poloha)</p>
+          <div class="ovladac">
+            <label for="f-kp">Kp <output id="f-kp-hodnota"></output></label>
+            <input type="range" id="f-kp" min="0" max="150" step="5" value="35">
+          </div>
+          <div class="ovladac">
+            <label for="f-kix">Ki <output id="f-kix-hodnota"></output></label>
+            <input type="range" id="f-kix" min="0" max="10" step="0.5" value="0">
+          </div>
+          <div class="ovladac">
+            <label for="f-kd">Kd <output id="f-kd-hodnota"></output></label>
+            <input type="range" id="f-kd" min="0" max="100" step="5" value="0">
+          </div>
+          <label class="prepinac"><input type="checkbox" id="f-vitr"> Poryvy větru</label>
+          <div class="ovladac">
+            <label for="f-prehravani">Rychlost přehrávání</label>
+            <select id="f-prehravani">
+              <option value="0.5">zpomaleně (×0,5)</option>
+              <option value="1" selected>skutečný čas (×1)</option>
+              <option value="2">dvakrát rychleji (×2)</option>
+            </select>
+          </div>
+          <div class="stav">
+            <dl>
+              <dt>Čas</dt><dd id="f-st-cas">–</dd>
+              <dt>K oknu zbývá</dt><dd id="f-st-x">–</dd>
+              <dt>Rychlost</dt><dd id="f-st-v">–</dd>
+              <dt>Náklon / požadovaný</dt><dd id="f-st-th">–</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="graf-ram"><canvas id="f-grafy" role="img" aria-label="Grafy v čase: vzdálenost dronu s čarou okna a zdi, náklon skutečný a požadovaný"></canvas></div>
+
+    <h4 id="f-pokusy-nadpis">Tabulka letů</h4>
+    <div class="pokusy-hlava">
+      <p class="poznamka">Každý dokončený let se zapíše. <strong>Doručeno</strong> = dron stojí u okna (do 10 cm) aspoň 1 s. Hvězdičku dostane nejrychlejší doručení ve větru — ale jen když stejné nastavení doručí i <em>bez</em> větru. Tabulku smaže jen tlačítko <em>Vymazat tabulku</em>.</p>
+      <button class="akce" id="f-vymazat">Vymazat tabulku</button>
+    </div>
+    <div class="tabulka-obal">
+      <table class="tabulka" aria-labelledby="f-pokusy-nadpis">
+        <thead><tr><th>#</th><th class="cislo">Náklon Kp / Ki / Kd</th><th class="cislo">Poloha Kp / Ki / Kd</th><th>Vítr</th><th>Výsledek</th><th class="cislo">Čas</th></tr></thead>
+        <tbody id="f-pokusy"></tbody>
+      </table>
+    </div>
+
+    <h4>Co si zkuste</h4>
+    <div class="kroky" id="kroky-f">
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>Leťte bez brzdy.</strong> Spusťte s výchozím nastavením — vnější regulátor má zatím jen Kp. Zastaví dron u okna?</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden><p>Nezastaví — asi za 2 s narazí do zdi. Náklon neurčuje rychlost, ale <em>zrychlení</em>: dokud je dron nakloněný k oknu, pořád zrychluje. Regulátor bez brzdy začne dron naklánět zpátky až ve chvíli, kdy okno přeletí. To už je pozdě. Je to stejný problém jako se samotným P v 2.2, jen o patro výš.</p></div>
+      </div>
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>Přidejte brzdu.</strong> Zkuste Kd polohy 20, 35, 50 a 70. Při kterém dron u okna zastaví? Je víc brzdy vždycky lepší?</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden><p>Kd 20 nestačí, dron narazí. S Kd 35 doletí asi za 5,5 s, s Kd 50 asi za 7,4 s, zato klidněji. Brzda podle rychlosti nakloní dron proti směru letu už před oknem, dokud je čas zastavit — stejný trik jako v 2.2, jen místo rychlosti otáčení brzdíme podle rychlosti letu. Ale s Kd 70 se dron u okna houpe a nedoletí: silná brzda reaguje na každou změnu rychlosti hned a prudce, takže vnější regulátor mění požadovaný náklon rychleji, než ho vnitřní stihne zařídit. Víc brzdy tedy není vždycky lépe. (S rychlejší vnitřní smyčkou, třeba Kp náklonu 6 a Kd 8, doletí i s Kd 70.)</p></div>
+      </div>
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>Zapněte vítr.</strong> Zaškrtněte <em>Poryvy větru</em> a vyzkoušejte Kd polohy 35 i 50. Které nastavení vítr zvládne?</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden><p>S Kd 35 poryv dron postrčí k oknu a dron narazí. S Kd 50 doletí asi za 8 s: poryv ho na chvíli odchýlí, ale oba regulátory to vyrovnají. Vnitřní drží náklon, vnější ho mění podle toho, kam vítr dron odfoukl.</p></div>
+      </div>
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>Zpomalte vnitřní smyčku.</strong> Vypněte vítr, nastavte Kd polohy 50 a zpomalujte regulátor <em>náklonu</em> — snižujte Kp i Kd náklonu: 3 a 4, pak 2 a 3, pak 1 a 2, nakonec 0,5 a 1,5. Sledujte šedý obrys.</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden><p>S náklonem 3/4 a 2/3 dron doletí za 7,4 s. S 1/2 se u okna houpe a nedoletí, s 0,5/1,5 taky — a ve větru narazí. Vnitřní smyčka nestíhá: vnější regulátor objednává náklon, který dron ještě nestihl udělat, objedná ho proto víc — a přestřelí. Šedý obrys pak dronu viditelně utíká. <strong>Vnitřní smyčka musí být výrazně rychlejší než vnější</strong>; v praxi se navrhuje třikrát až desetkrát rychlejší.</p></div>
+      </div>
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>Zrychlete vnější smyčku.</strong> Vraťte náklon na Kp 3 a Kd 4, nastavte Kd polohy 60 a zvyšujte Kp polohy: 50, 70, 100. Pomůže, když pak zrychlíte i vnitřní smyčku (Kp náklonu 6, Kd 8)?</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden><p>S Kp 50 dron doletí rychleji, asi za 6,5 s. S Kp 70 ještě doletí, ale okno o kus přestřelí a vrací se. S Kp 100 narazí — a to i s nejrychlejší vnitřní smyčkou. Tady nejde o vnitřní smyčku, ale o omezení: náklon smí být nejvýš 25°, takže dron umí brzdit nejvýš asi 4,6 m/s² (g · tg 25°). Ostrý regulátor ho rozjede tak, že ho na zbylé dráze už neubrzdí; brzda Kd je vůči Kp moc slabá. Rychlost doletu tedy neurčují jen regulátory, ale i to, co dron fyzicky zvládne.</p></div>
+      </div>
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>A co Ki? (volitelné)</strong> Vraťte se na Kp polohy 35 a Kd 50. Zkuste Ki <em>polohy</em> 2, pak ho vraťte na 0 a zkuste Ki <em>náklonu</em> 3.</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden><p>Ki polohy dron vžene do zdi. Během letu je dron daleko od okna, takže se v Ki „nasčítá“ obrovská odchylka — a ta ho žene dál, i když už je u okna. Ki náklonu tu skoro nic nezmění: balík visí uprostřed, nic dron trvale nepřetáčí. Složka I pomáhá jen tam, kde něco tlačí pořád stejně (balík mimo střed, stálý vítr). Kde nic takového není, spíš škodí.</p></div>
+      </div>
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>Soutěž.</strong> Zapněte vítr a laďte všech šest posuvníků. Kdo doručí nejrychleji? Hvězdička se počítá, jen když stejné nastavení doletí i bez větru — vyzkoušejte obojí.</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden><p>Kp polohy 35 a Kd 50 doručí s větrem asi za 8 s. S větrem i bez se dá dostat asi k 6,8 s, například náklon Kp 5, Kd 7,5 a poloha Kp 90, Kd 100 (Ki obě 0): rychlá, dobře tlumená vnitřní smyčka dovolí ostřejší vnější. Proč hvězdička jen za obojí? Vítr v simulaci fouká pokaždé stejně, takže se dá najít nastavení, které „vyhraje náhodou“: Kp polohy 70 a Kd 75 doručí ve větru za 4,4 s, protože ho poryv dotlačí k oknu přesně včas — bez větru se ale u okna houpe a nedoletí. Skutečný vítr se neopakuje; dobrý regulátor musí fungovat i bez štěstí.</p></div>
+      </div>
+      <div class="kroky-ovladani">
+        <button class="akce" data-zpet>← Předchozí</button>
+        <span class="kroky-pocet" aria-live="polite"></span>
+        <button class="akce hlavni" data-dalsi>Další krok →</button>
+      </div>
+    </div>
+    <p class="brana" id="brana-teorie" hidden><button class="akce hlavni" id="dal-teorie">Pokračovat na vysvětlení →</button></p>
+    </div>
+  </section>
+
+  <div class="odkryti" id="cast-teorie" hidden>
+  <!-- ============ 3. TEORETICKÉ VYSVĚTLENÍ ============ -->
+  <section class="sekce">
+    <h2>3. Kaskádové řízení</h2>
+    <p class="poznamka">Kliknutím na nadpis se část rozbalí. Pointa celé lekce je v rámečku <em>Proč je to těžké</em> na konci.</p>
+
+    <details class="teorie-blok">
+      <summary><h3>Proč dron sám nevydrží (2.1)</h3></summary>
+      <p>Když obě vrtule táhnou stejně, dron se neotáčí. Nic ho ale ani nevrací: poryv ho roztočí a dron se otáčí dál, jako roztočené kolo, dokud ho něco nezabrzdí. Nakloněný dron pak táhne šikmo — svislá část tahu už neudrží jeho tíhu a vodorovná ho táhne do strany.</p>
+      <p>Proto žádný dron nelétá bez regulátoru. I ten nejlevnější má gyroskop a regulátor, který mnohokrát za sekundu upravuje tah vrtulí.</p>
+    </details>
+
+    <details class="teorie-blok">
+      <summary><h3>Proč samotné P nestačí (2.2)</h3></summary>
+      <p>Regulátor P počítal rozdíl tahů jen z náklonu:</p>
+      <div class="vzorec"><math display="block"><mi>Δ</mi><mi>F</mi><mo>=</mo><msub><mi>K</mi><mi>p</mi></msub><mo>⋅</mo><mo>(</mo><mn>0</mn><mo>°</mo><mo>−</mo><mi>θ</mi><mo>)</mo></math></div>
+      <p><em>ΔF</em> je rozdíl tahů vrtulí (o kolik newtonů táhne jedna víc než druhá), <em>θ</em> náklon a <em>K<sub>p</sub></em> zesílení. Při Kp = 1 a náklonu 10° táhne nižší vrtule o 1 N víc.</p>
+      <p>Rozdíl tahů ale neurčuje náklon, nýbrž to, jak rychle se <em>rozbíhá otáčení</em>. Regulátor proto funguje jako pružina: táhne dron k vodorovné poloze, dron se rozběhne a vodorovnou polohu přeletí. Bez tření by se houpal pořád stejně, jako kyvadlo. Motory navíc reagují se zpožděním, takže regulátor tlačí vždy kousek pozdě a kmity rostou. Větší Kp jen zrychlí houpání.</p>
+    </details>
+
+    <details class="teorie-blok">
+      <summary><h3>Brzda a paměť: PID na náklon (2.2)</h3></summary>
+      <p>Pomohlo přidat druhou měřenou veličinu — rychlost otáčení <em>ω</em> (omega), kterou měří gyroskop:</p>
+      <div class="vzorec"><math display="block"><mi>Δ</mi><mi>F</mi><mo>=</mo><msub><mi>K</mi><mi>p</mi></msub><mo>⋅</mo><mo>(</mo><msub><mi>θ</mi><mtext>chci</mtext></msub><mo>−</mo><mi>θ</mi><mo>)</mo><mo>+</mo><msub><mi>K</mi><mi>i</mi></msub><mo>⋅</mo><mtext>(nasčítaná odchylka)</mtext><mo>−</mo><msub><mi>K</mi><mi>d</mi></msub><mo>⋅</mo><mi>ω</mi></math></div>
+      <p><em>θ</em><sub>chci</sub> je náklon, který chceme (v 2.2 to bylo 0°, vodorovně), <em>K<sub>d</sub></em> síla brzdy a <em>K<sub>i</sub></em> síla paměti. Člen s Kd působí proti otáčení: čím rychleji se dron natáčí, tím víc ho regulátor brzdí. Dron do vodorovné polohy dojede a zastaví, místo aby ji přeletěl. Je to tlumič, jaký má auto u kol.</p>
+      <p>Příklad: Kp 3, Kd 4, náklon 6° a dron se vrací rychlostí 50 °/s. Pružina dává 3 · 0,6 = 1,8 N zpátky, brzda 4 · 0,5 = 2 N proti otáčení. Dohromady regulátor otáčení už brzdí — dron dojede k vodorovné poloze plynule.</p>
+      <p>Složka I sčítá odchylku náklonu v čase. Neumí brzdit — reaguje ještě později než P —, ale odstraní trvalou odchylku: když balík visí mimo střed, P nechá dron trochu nakloněný a ten pak ujíždí do strany. I přitlačuje tak dlouho, dokud náklon není nulový. Skutečné drony I mají právě kvůli takovým nerovnováhám (balík, nestejné vrtule, vítr).</p>
+      <p>Skutečné drony tuto část dělí ještě na dvě smyčky: jedna z náklonu počítá, jak rychle se má dron otáčet, druhá tuto rychlost otáčení hlídá. Myšlenka je stejná.</p>
+    </details>
+
+    <details class="teorie-blok">
+      <summary><h3>Náklon řídí zrychlení, ne polohu (2.3)</h3></summary>
+      <p>Když se dron nakloní o úhel <em>θ</em> a drží výšku, vodorovná část tahu ho zrychluje:</p>
+      <div class="vzorec"><math display="block"><mi>a</mi><mo>=</mo><mi>g</mi><mo>⋅</mo><mi>tg</mi><mo>&#8289;</mo><mi>θ</mi></math></div>
+      <p><em>a</em> je vodorovné zrychlení, <em>g</em> = 9,81 m/s² gravitační zrychlení. Při náklonu 10° je to 9,81 · tg 10° ≈ 1,7 m/s²: dron každou sekundu zrychlí o 1,7 m/s — a zrychluje, dokud je nakloněný. Proto vnější regulátor bez brzdy (Kd = 0) narazil do zdi. Je to stejný vzor jako se samotným P v 2.2: zásah určuje zrychlení, a tak je potřeba brzdit podle rychlosti.</p>
+    </details>
+
+    <details class="teorie-blok" open>
+      <summary><h3>Kaskáda: regulátor v regulátoru</h3></summary>
+      <p>Celé řízení dronu je nakreslené ve schématu na začátku části 2.3: vnější regulátor polohy objednává náklon, vnitřní regulátor náklonu ho zařídí rozdílem tahů vrtulí.</p>
+      <p>Tomuto uspořádání se říká <em>kaskádové řízení</em>: výstup jednoho regulátoru je žádanou hodnotou druhého. Ladí se zevnitř ven — nejdřív vnitřní smyčka, aby spolehlivě a rychle držela náklon (to jste dělali v 2.2), potom vnější (2.3).</p>
+    </details>
+
+    <details class="teorie-blok">
+      <summary><h3>Jak to vypadá v kódu (Python)</h3></summary>
+      <p>Celé řízení se v programu vejde do pár řádků. Třída <code>PID</code> je jeden regulátor; dron má dva — <code>poloha</code> (vnější) a <code>naklon</code> (vnitřní). Funkci <code>rid_dron</code> volá simulace v každém kroku, u nás 500× za sekundu: dostane, kde dron je a jak je nakloněný, a vrátí tahy obou vrtulí.</p>
+      <pre class="kod"><code><span class="k-klic">import</span> math
+
+<span class="k-klic">class</span> <span class="k-fun">PID</span>:
+    <span class="k-str">"""PID regulátor: z toho, co chci, a toho, co měřím, spočítá zásah."""</span>
+
+    <span class="k-klic">def</span> <span class="k-fun">__init__</span>(<span class="k-spec">self</span>, kp, ki, kd):
+        <span class="k-spec">self</span>.kp, <span class="k-spec">self</span>.ki, <span class="k-spec">self</span>.kd = kp, ki, kd
+        <span class="k-spec">self</span>.soucet = <span class="k-cis">0.0</span>      <span class="k-kom"># paměť složky I: nasčítaná odchylka</span>
+        <span class="k-spec">self</span>.minule = <span class="k-spec">None</span>     <span class="k-kom"># minulé měření pro složku D</span>
+
+    <span class="k-klic">def</span> <span class="k-fun">krok</span>(<span class="k-spec">self</span>, chci, merim, dt):
+        odchylka = chci - merim
+
+        <span class="k-kom"># P – pružina: táhne tím víc, čím větší je odchylka</span>
+        p = <span class="k-spec">self</span>.kp * odchylka
+
+        <span class="k-kom"># I – paměť: sčítá odchylku v čase, dokud nějaká zbývá</span>
+        <span class="k-spec">self</span>.soucet += odchylka * dt
+        i = <span class="k-spec">self</span>.ki * <span class="k-spec">self</span>.soucet
+
+        <span class="k-kom"># D – brzda: působí proti tomu, jak rychle se měřená hodnota mění</span>
+        rychlost = <span class="k-cis">0.0</span> <span class="k-klic">if</span> <span class="k-spec">self</span>.minule <span class="k-klic">is</span> <span class="k-spec">None</span> <span class="k-klic">else</span> (merim - <span class="k-spec">self</span>.minule) / dt
+        <span class="k-spec">self</span>.minule = merim
+        d = -<span class="k-spec">self</span>.kd * rychlost
+
+        <span class="k-klic">return</span> p + i + d
+
+
+M, G = <span class="k-cis">1.5</span>, <span class="k-cis">9.81</span>                 <span class="k-kom"># hmotnost [kg], tíhové zrychlení [m/s²]</span>
+MAX_NAKLON = math.radians(<span class="k-cis">25</span>)    <span class="k-kom"># vnější regulátor nikdy nechce víc než 25°</span>
+X_OKNO = <span class="k-cis">8.0</span>                     <span class="k-kom"># poloha okna [m]</span>
+
+<span class="k-kom"># Stejná nastavení jako výchozí v části 2.3, jen převedená na metry a radiány:</span>
+poloha = PID(kp=<span class="k-cis">0.61</span>, ki=<span class="k-cis">0.0</span>, kd=<span class="k-cis">0.87</span>)   <span class="k-kom"># vnější: 35 ° na m, 50 ° na m/s</span>
+naklon = PID(kp=<span class="k-cis">17.2</span>, ki=<span class="k-cis">0.0</span>, kd=<span class="k-cis">2.29</span>)   <span class="k-kom"># vnitřní: 3 N na 10°, 4 N na 100 °/s</span>
+
+
+<span class="k-klic">def</span> <span class="k-fun">rid_dron</span>(x, theta, dt):
+    <span class="k-str">"""Jeden krok řízení: z polohy a náklonu spočítá tahy obou vrtulí."""</span>
+    <span class="k-kom"># 1) vnější smyčka: kde jsem → jaký náklon chci</span>
+    chci_theta = poloha.krok(X_OKNO, x, dt)
+    chci_theta = <span class="k-vest">max</span>(-MAX_NAKLON, <span class="k-vest">min</span>(MAX_NAKLON, chci_theta))
+
+    <span class="k-kom"># 2) vnitřní smyčka: jaký náklon chci → rozdíl tahů vrtulí</span>
+    dF = naklon.krok(chci_theta, theta, dt)
+
+    <span class="k-kom"># 3) automat výšky: svislá část tahu vyrovná tíhu</span>
+    T = M * G / math.cos(theta)
+
+    <span class="k-kom"># 4) mixér: dva povely → dvě vrtule</span>
+    F1 = T / <span class="k-cis">2</span> + dF / <span class="k-cis">2</span>
+    F2 = T / <span class="k-cis">2</span> - dF / <span class="k-cis">2</span>
+    <span class="k-klic">return</span> F1, F2</code></pre>
+      <ul>
+        <li><strong>Kaskáda</strong> je v kroku 1 a 2: výstup regulátoru <code>poloha</code> (požadovaný náklon) je vstupem „chci“ regulátoru <code>naklon</code>.</li>
+        <li><strong>Složka D</strong> se tu počítá ze změny <em>měřené</em> hodnoty, ne odchylky. Dokud se požadovaná hodnota nemění, vyjde to stejně; když vnější regulátor skokem objedná nový náklon, D necukne. Tak to dělá většina skutečných regulátorů.</li>
+        <li><strong>Čísla</strong> jsou výchozí nastavení části 2.3, jen převedená na metry a radiány (simulace na stránce zobrazuje stupně). Když tenhle kód spojíte s fyzikou dronu, doletí k oknu za 7,4 s — stejně jako výchozí let v simulaci.</li>
+      </ul>
+    </details>
+
+    <details class="teorie-blok">
+      <summary><h3>Proč musí být vnitřní smyčka rychlejší (2.3)</h3></summary>
+      <p>Vnější regulátor počítá s tím, že náklon, který si „objedná“, dostane hned. Když vnitřní smyčka nestíhá, dron zrychluje jinak, než vnější regulátor předpokládal; ten to vidí pozdě a objedná opačný náklon — zase pozdě. Vznikne houpání jako u příliš ostrého tempomatu.</p>
+      <p>V ukázce 2.3 to bylo vidět, když jste zpomalili regulátor náklonu na Kp 1 a Kd 2: dron se u okna houpal a nedoletěl. Totéž hrozí, když vnější smyčku zrychlíte příliš silnou brzdou Kd. V praxi se smyčky navrhují tak, aby vnitřní byla asi 3× až 10× rychlejší než vnější. Pak se vnější regulátor může chovat, jako by vnitřní smyčka byla dokonalá.</p>
+    </details>
+
+    <details class="teorie-blok">
+      <summary><h3>Kde se kaskády používají</h3></summary>
+      <ul>
+        <li><strong>Skutečné drony</strong> mají smyček víc: rychlost otáčení → náklon → rychlost letu → poloha. Každá je rychlejší než ta nad ní.</li>
+        <li><strong>Elektrické pohony</strong> v robotech a obráběcích strojích: proud motoru → otáčky → poloha.</li>
+        <li><strong>Vytápění budov</strong>: teplota vody v topení → teplota v místnosti.</li>
+      </ul>
+      <p>Vždy jde o stejnou myšlenku: rychlou, „nervózní“ část soustavy zkrotí vlastní rychlý regulátor, a pomalý regulátor nad ním už řídí něco, co se chová klidně.</p>
+    </details>
+
+    <details class="teorie-blok">
+      <summary><h3>Shrnutí</h3></summary>
+      <div class="tabulka-obal">
+        <table class="tabulka">
+          <thead><tr><th>Část</th><th>Řízení</th><th>Co se stalo</th><th>Proč</th></tr></thead>
+          <tbody>
+            <tr><td>2.1</td><td>žádné</td><td>dron spadne i po slabém poryvu</td><td>nic ho nevrací ani nebrzdí</td></tr>
+            <tr><td>2.2</td><td>náklon, P</td><td>houpe se čím dál víc a spadne</td><td>pružina bez brzdy, motory se zpožděním</td></tr>
+            <tr><td>2.2</td><td>náklon, P + D (+ I)</td><td>srovná se za půl sekundy, ale ujíždí do strany</td><td>D brzdí otáčení, I dorovná balík mimo střed; o poloze neví</td></tr>
+            <tr><td>2.3</td><td>poloha → náklon → tahy (2× PID)</td><td>s brzdou doletí k oknu i ve větru; s pomalou vnitřní smyčkou se houpe nebo narazí</td><td>kaskáda: vnější objednává náklon, vnitřní ho zařídí — a musí být výrazně rychlejší (v praxi 3–10×)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+
+    <div class="pointa">
+      <h2>Proč je to těžké</h2>
+      <p>Dron se stejný problém naučil řešit dvakrát: náklon jen „pružinou“ nestačil, protože rozdíl tahů určuje rozběh otáčení, a poloha jen „pružinou“ nestačila, protože náklon určuje zrychlení. Pokaždé pomohla brzda podle rychlosti a pokaždé jen v rovnováze se zesílením.</p>
+      <p>Kaskáda pak vypadá jako snadný trik: rozdělit problém na dva a každý vyřešit zvlášť. Háček je v tom, že smyčky na sobě závisí. Vnější smí být jen tak rychlá, jak jí dovolí vnitřní — aspoň třikrát pomalejší. A vnitřní nejde zrychlovat donekonečna: motory vrtulí mají omezenou sílu a reagují se zpožděním. Každá smyčka navíc potřebuje vlastní snímač — gyroskop pro náklon, GPS nebo kameru pro polohu — a každý měří s chybou a zpožděním.</p>
+    </div>
+  </section>
+
+  <!-- ============ 4. KDE SE TO UČÍ ============ -->
+  <section class="predmety">
+    <h2>4. Kde se to učí</h2>
+    <p class="sekce">Regulace se na Fakultě strojní ČVUT probírá ve třech navazujících předmětech — stejných jako u lekcí o tempomatu. Každý jde o krok dál: od toho, jak regulátor funguje a jak ho seřídit, přes matematický popis dynamiky, až po návrh regulátorů z modelu.</p>
+    <div class="predmety-grid">
+      <article class="predmet">
+        <p class="predmet-stupen">Základní kurz</p>
+        <h3>Automatické řízení</h3>
+        <p>Základní pojmy regulace, PID regulátor a jeho seřizování — zkusmo i výpočtem — a stabilita regulačního obvodu: proč se smyčka rozkmitá, když reaguje pozdě. Návrhy v Matlabu/Simulinku a cvičení na skutečných úlohách.</p>
+        <p class="predmet-odkaz"><a href="https://kos.fs.cvut.cz/synopsis/2371047" target="_blank" rel="noopener">Anotace předmětu ↗</a></p>
+      </article>
+      <article class="predmet">
+        <p class="predmet-stupen">Pokračovací kurz, magisterské studium</p>
+        <h3>Matematické a simulační modely</h3>
+        <p>Jak z rovnic, jako je model dronu, sestavit model, se kterým jde počítat: přenos, stavový popis, stabilita a frekvenční vlastnosti. A jak takový model řešit numericky v počítači — přesně to dělá simulace v této lekci.</p>
+        <p class="predmet-odkaz"><a href="https://kos.fs.cvut.cz/synopsis/course/2371097" target="_blank" rel="noopener">Anotace předmětu ↗</a></p>
+      </article>
+      <article class="predmet">
+        <p class="predmet-stupen">Navazuje na Matematické a simulační modely</p>
+        <h3>Řízení systémů a procesů</h3>
+        <p>Návrh PID a stavových regulátorů z modelu, robustní návrh, který snese změnu soustavy, a řízení soustav se zpožděním — jako jsou motory vrtulí v této lekci.</p>
+        <p class="predmet-odkaz"><a href="https://kos.fs.cvut.cz/synopsis/course/2371002" target="_blank" rel="noopener">Anotace předmětu ↗</a></p>
+      </article>
+    </div>
+  </section>
+  </div>
+
+  <p class="paticka"><a href="../index.html">← Zpět na rozcestník</a></p>
+</main>
+
+<script src="../assets/js/spolecne.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  /* ================= model dronu =================
+     Rovinný dron: dvě vrtule, rozdíl tahů ΔF ho otáčí (J·θ'' = L·ΔF + poryv), tah míří kolmo k dronu.
+     ΔF má zpoždění motorů a omezení. V 2.1 táhnou vrtule stále stejně (T = m·g), od 2.2 drží výšku automat.
+     Režimy: volny (2.1), uhelPD (2.2, PID na náklon), oba (2.3, kaskáda: vnější PID poloha → požadovaný náklon,
+     vnitřní PID náklon → rozdíl tahů). */
+/* MODEL-START */
+  const RAD = Math.PI / 180;
+  const K = { g: 9.81, m: 1.5, J: 0.03, L: 0.25, tauM: 0.05, dFmax: 6, thMax: 25 * RAD, dt: 0.002, zeta: 0.8, kz: 4, dz: 4 };
+  K.Tmax = 2 * K.m * K.g;
+  const X_CIL = 8, PUL = 0.3, X_ZED = X_CIL + PUL + 0.3;   // dron je široký 0,6 m; překmit o víc než 0,3 m = náraz
+  const vitrSoutez = t => (t >= 2 && t < 3.5) ? 4 : (t >= 4.5 && t < 5.5) ? -3 : 0;   // [N], kladný k oknu
+  const POLOHA = r => r === 'oba';
+  const Z0 = r => POLOHA(r) ? 3 : 2;                         // výška, ve které dron visí [m]
+  const T_PORYV = 1, D_PORYV = 0.2;                          // poryv (moment) v ukázkách 2.1–2.2
+  const M_MIMO = 0.15;                                       // trvalý moment od balíku zavěšeného mimo střed [N·m] (2.2)
+  function novyStav(r) {
+    return { t: 0, x: 0, z: Z0(r), vx: 0, vz: 0, th: 0, om: 0, dF: 0, T: K.m * K.g, thr: POLOHA(r) ? 0 : null, vitr: 0, moment: 0, I: 0, Ix: 0, drzi: 0, odchylkaDo: 0, konec: null };
+  }
+  function krokModelu(S, P, r) {
+    let dFc = 0;
+    if (r === 'uhelPD') {
+      S.I += (0 - S.th) * K.dt;     // nasčítaná odchylka náklonu (složka I)
+      dFc = -P.kp / (10 * RAD) * S.th + P.ki / (10 * RAD) * S.I - P.kd / (100 * RAD) * S.om;
+    } else if (POLOHA(r)) {
+      // vnější PID: vzdálenost k oknu → požadovaný náklon (omezený na ±25°)
+      const e = X_CIL - S.x;
+      S.Ix += e * K.dt;
+      S.thr = Math.max(-K.thMax, Math.min(K.thMax, P.kp * RAD * e + P.kix * RAD * S.Ix - P.kd * RAD * S.vx));
+      // vnitřní PID: odchylka náklonu → rozdíl tahů
+      S.I += (S.thr - S.th) * K.dt;
+      dFc = P.kpi / (10 * RAD) * (S.thr - S.th) + P.kii / (10 * RAD) * S.I - P.kdi / (100 * RAD) * S.om;
+    }
+    dFc = Math.max(-K.dFmax, Math.min(K.dFmax, dFc));
+    S.dF += (dFc - S.dF) * K.dt / K.tauM;
+    S.T = r === 'volny' ? K.m * K.g
+      : Math.max(0, Math.min(K.Tmax, K.m * (K.g + K.kz * (Z0(r) - S.z) - K.dz * S.vz) / Math.max(Math.cos(S.th), 0.01)));
+    S.moment = (!POLOHA(r) && S.t >= T_PORYV && S.t < T_PORYV + D_PORYV ? P.poryv : 0) + (r === 'uhelPD' && P.mimo ? M_MIMO : 0);
+    S.vitr = POLOHA(r) && P.vitr ? vitrSoutez(S.t) : 0;
+    S.om += (K.L * S.dF + S.moment) / K.J * K.dt; S.th += S.om * K.dt;
+    S.vx += (S.T * Math.sin(S.th) + S.vitr) / K.m * K.dt;
+    S.vz += (S.T * Math.cos(S.th) / K.m - K.g) * K.dt;
+    S.x += S.vx * K.dt; S.z += S.vz * K.dt; S.t += K.dt;
+    if (Math.abs(S.th) > 1 * RAD) S.odchylkaDo = S.t;
+    if (S.z <= 0) { S.z = 0; return (S.konec = 'spadl'); }
+    if (POLOHA(r)) {
+      if (S.x + PUL > X_ZED) return (S.konec = 'naraz');
+      if (Math.abs(X_CIL - S.x) < 0.1 && Math.abs(S.vx) < 0.1) { S.drzi += K.dt; if (S.drzi >= 1) return (S.konec = 'doruceno'); } else S.drzi = 0;
+    }
+    if (S.t >= P.limit) return (S.konec = POLOHA(r) ? 'nedoruceno' : 'vydrzel');
+    return null;
+  }
+/* MODEL-END */
+
+  const el = id => document.getElementById(id);
+  const pis = (id, text) => { const e = el(id); if (e) e.textContent = text; };
+  const cislo = (x, des) => x.toLocaleString('cs-CZ', { minimumFractionDigits: des, maximumFractionDigits: des });
+  const znamenko = (x, des) => (x > 0 ? '+' : x < 0 ? '−' : '') + cislo(Math.abs(x), des);
+
+  // Dokončené lety v jednotlivých ukázkách (odemykají vysvětlení a další kroky).
+  const ZKOUSENO = { a: 0, c: 0, f: 0 };
+  const PREKRESLI = [];
+
+  /* ================= kreslení ================= */
+  /* ================= kreslení ================= */
+  function stitek(c, text, x, y, zarovnani, barva, tucne, vel) {
+    c.font = (tucne ? '700 ' : '600 ') + (vel || 13) + 'px "Segoe UI", system-ui, sans-serif';
+    c.textAlign = zarovnani; c.textBaseline = 'middle';
+    const s = c.measureText(text).width;
+    const x0 = zarovnani === 'right' ? x - s : zarovnani === 'center' ? x - s / 2 : x;
+    c.fillStyle = 'rgba(255,255,255,0.88)'; c.fillRect(x0 - 3, y - 10, s + 6, 20);
+    c.fillStyle = barva; c.fillText(text, x, y);
+  }
+  function sipka(c, x1, y1, x2, y2, barva, tl) {
+    const u = Math.atan2(y2 - y1, x2 - x1), hl = 10;
+    c.strokeStyle = barva; c.fillStyle = barva; c.lineWidth = tl;
+    c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2 - Math.cos(u) * hl * 0.6, y2 - Math.sin(u) * hl * 0.6); c.stroke();
+    c.beginPath(); c.moveTo(x2, y2);
+    c.lineTo(x2 - hl * Math.cos(u - 0.45), y2 - hl * Math.sin(u - 0.45));
+    c.lineTo(x2 - hl * Math.cos(u + 0.45), y2 - hl * Math.sin(u + 0.45)); c.closePath(); c.fill();
+  }
+  /* Dron v soustavě, kde 1 m = s px; obrys = jen šedý obrys (požadovaný náklon). */
+  function kresliDron(c, s, theta, F1, F2, otoceni, obrys, balikVpravo) {
+    c.save(); c.rotate(theta);
+    const w = 0.6 * s, h = 0.1 * s;
+    if (obrys) {
+      c.strokeStyle = 'rgba(74,87,104,0.55)'; c.lineWidth = 2; c.setLineDash([5, 4]);
+      c.strokeRect(-w / 2, -h / 2, w, h);
+      c.beginPath(); c.moveTo(-w / 2 - 0.08 * s, -h / 2 - 0.12 * s); c.lineTo(w / 2 + 0.08 * s, -h / 2 - 0.12 * s); c.stroke();
+      c.setLineDash([]); c.restore(); return;
+    }
+    // tahy vrtulí (šipky nahoru v soustavě dronu), 1 N = 0,05 m
+    [[-w / 2 + 0.04 * s, F1], [w / 2 - 0.04 * s, F2]].forEach(([x, F]) => sipka(c, x, -h / 2 - 0.16 * s, x, -h / 2 - 0.16 * s - F * 0.05 * s, '#1145cf', 3));
+    c.fillStyle = '#fff'; c.strokeStyle = '#0d1218'; c.lineWidth = 2.5;
+    c.beginPath(); c.roundRect(-w / 2, -h / 2, w, h, 4); c.fill(); c.stroke();
+    [-1, 1].forEach(st => {
+      const x = st * (w / 2 - 0.04 * s);
+      c.beginPath(); c.moveTo(x, -h / 2); c.lineTo(x, -h / 2 - 0.1 * s); c.stroke();
+      const r = 0.13 * s * Math.abs(Math.cos(otoceni + st));
+      c.lineWidth = 4; c.beginPath(); c.moveTo(x - r, -h / 2 - 0.12 * s); c.lineTo(x + r, -h / 2 - 0.12 * s); c.stroke(); c.lineWidth = 2.5;
+    });
+    const bx = balikVpravo ? 0.1 * s : 0;   // balík mimo střed (v obrázku přehnaně)
+    c.strokeStyle = '#4a5768'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(bx, h / 2); c.lineTo(bx, h / 2 + 0.14 * s); c.stroke();
+    c.fillStyle = '#d97000'; c.strokeStyle = '#0d1218'; c.lineWidth = 1.5;
+    c.fillRect(bx - 0.09 * s, h / 2 + 0.14 * s, 0.18 * s, 0.15 * s); c.strokeRect(bx - 0.09 * s, h / 2 + 0.14 * s, 0.18 * s, 0.15 * s);
+    c.restore();
+  }
+
+  function osaY(min, max) {
+    const r = max - min;
+    const krok = [0.5, 1, 2, 5, 10, 20, 50].find(k => r / k <= 5) || 100;
+    const t = []; for (let v = Math.ceil(min / krok) * krok; v <= max + 1e-9; v += krok) t.push(Math.round(v / krok) * krok + 0); return t;
+  }
+  function kresliRadky(pl, data, tKonec, radky, svisle) {
+    const c = pl.ctx, w = pl.sirka, h = pl.vyska;
+    if (!c || !w) return;
+    c.fillStyle = '#fff'; c.fillRect(0, 0, w, h);
+    const vlevo = 52, vpravo = w - 12, nadpis = 20, dole = 24;
+    const X = t => vlevo + (vpravo - vlevo) * t / tKonec;
+    const vr = (h - dole - nadpis * radky.length - 4) / radky.length;
+    radky.forEach((r, i) => {
+      const y0 = nadpis + i * (vr + nadpis), y1 = y0 + vr;
+      const Y = v => y1 - (y1 - y0) * (v - r.min) / (r.max - r.min);
+      c.strokeStyle = '#aab4c2'; c.lineWidth = 1; c.strokeRect(vlevo, y0, vpravo - vlevo, vr);
+      c.font = '600 11px "Segoe UI", system-ui, sans-serif'; c.fillStyle = '#4a5768'; c.textAlign = 'right'; c.textBaseline = 'middle';
+      osaY(r.min, r.max).forEach(v => { const y = Y(v); c.strokeStyle = 'rgba(170,180,194,0.35)'; c.beginPath(); c.moveTo(vlevo + 1, y); c.lineTo(vpravo - 1, y); c.stroke(); c.fillText(cislo(v, 0), vlevo - 5, y); });
+      (r.cary || []).forEach(([v, barva, popis, dole]) => {
+        c.strokeStyle = barva; c.lineWidth = 1.5; c.setLineDash([6, 4]); c.beginPath(); c.moveTo(vlevo, Y(v)); c.lineTo(vpravo, Y(v)); c.stroke(); c.setLineDash([]);
+        c.fillStyle = barva; c.textAlign = 'right'; c.textBaseline = dole ? 'top' : 'bottom'; c.font = '700 11px "Segoe UI", system-ui, sans-serif'; c.fillText(popis, vpravo - 4, Y(v) + (dole ? 2 : -2));
+      });
+      (svisle || []).forEach(([t, barva, popis]) => {
+        if (t > tKonec) return;
+        c.strokeStyle = barva; c.lineWidth = 1.5; c.setLineDash([3, 3]); c.beginPath(); c.moveTo(X(t), y0); c.lineTo(X(t), y1); c.stroke(); c.setLineDash([]);
+        if (i === 0) { c.fillStyle = barva; c.textAlign = 'left'; c.textBaseline = 'top'; c.font = '700 11px "Segoe UI", system-ui, sans-serif'; c.fillText(popis, X(t) + 3, y0 + 2); }
+      });
+      c.save(); c.beginPath(); c.rect(vlevo, y0, vpravo - vlevo, vr); c.clip();
+      r.rady.forEach(rd => {
+        c.strokeStyle = rd.barva; c.lineWidth = rd.sirka; c.setLineDash(rd.carky || []); c.beginPath();
+        data.forEach((d, j) => { const x = X(d.t), y = Y(rd.hodnota(d)); j ? c.lineTo(x, y) : c.moveTo(x, y); });
+        c.stroke();
+      });
+      c.setLineDash([]); c.restore();
+      c.font = '700 12px "Segoe UI", system-ui, sans-serif'; c.textAlign = 'left'; c.textBaseline = 'top'; c.fillStyle = '#0d1218';
+      c.fillText(r.kratky && c.measureText(r.nazev).width > vpravo - vlevo ? r.kratky : r.nazev, vlevo, y0 - 16);
+    });
+    c.fillStyle = '#4a5768'; c.font = '600 11px "Segoe UI", system-ui, sans-serif'; c.textAlign = 'center'; c.textBaseline = 'top';
+    const krokT = tKonec > 30 ? 5 : 2;
+    for (let t = 0; t <= tKonec + 1e-9; t += krokT) c.fillText(t + ' s', X(t), h - dole + 5);
+  }
+
+  function dodavka(c, x, yZem, s) {
+    c.save(); c.translate(x, yZem); c.fillStyle = '#fff'; c.strokeStyle = '#0d1218'; c.lineWidth = 2;
+    c.beginPath(); c.roundRect(-0.6 * s, -0.55 * s, 0.9 * s, 0.42 * s, 3); c.fill(); c.stroke();
+    c.beginPath(); c.moveTo(0.3 * s, -0.45 * s); c.lineTo(0.48 * s, -0.45 * s); c.lineTo(0.6 * s, -0.27 * s); c.lineTo(0.6 * s, -0.13 * s); c.lineTo(0.3 * s, -0.13 * s); c.closePath(); c.fill(); c.stroke();
+    c.fillStyle = '#0d1218'; [-0.35, 0.42].forEach(xx => { c.beginPath(); c.arc(xx * s, -0.11 * s, 0.1 * s, 0, 7); c.fill(); });
+    c.restore();
+  }
+
+  /* ================= simulátor (pět ukázek) ================= */
+  const NASTAVENI = {
+    volny:   { klic: 'a', vychozi: { poryv: 0.4, prehravani: 1, limit: 20 } },
+    uhelPD:  { klic: 'c', vychozi: { kp: 1, ki: 0, kd: 0, mimo: false, poryv: 0.4, prehravani: 0.5, limit: 6 } },
+    oba:     { klic: 'f', vychozi: { kpi: 3, kii: 0, kdi: 4, kp: 35, kix: 0, kd: 0, vitr: false, prehravani: 1, limit: 20 } }
+  };
+
+  function simulator(pre, rezim) {
+    const { klic, vychozi: VYCHOZI } = NASTAVENI[rezim];
+    const P = { ...VYCHOZI };
+    const polohovy = POLOHA(rezim);
+    let S, log, stav, maxTh, pokusy = [];
+
+    const zaznam = () => ({ t: S.t, x: S.x, z: S.z, th: S.th / RAD, thr: S.thr === null ? null : S.thr / RAD });
+    // Za letu (i při pauze) jsou parametry zamčené – do tabulky se tak zapíše nastavení, se kterým dron opravdu letěl.
+    const zamkni = ano => el(pre + 'dilna').querySelectorAll('input, select:not([id$="prehravani"])').forEach(v => { v.disabled = ano; });
+    function start() {
+      S = novyStav(rezim); stav = 'pripraveno'; maxTh = 0; zamkni(false);
+      log = [zaznam()];
+      el(pre + 'hlaska').hidden = true;
+    }
+    function krok() {
+      krokModelu(S, P, rezim);
+      maxTh = Math.max(maxTh, Math.abs(S.th));
+      if (S.konec || S.t >= log[log.length - 1].t + 0.02 - 1e-9) log.push(zaznam());
+      if (S.konec) konec();
+    }
+
+    /* ---- výsledek letu ---- */
+    function vysledek() {
+      const v = { stav: S.konec, t: S.t, kp: P.kp, ki: P.ki, kd: P.kd, kpi: P.kpi, kii: P.kii, kdi: P.kdi, kix: P.kix, vitr: P.vitr, mimo: P.mimo, maxTh: maxTh / RAD, srovnal: null, posun: Math.abs(S.x) };
+      if (S.konec === 'vydrzel') {
+        const konec = log.filter(d => d.t > S.t - 1).map(d => d.th);
+        const rozkmit = Math.max(...konec) - Math.min(...konec);
+        if (S.odchylkaDo <= S.t - 0.5) { v.stav = 'srovnal'; v.srovnal = Math.max(0, S.odchylkaDo - T_PORYV); }
+        else if (rozkmit < 0.5) { v.stav = 'naklon'; v.naklon = konec[konec.length - 1]; }
+        else {
+          v.stav = 'houpe';
+          v.ampl = log.filter(d => d.t > S.t - 2).reduce((a, d) => Math.max(a, Math.abs(d.th)), 0);
+        }
+      }
+      return v;
+    }
+    function text(v) {
+      const posun = polohovy ? '' : ' Dron je ' + cislo(Math.abs(S.x), 1) + ' m od místa startu.';
+      switch (v.stav) {
+        case 'spadl': return ['Dron spadl na zem (' + cislo(v.t, 1) + ' s).' + posun, true];
+        case 'houpe': return [(v.ampl > 60 ? 'Dron se převrací (náklon až ±' : 'Dron nespadl, ale pořád se houpe (až ±') + cislo(v.ampl, 0) + '°).' + posun, true];
+        case 'naklon': return ['Dron se nesrovnal: zůstal nakloněný o ' + cislo(Math.abs(v.naklon), 1) + '° a ujíždí do strany.' + posun, true];
+        case 'srovnal': return ['Dron se srovnal ' + cislo(v.srovnal, 2) + ' s po poryvu (největší náklon ' + cislo(v.maxTh, 0) + '°).' + posun, false];
+        case 'naraz': return ['Náraz do zdi! (' + cislo(v.t, 1) + ' s)', true];
+        case 'doruceno': return ['Doručeno! (' + cislo(v.t, 1) + ' s)', false];
+        default: return ['Balík nedoručen — dron u okna nezastavil (' + cislo(v.t, 1) + ' s).', true];
+      }
+    }
+    function konec() {
+      stav = 'konec'; zastav(); zamkni(false);
+      ZKOUSENO[klic] += 1;
+      const v = vysledek(), [t, spatne] = text(v);
+      const h = el(pre + 'hlaska');
+      h.textContent = t; h.className = 'hlaska' + (spatne ? ' spatne' : ''); h.hidden = false;
+      if (el(pre + 'pokusy')) { pokusy.push(v); vypisPokusy(); }
+    }
+
+    /* ---- tabulka pokusů (2.2 a 2.3) ---- */
+    const NAZVY = { spadl: 'spadl', houpe: 'houpe se', naklon: 'zůstal nakloněný', srovnal: 'srovnal se', naraz: 'náraz', doruceno: 'doručeno', nedoruceno: 'nedoručeno' };
+    const TABULKA = rezim === 'uhelPD' ? {
+      sloupcu: 9, cisla: [1, 2, 3, 6, 7, 8], vysledek: 5,
+      ok: p => p.stav === 'srovnal',
+      lepsi: (p, q) => p.srovnal < q.srovnal,
+      radek: (p, ok) => [p.kp, p.ki, p.kd, p.mimo ? 'ano' : 'ne', NAZVY[p.stav], ok ? cislo(p.srovnal, 2) + ' s' : '—', p.stav === 'spadl' ? '—' : cislo(p.maxTh, 0) + '°', cislo(p.posun, 1) + ' m']
+    } : {
+      sloupcu: 6, cisla: [1, 2, 5], vysledek: 4,
+      ok: p => p.stav === 'doruceno',
+      lepsi: (p, q) => p.t < q.t,
+      radek: (p, ok) => [[p.kpi, p.kii, p.kdi].map(v => cislo(v, 1)).join(' / '), [p.kp, p.kix, p.kd].map(v => cislo(v, v % 1 ? 1 : 0)).join(' / '),
+        p.vitr ? 'ano' : 'ne', NAZVY[p.stav], ok ? cislo(p.t, 1) + ' s' : '—']
+    };
+    const stejne = (p, q) => ['kpi', 'kii', 'kdi', 'kp', 'kix', 'kd'].every(k => p[k] === q[k]);
+    function vypisPokusy() {
+      const tb = el(pre + 'pokusy'); if (!tb) return;
+      tb.textContent = '';
+      if (!pokusy.length) { const c = tb.insertRow().insertCell(); c.colSpan = TABULKA.sloupcu; c.textContent = 'Zatím žádný dokončený let.'; return; }
+      let nej = -1;
+      pokusy.forEach((p, i) => {
+        if (!TABULKA.ok(p)) return;
+        // soutěž (2.3): jen doručení ve větru, které stejné nastavení zvládne i bez větru
+        if (polohovy && !(p.vitr && pokusy.some(q => !q.vitr && TABULKA.ok(q) && stejne(p, q)))) return;
+        if (nej < 0 || TABULKA.lepsi(p, pokusy[nej])) nej = i;
+      });
+      pokusy.forEach((p, i) => {
+        const r = tb.insertRow(); if (i === nej) r.className = 'nejlepsi';
+        const ok = TABULKA.ok(p);
+        [(i + 1) + (i === nej ? ' ★' : '')].concat(TABULKA.radek(p, ok)).forEach((h, j) => {
+          const c = r.insertCell(); c.textContent = (j === TABULKA.vysledek && !ok ? '⚠ ' : '') + h;
+          if (TABULKA.cisla.includes(j)) c.className = 'cislo';
+          if (j === TABULKA.vysledek && !ok) c.className = 'spatne';
+        });
+      });
+    }
+
+    /* ---- scéna ---- */
+    const pl = Kurz.platno(el(pre + 'platno'), () => kresli());
+    function kresli() {
+      const c = pl.ctx, w = pl.sirka, h = pl.vyska;
+      if (!c || !w || !S) return;
+      c.fillStyle = '#fff'; c.fillRect(0, 0, w, h);
+      const yZem = h * 0.9;
+      // 2.3: pevný pohled od dodávky ke zdi; 2.1–2.2: zblízka, kamera jede s dronem
+      const s = polohovy ? w / (X_ZED + 2.8) : w / 6;
+      const x0m = polohovy ? -1.6 : S.x - 3;
+      const X = xm => (xm - x0m) * s, Y = zm => yZem - zm * s;
+      c.fillStyle = '#dfe5ef'; c.fillRect(0, yZem, w, h - yZem);
+      if (polohovy) {
+        dodavka(c, X(-0.9), yZem, s);
+        c.fillStyle = '#eef1f6'; c.strokeStyle = '#0d1218'; c.lineWidth = 2.5;
+        c.fillRect(X(X_ZED), h * 0.08, w - X(X_ZED), yZem - h * 0.08); c.strokeRect(X(X_ZED), h * 0.08, w - X(X_ZED) + 4, yZem - h * 0.08);
+        const yOkno = Y(Z0(rezim));
+        c.fillStyle = '#fff'; c.fillRect(X(X_ZED) - 4, yOkno - 0.55 * s, 10, 1.1 * s); c.strokeRect(X(X_ZED) - 4, yOkno - 0.55 * s, 10, 1.1 * s);
+        stitek(c, 'zeď', X(X_ZED) + 8, h * 0.08 + 14, 'left', '#0d1218', true);
+        stitek(c, 'okno', X(X_ZED) + 10, yOkno + 0.75 * s, 'left', '#0d1218', true);
+        c.strokeStyle = '#0a7d38'; c.lineWidth = 2; c.setLineDash([6, 5]);
+        c.beginPath(); c.moveTo(X(X_CIL), h * 0.12); c.lineTo(X(X_CIL), yZem); c.stroke(); c.setLineDash([]);
+        stitek(c, 'cíl u okna', X(X_CIL) - 6, h * 0.15, 'right', '#0a7d38', true);
+        if (Math.abs(S.vitr) > 0.1) {
+          c.strokeStyle = '#8b97a8'; c.lineWidth = 2; const smer = Math.sign(S.vitr);
+          for (let i = 0; i < 9; i++) {
+            const y = h * (0.18 + 0.07 * i), xx = (((i * 97 + S.t * 220 * smer) % w) + w) % w;
+            c.beginPath(); c.moveTo(xx, y); c.lineTo(xx - smer * 40, y); c.stroke();
+          }
+          stitek(c, 'poryv větru ' + (smer > 0 ? 'k oknu →' : '← od okna'), w / 2, h * 0.12, 'center', '#4a5768', true);
+        }
+      } else {
+        // metry na zemi, ať je vidět posun do strany
+        c.strokeStyle = '#8b97a8'; c.lineWidth = 1.5;
+        for (let m = Math.ceil(x0m); m <= x0m + w / s; m++) {
+          c.beginPath(); c.moveTo(X(m), yZem); c.lineTo(X(m), yZem + 8); c.stroke();
+          stitek(c, m + ' m', X(m), yZem + 0.05 * h + 4, 'center', '#4a5768', false, 11);
+        }
+        dodavka(c, X(-2.2), yZem, s);
+        c.strokeStyle = '#0a7d38'; c.lineWidth = 2; c.setLineDash([6, 5]);
+        c.beginPath(); c.moveTo(X(0), yZem); c.lineTo(X(0), Y(Z0(rezim)) + 0.45 * s); c.stroke(); c.setLineDash([]);
+        stitek(c, 'start', X(0) + 6, yZem - 14, 'left', '#0a7d38', true);
+        if (S.t >= T_PORYV && S.t < T_PORYV + 0.6) {
+          c.strokeStyle = '#d97000'; c.lineWidth = 4;
+          c.beginPath(); c.arc(X(S.x), Y(S.z), 0.5 * s, -2.6, -0.6); c.stroke();
+          sipka(c, X(S.x) + 0.5 * s * Math.cos(-0.75), Y(S.z) + 0.5 * s * Math.sin(-0.75), X(S.x) + 0.5 * s * Math.cos(-0.5), Y(S.z) + 0.5 * s * Math.sin(-0.5), '#d97000', 4);
+          stitek(c, 'poryv!', X(S.x), Y(S.z) - 0.62 * s, 'center', '#d97000', true, 15);
+        }
+      }
+      // dron
+      c.save(); c.translate(X(S.x), Y(S.z));
+      if (S.thr !== null) kresliDron(c, s, S.thr, 0, 0, 0, true);
+      kresliDron(c, s, S.th, S.T / 2 + S.dF / 2, S.T / 2 - S.dF / 2, S.t * 40, false, rezim === 'uhelPD' && P.mimo);
+      c.restore();
+      // údaje
+      stitek(c, 'čas ' + cislo(S.t, 1) + ' s', 10, 18, 'left', '#0d1218', true, 14);
+      if (polohovy) {
+        const zbyva = X_CIL - S.x;
+        stitek(c, 'k oknu ' + znamenko(zbyva, 2) + ' m', 10, 40, 'left', Math.abs(zbyva) < 0.1 ? '#0a7d38' : '#0d1218', true, 14);
+      } else stitek(c, 'výška ' + cislo(S.z, 2) + ' m', 10, 40, 'left', '#0d1218', true, 14);
+      stitek(c, 'náklon ' + znamenko(S.th / RAD, 0) + '°' + (S.thr !== null ? ' (chce ' + znamenko(S.thr / RAD, 0) + '°)' : ''), 10, 62, 'left', '#1145cf', true, 14);
+      if (S.thr !== null) stitek(c, 'šedý obrys = požadovaný náklon', 10, 84, 'left', '#4a5768', false, 12);
+    }
+
+    /* ---- grafy ---- */
+    const gr = Kurz.platno(el(pre + 'grafy'), () => kresliGrafy());
+    function kresliGrafy() {
+      if (!log) return;
+      let thM = 0; log.forEach(d => { thM = Math.max(thM, Math.abs(d.th), Math.abs(d.thr || 0)); });
+      if (polohovy) {
+        const thR = Math.min(70, Math.max(30, Math.ceil(thM / 10) * 10));
+        kresliRadky(gr, log, Math.max(12, S.t), [
+          { nazev: 'Vzdálenost od startu [m] — zelená: okno, červená: zeď', kratky: 'Vzdálenost [m]', min: -1, max: X_ZED + 1,
+            cary: [[X_CIL, '#0a7d38', 'okno', true], [X_ZED - PUL, '#cc1233', 'zeď']], rady: [{ hodnota: d => d.x, barva: '#1145cf', sirka: 2.4 }] },
+          { nazev: 'Náklon [°] — modrá: skutečný, šedá čárkovaná: požadovaný', kratky: 'Náklon [°]', min: -thR, max: thR,
+            cary: [[0, '#4a5768', '']], rady: [{ hodnota: d => d.thr, barva: '#8b97a8', sirka: 2, carky: [6, 4] }, { hodnota: d => d.th, barva: '#1145cf', sirka: 2.2 }] }
+        ]);
+      } else {
+        const thR = Math.min(180, Math.max(20, Math.ceil(thM / 10) * 10));
+        kresliRadky(gr, log, Math.max(rezim === 'uhelPD' ? 6 : 8, S.t), [
+          { nazev: 'Náklon [°]', min: -thR, max: thR, cary: [[0, '#4a5768', '']], rady: [{ hodnota: d => d.th, barva: '#1145cf', sirka: 2.2 }] },
+          { nazev: 'Výška [m]', min: 0, max: Z0(rezim) + 1, cary: [[Z0(rezim), '#0a7d38', 'výchozí výška']], rady: [{ hodnota: d => d.z, barva: '#1145cf', sirka: 2.4 }] }
+        ], [[T_PORYV, '#d97000', 'poryv']]);
+      }
+    }
+
+    function obnov() {
+      pis(pre + 'st-cas', cislo(S.t, 1) + ' s');
+      pis(pre + 'st-th', znamenko(S.th / RAD, 1) + '°' + (S.thr !== null ? ' / ' + znamenko(S.thr / RAD, 1) + '°' : ''));
+      if (polohovy) {
+        pis(pre + 'st-x', znamenko(X_CIL - S.x, 2) + ' m');
+        pis(pre + 'st-v', cislo(S.vx, 2) + ' m/s');
+      } else {
+        pis(pre + 'st-z', cislo(S.z, 2) + ' m');
+        pis(pre + 'st-x', znamenko(S.x, 2) + ' m');
+      }
+    }
+    function vse() { kresli(); kresliGrafy(); obnov(); }
+    PREKRESLI.push(vse);
+
+    /* ---- smyčka ---- */
+    let zbytek = 0;
+    const smycka = Kurz.smycka(dt => {
+      zbytek += dt * P.prehravani;
+      while (zbytek >= K.dt && stav === 'leti') { krok(); zbytek -= K.dt; }
+      vse();
+    });
+    const tlacitko = el(pre + 'spustit');
+    function zastav() { smycka.stop(); tlacitko.textContent = stav === 'konec' ? 'Letět znovu' : 'Spustit'; }
+    tlacitko.addEventListener('click', () => {
+      if (smycka.bezi) { stav = 'pozastaveno'; smycka.stop(); tlacitko.textContent = 'Pokračovat'; return; }
+      if (stav === 'konec') start();
+      stav = 'leti'; zbytek = 0; zamkni(true); smycka.start(); tlacitko.textContent = 'Pozastavit';
+    });
+    el(pre + 'nastart').addEventListener('click', () => { smycka.stop(); start(); tlacitko.textContent = 'Spustit'; vse(); });
+
+    /* ---- ovládání ---- */
+    const uhlovy = rezim === 'uhelPD';
+    const posuvnik = (id, zmena, format) => { if (el(pre + id)) Kurz.posuvnik(pre + id, zmena, format); };
+    posuvnik('kp', v => { P.kp = v; obnov(); }, uhlovy ? v => cislo(v, 1) + ' N na 10°' : v => v + ' ° na m');
+    posuvnik('ki', v => { P.ki = v; }, v => cislo(v, 1) + ' N na 10° za 1 s');
+    posuvnik('kd', v => { P.kd = v; }, uhlovy ? v => cislo(v, 1) + ' N na 100 °/s' : v => v + ' ° na m/s');
+    posuvnik('kpi', v => { P.kpi = v; obnov(); }, v => cislo(v, 1) + ' N na 10°');
+    posuvnik('kii', v => { P.kii = v; }, v => cislo(v, 1) + ' N na 10° za 1 s');
+    posuvnik('kdi', v => { P.kdi = v; }, v => cislo(v, 1) + ' N na 100 °/s');
+    posuvnik('kix', v => { P.kix = v; }, v => cislo(v, 1) + ' ° na m za 1 s');
+    if (el(pre + 'poryv')) el(pre + 'poryv').addEventListener('change', e => { P.poryv = Number(e.target.value); });
+    if (el(pre + 'vitr')) el(pre + 'vitr').addEventListener('change', e => { P.vitr = e.target.checked; });
+    if (el(pre + 'mimo')) el(pre + 'mimo').addEventListener('change', e => { P.mimo = e.target.checked; vse(); });
+    el(pre + 'prehravani').addEventListener('change', e => { P.prehravani = Number(e.target.value); });
+    if (el(pre + 'vymazat')) el(pre + 'vymazat').addEventListener('click', () => { pokusy = []; vypisPokusy(); });
+
+    el(pre + 'reset').addEventListener('click', () => {
+      smycka.stop(); Object.assign(P, VYCHOZI);
+      ['kp', 'ki', 'kd', 'kpi', 'kii', 'kdi', 'kix'].forEach(id => { const e = el(pre + id); if (e) { e.value = P[id]; e.dispatchEvent(new Event('input')); } });
+      if (el(pre + 'vitr')) el(pre + 'vitr').checked = false;
+      if (el(pre + 'mimo')) el(pre + 'mimo').checked = false;
+      if (el(pre + 'poryv')) el(pre + 'poryv').value = String(P.poryv);
+      el(pre + 'prehravani').value = String(P.prehravani);
+      start(); tlacitko.textContent = 'Spustit'; vse();
+    });
+
+    start(); vypisPokusy(); vse();
+  }
+
+  simulator('a-', 'volny');
+  simulator('c-', 'uhelPD');
+  simulator('f-', 'oba');
+
+  /* ================= schémata po krocích ================= */
+  function schemaPoKrocich(id, popisy, poKroku) {
+    const casti = [...el(id).querySelectorAll('[data-k]')], plocha = el(id + '-plocha');
+    const sirka = plocha.querySelector('svg').viewBox.baseVal.width;
+    let i = 0;
+    function ukaz() {
+      casti.forEach(c => c.classList.toggle('skryto', Number(c.dataset.k) > i + 1 || Number(c.dataset.do || 99) < i + 1));
+      if (poKroku) poKroku(i + 1);
+      el(id + '-popis').innerHTML = popisy[i];
+      pis(id + '-pocet', 'Krok ' + (i + 1) + ' z ' + popisy.length);
+      el(id + '-zpet').disabled = i === 0;
+      el(id + '-dalsi').hidden = i === popisy.length - 1;
+      posun();
+    }
+    function posun() {
+      if (plocha.scrollWidth <= plocha.clientWidth + 2) return;
+      const bb = casti.find(c => Number(c.dataset.k) === i + 1).getBBox(), m = plocha.scrollWidth / sirka;
+      plocha.scrollTo({ left: (bb.x + bb.width / 2) * m - plocha.clientWidth / 2, behavior: 'smooth' });
+    }
+    PREKRESLI.push(posun);
+    el(id + '-zpet').addEventListener('click', () => { i--; ukaz(); });
+    el(id + '-dalsi').addEventListener('click', () => { i++; ukaz(); });
+    ukaz();
+  }
+  schemaPoKrocich('uvod', [
+    '<strong>Z dronu tyčka.</strong> Pro výpočet dron zjednodušíme: rám i s balíkem je tuhá tyčka a vrtule jsou na jejích koncích. Dron se pohybuje jen v rovině obrázku — doleva, doprava, nahoru a dolů.',
+    '<strong>Hmotnost a těžiště.</strong> Tyčka váží m = 1,5 kg (dron i s balíkem). Pro pohyb se chová, jako by celá hmotnost byla v jednom bodě — v těžišti uprostřed tyčky.',
+    '<strong>Moment setrvačnosti.</strong> J = 0,03 kg·m² říká, jak těžko se tyčka roztáčí. Hmotnost brání tomu, aby se dron rozjel, moment setrvačnosti tomu, aby se roztočil.',
+    '<strong>Souřadnice.</strong> Kde je dron, popisují dvě čísla: <em>x</em> je vodorovná vzdálenost od startu (kladná směrem k oknu), <em>z</em> výška těžiště nad zemí.',
+    '<strong>Úhel náklonu θ.</strong> Náklon měříme od vodorovné polohy. Kladný θ znamená, že pravý konec je níž — dron se naklání k oknu. Tři čísla x, z a θ popisují polohu dronu úplně.',
+    '<strong>Tahy vrtulí.</strong> Na koncích tyčky táhnou vrtule silami F₁ (levá) a F₂ (pravá), vždy kolmo k tyčce. Každá je od těžiště vzdálená L = 0,25 m.',
+    '<strong>Tíha.</strong> V těžišti působí tíha G = m · g = 1,5 · 9,81 ≈ 14,7 N. Míří vždy svisle dolů, ať je dron nakloněný jakkoli.',
+    '<strong>Součet tahů dron posouvá.</strong> F₁ + F₂ míří kolmo k tyčce. Svislá část drží dron proti tíze, vodorovná ho táhne do strany. Když je dron vodorovně (θ = 0), do strany netáhne vůbec.',
+    '<strong>Rozdíl tahů dron otáčí.</strong> Když levá vrtule táhne víc než pravá, vznikne moment síly M = (F₁ − F₂) · L a tyčka se roztáčí — tím ochotněji, čím menší je J. Rozdíl tahů je jediné, čím dron ovládá svůj náklon.',
+    '<strong>Dva povely místo dvou vrtulí.</strong> Místo „levá táhne tolik, pravá tolik“ se dron řídí dvěma čísly: celkový tah <em>T = F₁ + F₂</em> rozhoduje o výšce, rozdíl tahů <em>ΔF = F₁ − F₂</em> o otáčení. Vrtule pak dostanou F₁ = T/2 + ΔF/2 a F₂ = T/2 − ΔF/2. Tomuto přepočtu se říká <em>mixér</em> a dělají ho tak i skutečné drony.',
+    '<strong>Výšku drží automat.</strong> Aby dron neklesal, musí svislá část tahu vyrovnat tíhu: T · cos θ = m · g. Nakloněný dron proto musí táhnout víc, T = m · g / cos θ — při náklonu 25° asi o 10 %. Od části 2.2 to sám dělá automat výšky, takže regulátory řeší jen ΔF. Vrtule ale dohromady utáhnou nejvýš dvojnásobek tíhy, a tak při náklonu nad 60° už výšku neudrží. V části 2.1 automat není: vrtule táhnou pořád jen m · g, a proto nakloněný dron padá.',
+    '<strong>Úkol.</strong> Doletět k oknu, zastavit přesně u něj a nenarazit do zdi — i když fouká. A to všechno jen tím, jak silně táhne která vrtule.'
+  ], k => el('m-tycka').classList.toggle('naklon', k >= 5));
+  schemaPoKrocich('urn', [
+    '<strong>Co řídíme.</strong> Vstupem je rozdíl tahů vrtulí ΔF. Vytvoří moment M = ΔF · L, ten dron roztáčí a mění jeho náklon θ. Takhle byl dron v 2.1 — bez regulátoru.',
+    '<strong>Měření.</strong> Gyroskop průběžně měří, jak je dron nakloněný.',
+    '<strong>Porovnání.</strong> Naměřený náklon se odečte od požadovaného — chceme vodorovně, tedy 0°. Výsledek je <em>odchylka e</em>: o kolik je dron nakloněný špatně.',
+    '<strong>Regulátor</strong> z odchylky spočítá, o kolik má jedna vrtule táhnout víc než druhá. Smyčka je uzavřená: regulátor vidí výsledek svého zásahu a pořád ho opravuje. Tomu se říká <em>zpětná vazba</em>.',
+    '<strong>Poruchy.</strong> Poryv větru nebo balík mimo střed dron přetáčí. Regulátor je přímo nevidí — pozná je až podle toho, že se změnil náklon.',
+    '<strong>Uvnitř regulátoru</strong> jsou tři složky: P (pružina — podle odchylky), I (paměť — podle nasčítané odchylky) a D (brzda — podle toho, jak rychle se odchylka mění). V pokusech níže je budete přidávat postupně.'
+  ]);
+  schemaPoKrocich('uro', [
+    '<strong>Dron sám o sobě.</strong> Rozdíl tahů vrtulí ΔF vytvoří moment M = ΔF · L, ten dron roztočí a změní jeho náklon θ; náklon ho posouvá do strany (poloha x). Takhle vypadal dron v 2.1 — a bez regulátoru spadl.',
+    '<strong>Regulátor náklonu (2.2).</strong> Gyroskop měří náklon, regulátor ho porovná s náklonem, jaký chceme, a z odchylky počítá ΔF. Samotné P dron rozhoupalo; s D (brzda podle toho, jak rychle se náklon mění) se dron po poryvu klidně srovná.',
+    '<strong>Vnitřní smyčka jako jeden blok.</strong> Zvenku se chová jednoduše: dostane požadovaný náklon a během zlomku sekundy ho zařídí.',
+    '<strong>Regulátor polohy (nový).</strong> Neřídí vrtule, ale <em>požadovaný náklon</em> pro vnitřní smyčku: požadovaný náklon = Kp · (vzdálenost k oknu) − Kd · (rychlost); Ki zatím necháme na nule.',
+    '<strong>Vnější smyčka.</strong> Poloha se měří (GPS, kamera) a porovná s cílem u okna. Celé schéma je <em>kaskáda</em>: smyčka uvnitř smyčky.',
+    '<strong>Vítr a rychlosti.</strong> Vítr strká do dronu, oba regulátory ho vyrovnávají. Vnitřní smyčka musí být rychlejší než vnější, aby stíhala její objednávky — o kolik, zjistíte v pokusech níže.'
+  ]);
+
+  /* ================= postupné odkrývání s pojistkami ================= */
+  (function () {
+    const UCITEL = new URLSearchParams(location.search).has('ucitel');
+    // potreba: kolik dokončených letů je třeba v daném kroku, než se odemkne vysvětlení a další krok
+    const CASTI = [
+      { klic: 'a', nazev: 'Dron bez regulátoru', potreba: [1, 1] },
+      { klic: 'c', nazev: 'Regulátor náklonu', potreba: [1, 2, 2, 3, 0, 2, 1] },
+
+      { klic: 'f', nazev: 'Dva regulátory', potreba: [1, 3, 2, 3, 3, 0, 3] }
+    ];
+    const JEDNOTKA = { 1: 'po dokončeném letu', 2: 'po dvou dokončených letech', 3: 'po třech dokončených letech' };
+    const CELKEM = CASTI.reduce((a, c) => a + c.potreba.length, 0) + 1;
+    const postup = { faze: 'a', max: 1, vse: false };
+    let odemknoutVse = false;
+
+    function obnovPostup() {
+      let krok = CELKEM, nazev = 'Vysvětlení', pred = 0;
+      for (const c of CASTI) { if (postup.faze === c.klic) { krok = pred + (postup[c.klic] || 0) + 1; nazev = c.nazev; } pred += c.potreba.length; }
+      postup.max = Math.max(postup.max, krok);
+      pis('postup-text', postup.vse ? 'Celá lekce je odkrytá · právě: ' + nazev
+        : 'Krok ' + krok + ' z ' + CELKEM + ' · ' + nazev + (postup.max > krok ? ' (nejdál: krok ' + postup.max + ')' : ''));
+      el('postup-vypln').style.width = (postup.vse ? 100 : 100 * postup.max / CELKEM) + '%';
+      el('odkryt-vse').hidden = !UCITEL || postup.vse;
+    }
+    function prekresli() { requestAnimationFrame(() => requestAnimationFrame(() => PREKRESLI.forEach(f => f()))); }
+    function odkryj(cast, brana, faze, posun) {
+      el(cast).hidden = false; if (brana) el(brana).hidden = true;
+      postup.faze = faze; obnovPostup(); prekresli();
+      if (posun) el(cast).scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function kroky(c, brana, cast) {
+      const koren = el('kroky-' + c.klic), polozky = [...koren.querySelectorAll('.krok')];
+      const zpet = koren.querySelector('[data-zpet]'), dalsi = koren.querySelector('[data-dalsi]');
+      const zaklad = polozky.map(() => null);
+      let i = 0;
+      const vyzkouseno = j => odemknoutVse || (zaklad[j] !== null && ZKOUSENO[c.klic] - zaklad[j] >= c.potreba[j]);
+      function zamky() {
+        polozky.forEach((k, j) => {
+          const b = k.querySelector('.krok-ukaz');
+          if (b.dataset.odemceno) return;
+          if (vyzkouseno(j)) { b.disabled = false; b.dataset.odemceno = '1'; b.textContent = 'Ukázat vysvětlení'; }
+          else { b.disabled = true; b.textContent = 'Nejdřív to vyzkoušejte (vysvětlení se odemkne ' + JEDNOTKA[c.potreba[j]] + ')'; }
+        });
+        const ok = vyzkouseno(i);
+        dalsi.disabled = !ok;
+        dalsi.textContent = ok ? 'Další krok →' : 'Další krok (' + JEDNOTKA[c.potreba[i]] + ')';
+        if (i === polozky.length - 1 && ok && el(cast).hidden) el(brana).hidden = false;
+      }
+      setInterval(zamky, 500);
+      function ukaz(uzivatel) {
+        if (zaklad[i] === null) zaklad[i] = ZKOUSENO[c.klic];
+        polozky.forEach((k, j) => { k.hidden = j !== i; });
+        koren.querySelector('.kroky-pocet').textContent = 'Krok ' + (i + 1) + ' ze ' + polozky.length;
+        zpet.disabled = i === 0;
+        dalsi.hidden = i === polozky.length - 1;
+        postup[c.klic] = i;
+        if (uzivatel) postup.faze = c.klic;
+        zamky(); obnovPostup();
+      }
+      zpet.addEventListener('click', () => { i--; ukaz(true); });
+      dalsi.addEventListener('click', () => { i++; ukaz(true); });
+      polozky.forEach(k => {
+        const b = k.querySelector('.krok-ukaz'), v = k.querySelector('.krok-vysvetleni');
+        b.addEventListener('click', () => {
+          v.hidden = !v.hidden;
+          b.textContent = v.hidden ? 'Ukázat vysvětlení' : 'Skrýt vysvětlení';
+          b.setAttribute('aria-expanded', String(!v.hidden));
+        });
+      });
+      ukaz(false);
+    }
+
+    const DALSI = ['c', 'f', 'teorie'];
+    CASTI.forEach((c, i) => kroky(c, 'brana-' + DALSI[i], 'cast-' + DALSI[i]));
+    DALSI.forEach(k => el('dal-' + k).addEventListener('click', () => odkryj('cast-' + k, 'brana-' + k, k, true)));
+    el('odkryt-vse').addEventListener('click', () => {
+      postup.vse = true; odemknoutVse = true;
+      DALSI.forEach(k => odkryj('cast-' + k, 'brana-' + k, postup.faze, false));
+    });
+    obnovPostup();
+  })();
+})();
+</script>
+</body>
+</html>

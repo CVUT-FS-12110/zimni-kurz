@@ -36,6 +36,14 @@ window.LEKCE = [
     okruh: 'řízení a regulace'
   },
   {
+    nazev: 'Lekce 3c — Dron doručí balík',
+    popis: 'Poslední metry k oknu fakulty letí balík dronem. Proč dron bez regulátoru spadne, proč mu nestačí jeden regulátor a jak to zvládnou dva regulátory v sobě?',
+    soubor: 'ulohy/09-dron-kaskada.html',
+    verejna: true,
+    tema: 'Kaskádové řízení: regulátor v regulátoru',
+    okruh: 'řízení a regulace'
+  },
+  {
     nazev: 'Lekce 3 — Třídění zásilek',
     popis: 'V centru se smíchaly různé zásilky. Lze z jejich naměřených vlastností odhadnout skupinu, ve které budou přihlášky ke studiu?',
     soubor: 'ulohy/03-kmeans.html',
