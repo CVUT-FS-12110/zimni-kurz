@@ -19,6 +19,34 @@
   .metrika span { color: var(--text-slaby); font-size: 0.72rem; }
   .metrika strong { font-variant-numeric: tabular-nums; }
   .stav-radek { margin: 0.35rem 0 0; min-height: 1.5em; color: var(--text-slaby); font-size: 0.86rem; }
+  .mini-ukazky { display: grid; gap: 1rem; margin: 1rem 0 1.5rem; }
+  .mini-ukazka { padding: 1rem; border: 2px solid var(--ram); border-radius: var(--radius); background: var(--pozadi-panel); }
+  .mini-ukazka h3 { margin-top: 0; }
+  .mini-scena { min-height: 260px; padding: 1rem; border: 1px solid var(--ram); border-radius: calc(var(--radius) - 2px); background: #fff; }
+  .mini-popis { min-height: 3em; margin: 0 0 0.8rem; color: var(--text-slaby); }
+  .mini-radek { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.45rem; min-height: 52px; margin: 0.45rem 0; }
+  .mini-radek[data-skryty="true"] { visibility: hidden; }
+  .mini-popisek-radku { width: 100%; margin: 0; color: var(--text-slaby); font-size: 0.78rem; font-weight: 700; text-align: center; text-transform: uppercase; letter-spacing: .04em; }
+  .mini-balik { position: relative; display: grid; place-items: center; width: 58px; height: 44px; border: 2px solid var(--ram-silny); border-radius: 5px; background: #e8efff; color: var(--text); font-weight: 800; font-variant-numeric: tabular-nums; transition: transform .28s ease, background-color .28s ease, opacity .28s ease; }
+  .mini-balik::after { content: ""; position: absolute; top: 7px; left: -2px; right: -2px; border-top: 2px solid rgba(13,18,24,.18); }
+  .mini-balik.je-slucovany { border-color: var(--akcent); background: #dbe7ff; box-shadow: 0 0 0 2px rgba(11,70,200,.16); }
+  .mini-balik.je-aktivni { transform: translateY(-5px); border-color: var(--shluk-2); background: #ffe6e9; }
+  .mini-balik.je-pouzity { opacity: .28; background: #fff; text-decoration: line-through; transform: scale(.92); }
+  .mini-balik.je-vybrany { transform: translateY(5px); border-color: #28753e; background: #dff3e4; }
+  .mini-balik.je-hotovy { border-color: #28753e; background: #dff3e4; }
+  .mini-mezera { width: 1.2rem; height: 44px; border-left: 2px dashed var(--ram-silny); }
+  .mini-sipka { color: var(--akcent); font-size: 1.35rem; font-weight: 900; }
+  .mini-ovladani { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-top: 0.8rem; }
+  .mini-krok { margin-left: auto; color: var(--text-slaby); font-size: 0.86rem; font-variant-numeric: tabular-nums; }
+  .merge-strom { display: grid; gap: 0.25rem; }
+  .merge-strom .mini-radek { margin: 0.15rem 0; }
+  .merge-strom .mini-mezera { width: 0.35rem; }
+  .merge-vysledek { padding-top: 0.35rem; border-top: 1px dashed var(--ram); }
+  .mini-legenda { display: flex; flex-wrap: wrap; gap: 0.6rem 1rem; margin: 0.75rem 0 0; color: var(--text-slaby); font-size: 0.8rem; }
+  .mini-legenda span::before { content: ""; display: inline-block; width: 0.8rem; height: 0.8rem; margin-right: 0.3rem; vertical-align: -0.08rem; border: 2px solid var(--ram-silny); border-radius: 2px; background: #e8efff; }
+  .mini-legenda .legenda-blok::before { border-color: var(--akcent); background: #dbe7ff; }
+  .mini-legenda .legenda-aktivni::before { border-color: var(--shluk-2); background: #ffe6e9; }
+  .mini-legenda .legenda-hotovo::before { border-color: #28753e; background: #dff3e4; }
   .zapis { margin: 0.8rem 0; padding: 0.8rem 1rem; overflow-x: auto; border: 2px solid var(--ram); border-radius: var(--radius); background: var(--pozadi-panel); font: 0.9rem/1.55 ui-monospace, "Cascadia Mono", Consolas, monospace; white-space: pre; }
   .slozitost { width: 100%; max-width: 720px; border-collapse: collapse; font-variant-numeric: tabular-nums; }
   .slozitost th, .slozitost td { padding: 0.5rem 0.65rem; border: 1px solid var(--ram); text-align: right; }
@@ -29,13 +57,16 @@
     .porovnani { grid-template-columns: 1fr; }
     .algoritmus .platno-ram { min-height: 320px; }
     .pas-schema { gap: 0.25rem; }
+    .mini-scena { min-height: 300px; padding-inline: 0.5rem; }
+    .mini-balik { width: 50px; }
+    .mini-krok { width: 100%; margin-left: 0; }
   }
 </style>
 </head>
 <body>
 <main class="stranka">
   <a class="zpet" href="../index.html">← Zpět na rozcestník</a>
-  <p class="pod-nadpisem">Lekce 4 — Zásilky čekají na zpracování</p>
+  <p class="pod-nadpisem">Lekce 7 — Zásilky čekají na zpracování</p>
   <h1>Řazení podle času příchodu</h1>
 
   <section class="sekce">
@@ -120,6 +151,62 @@
 
   <section class="sekce">
     <h2>3. Proč je jeden postup rychlejší</h2>
+    <p>
+      Velká ukázka porovnává množství práce, ale při mnoha zásilkách se jednotlivý krok snadno ztratí.
+      Na menších řadách je níže vidět, co přesně oba algoritmy v každém kroku dělají.
+      Ukázky lze přehrát automaticky nebo procházet po jednom kroku.
+    </p>
+
+    <div class="mini-ukazky">
+      <article class="mini-ukazka" aria-labelledby="bubliny-mini-nadpis">
+        <h3 id="bubliny-mini-nadpis">Bublinkové řazení: sousedé si mění místa</h3>
+        <p>
+          Algoritmus vidí vždy jen dvě sousední zásilky. Je-li vlevo pozdější čas, zásilky prohodí.
+          Pozdní zásilky se tak po jedné výměně posouvají doprava — podobně jako bubliny k hladině.
+        </p>
+        <div class="mini-scena">
+          <p class="mini-popis" id="bubliny-mini-popis" aria-live="polite"></p>
+          <div class="mini-radek" id="bubliny-mini-rada" aria-label="Čtyři zásilky řazené bublinkovým řazením"></div>
+          <div class="mini-legenda" aria-hidden="true">
+            <span class="legenda-aktivni">právě porovnává</span>
+            <span class="legenda-hotovo">na správném místě</span>
+          </div>
+        </div>
+        <div class="mini-ovladani">
+          <button class="akce hlavni" id="bubliny-mini-prehrat">Přehrát</button>
+          <button class="akce" id="bubliny-mini-krok">Krok</button>
+          <button class="akce" id="bubliny-mini-reset">Reset</button>
+          <span class="mini-krok" id="bubliny-mini-cislo"></span>
+        </div>
+      </article>
+
+      <article class="mini-ukazka" aria-labelledby="merge-mini-nadpis">
+        <h3 id="merge-mini-nadpis">Merge sort: nejdříve rozdělit, potom bezpečně sloučit</h3>
+        <p>
+          Na sedmi zásilkách je lépe vidět, že klíčová myšlenka není rychlé prohazování. Velká řada se rozdělí na malé části a při cestě
+          zpět se slučují už seřazené řady. Při slučování stačí porovnávat první dosud nepoužité
+          zásilky — vše za nimi už čeká ve správném pořadí.
+        </p>
+        <div class="mini-scena merge-strom">
+          <p class="mini-popis" id="merge-mini-popis" aria-live="polite"></p>
+          <div class="mini-radek" id="merge-mini-vstup"></div>
+          <div class="mini-radek" id="merge-mini-casti"></div>
+          <div class="mini-radek merge-vysledek" id="merge-mini-vystup"></div>
+          <div class="mini-legenda" aria-hidden="true">
+            <span class="legenda-blok">slučované bloky</span>
+            <span class="legenda-aktivni">právě porovnávaná čela</span>
+            <span class="legenda-hotovo">zapsáno do výstupu</span>
+          </div>
+        </div>
+        <div class="mini-ovladani">
+          <button class="akce hlavni" id="merge-mini-prehrat">Přehrát</button>
+          <button class="akce" id="merge-mini-krok">Krok</button>
+          <button class="akce" id="merge-mini-reset">Reset</button>
+          <span class="mini-krok" id="merge-mini-cislo"></span>
+        </div>
+      </article>
+    </div>
+
     <h3>Bublinkové řazení: jednoduché sousední výměny</h3>
     <p>
       Bublinkové řazení opakovaně prochází celou řadu. Vždy porovná časy dvou sousedních
@@ -189,6 +276,185 @@ slučování: [15, 42]  [28, 55]
 
 <script src="../assets/js/spolecne.js"></script>
 <script>
+(function () {
+  'use strict';
+
+  function balik(hodnota, tridy) {
+    const prvek = document.createElement('span');
+    prvek.className = 'mini-balik' + (tridy ? ' ' + tridy : '');
+    prvek.textContent = '7:' + String(hodnota).padStart(2, '0');
+    return prvek;
+  }
+
+  function vykresliRadek(cil, popisek, polozky, skryty) {
+    cil.replaceChildren();
+    cil.dataset.skryty = skryty ? 'true' : 'false';
+    const nadpis = document.createElement('p');
+    nadpis.className = 'mini-popisek-radku';
+    nadpis.textContent = popisek;
+    cil.appendChild(nadpis);
+    polozky.forEach(polozka => {
+      if (polozka === '|') {
+        const mezera = document.createElement('span');
+        mezera.className = 'mini-mezera';
+        mezera.setAttribute('aria-hidden', 'true');
+        cil.appendChild(mezera);
+      } else if (polozka === '→') {
+        const sipka = document.createElement('span');
+        sipka.className = 'mini-sipka';
+        sipka.setAttribute('aria-hidden', 'true');
+        sipka.textContent = '→';
+        cil.appendChild(sipka);
+      } else {
+        cil.appendChild(balik(polozka.hodnota, polozka.tridy || ''));
+      }
+    });
+  }
+
+  function ovladacAnimace(prefix, pocetSnimku, vykresli) {
+    const prehrat = document.getElementById(prefix + '-prehrat');
+    const krok = document.getElementById(prefix + '-krok');
+    const reset = document.getElementById(prefix + '-reset');
+    const cislo = document.getElementById(prefix + '-cislo');
+    let index = 0;
+    let casovac = null;
+
+    function zastav() {
+      if (casovac !== null) window.clearTimeout(casovac);
+      casovac = null;
+      prehrat.textContent = index === pocetSnimku - 1 ? 'Přehrát znovu' : 'Přehrát';
+    }
+    function obnov() {
+      vykresli(index);
+      cislo.textContent = 'Krok ' + index + ' z ' + (pocetSnimku - 1);
+      krok.disabled = index === pocetSnimku - 1;
+    }
+    function dalsi() {
+      if (index < pocetSnimku - 1) index++;
+      obnov();
+      if (index === pocetSnimku - 1) zastav();
+    }
+    function tik() {
+      dalsi();
+      if (index < pocetSnimku - 1) casovac = window.setTimeout(tik, 1150);
+    }
+    prehrat.addEventListener('click', () => {
+      if (casovac !== null) {
+        zastav();
+        return;
+      }
+      if (index === pocetSnimku - 1) {
+        index = 0;
+        obnov();
+      }
+      prehrat.textContent = 'Zastavit';
+      casovac = window.setTimeout(tik, 350);
+    });
+    krok.addEventListener('click', () => {
+      zastav();
+      dalsi();
+    });
+    reset.addEventListener('click', () => {
+      zastav();
+      index = 0;
+      obnov();
+    });
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) zastav();
+    });
+    obnov();
+  }
+
+  const bublinySnimky = [
+    {a:[42,15,55,28], aktivni:[], hotove:[], text:'Začínáme v pořadí, v jakém zásilky přijely k pracovnímu místu.'},
+    {a:[42,15,55,28], aktivni:[0,1], hotove:[], text:'Porovnání 7:42 a 7:15: pozdější čas stojí vlevo, proto si zásilky vymění místa.'},
+    {a:[15,42,55,28], aktivni:[1,2], hotove:[], text:'7:42 a 7:55 už jsou ve správném pořadí. Algoritmus je nechá být.'},
+    {a:[15,42,55,28], aktivni:[2,3], hotove:[], text:'7:55 je později než 7:28, proto následuje další výměna.'},
+    {a:[15,42,28,55], aktivni:[], hotove:[3], text:'První průchod skončil. Nejpozdější zásilka 7:55 je už určitě na správném místě.'},
+    {a:[15,42,28,55], aktivni:[0,1], hotove:[3], text:'Nový průchod začíná zleva. Dvojice 7:15 a 7:42 se nemění.'},
+    {a:[15,42,28,55], aktivni:[1,2], hotove:[3], text:'7:42 a 7:28 jsou obráceně, takže se prohodí.'},
+    {a:[15,28,42,55], aktivni:[], hotove:[1,2,3], text:'Další průchod už nic neprohodí. Řada je seřazená.'}
+  ];
+  ovladacAnimace('bubliny-mini', bublinySnimky.length, index => {
+    const snimek = bublinySnimky[index];
+    document.getElementById('bubliny-mini-popis').textContent = snimek.text;
+    vykresliRadek(
+      document.getElementById('bubliny-mini-rada'),
+      'řada zásilek',
+      snimek.a.map((hodnota, i) => ({
+        hodnota,
+        tridy: snimek.aktivni.includes(i) ? 'je-aktivni' : (snimek.hotove.includes(i) ? 'je-hotovy' : '')
+      })),
+      false
+    );
+  });
+
+  const polozka = (hodnota, tridy = '') => ({hodnota, tridy});
+  const rada = (hodnoty, tridy = '') => hodnoty.map(hodnota => hodnota === '|' ? hodnota : polozka(hodnota, tridy));
+  const hotovyVystup = hodnoty => hodnoty.map(hodnota => polozka(hodnota, 'je-hotovy'));
+  function zobrazBloky(bloky, slucovane = [], aktivni = [], pouzite = []) {
+    const vysledek = [];
+    bloky.forEach((blok, index) => {
+      if (index > 0) vysledek.push('|');
+      blok.forEach(hodnota => {
+        let tridy = slucovane.includes(index) ? 'je-slucovany' : '';
+        if (pouzite.includes(hodnota)) tridy = 'je-pouzity';
+        if (aktivni.includes(hodnota)) tridy = 'je-aktivni';
+        vysledek.push(polozka(hodnota, tridy));
+      });
+    });
+    return vysledek;
+  }
+  const mergeSnimky = [
+    {text:'Začínáme se sedmi zásilkami v jedné neuspořádané řadě.', bloky:[[42,15,55,28,58,9,36]], vystup:[]},
+    {text:'Řadu rozdělíme na levou část se třemi a pravou část se čtyřmi zásilkami.', bloky:[[42,15,55],[28,58,9,36]], vystup:[]},
+    {text:'Obě části znovu půlíme. Svislé čáry ukazují hranice samostatných řad.', bloky:[[42],[15,55],[28,58],[9,36]], vystup:[]},
+    {text:'Půlení skončí u jednotlivých zásilek. Každá jednoprvková řada je automaticky seřazená.', bloky:[[42],[15],[55],[28],[58],[9],[36]], vystup:[]},
+    {text:'Nejprve sloučíme 7:15 a 7:55. Modře jsou celé slučované bloky, červeně jejich čela.', bloky:[[42],[15],[55],[28],[58],[9],[36]], slucovane:[1,2], aktivni:[15,55], vystup:[]},
+    {text:'7:15 už je ve výstupu, proto v původním bloku zeslábla. Zbývající 7:55 připojíme.', bloky:[[42],[15],[55],[28],[58],[9],[36]], slucovane:[1,2], aktivni:[55], pouzite:[15], vystup:hotovyVystup([15])},
+    {text:'První dvojice je sloučená. Ostatní jednoprvkové řady zůstaly beze změny.', bloky:[[42],[15,55],[28],[58],[9],[36]], vystup:hotovyVystup([15,55])},
+
+    {text:'Pokračujeme na stejné úrovni a slučujeme další dvojici 7:28 a 7:58.', bloky:[[42],[15,55],[28],[58],[9],[36]], slucovane:[2,3], aktivni:[28,58], vystup:[]},
+    {text:'7:28 je ve výstupu. Zbývající 7:58 už není s čím porovnávat.', bloky:[[42],[15,55],[28],[58],[9],[36]], slucovane:[2,3], aktivni:[58], pouzite:[28], vystup:hotovyVystup([28])},
+    {text:'Druhá dvojice je sloučená. Na této úrovni zbývá ještě 7:09 a 7:36.', bloky:[[42],[15,55],[28,58],[9],[36]], vystup:hotovyVystup([28,58])},
+
+    {text:'Dokončíme úroveň sloučením poslední dvojice 7:09 a 7:36.', bloky:[[42],[15,55],[28,58],[9],[36]], slucovane:[3,4], aktivni:[9,36], vystup:[]},
+    {text:'7:09 je ve výstupu, proto v modrém bloku zeslábla. Zbývá připojit 7:36.', bloky:[[42],[15,55],[28,58],[9],[36]], slucovane:[3,4], aktivni:[36], pouzite:[9], vystup:hotovyVystup([9])},
+    {text:'Všechny dvojice na této úrovni jsou hotové. Teprve teď přejdeme k větším blokům.', bloky:[[42],[15,55],[28,58],[9,36]], vystup:hotovyVystup([9,36])},
+
+    {text:'Na další úrovni slučujeme 7:42 s blokem 7:15, 7:55. Začínáme čely 7:42 a 7:15.', bloky:[[42],[15,55],[28,58],[9,36]], slucovane:[0,1], aktivni:[42,15], vystup:[]},
+    {text:'7:15 je ve výstupu. V modrých blocích se porovnání posunulo na 7:42 a 7:55.', bloky:[[42],[15,55],[28,58],[9,36]], slucovane:[0,1], aktivni:[42,55], pouzite:[15], vystup:hotovyVystup([15])},
+    {text:'7:42 je menší než 7:55. Zbylou 7:55 potom pouze připojíme.', bloky:[[42],[15,55],[28,58],[9,36]], slucovane:[0,1], aktivni:[55], pouzite:[15,42], vystup:hotovyVystup([15,42])},
+    {text:'První větší blok je hotový. Na stejné úrovni ještě sloučíme oba pravé bloky.', bloky:[[15,42,55],[28,58],[9,36]], vystup:hotovyVystup([15,42,55])},
+
+    {text:'Modře jsou dva pravé bloky, které teď slučujeme. Jejich čela jsou 7:28 a 7:09.', bloky:[[15,42,55],[28,58],[9,36]], slucovane:[1,2], aktivni:[28,9], vystup:[]},
+    {text:'7:09 už přešla do výstupu. Nová porovnávaná čela jsou 7:28 a 7:36.', bloky:[[15,42,55],[28,58],[9,36]], slucovane:[1,2], aktivni:[28,36], pouzite:[9], vystup:hotovyVystup([9])},
+    {text:'7:28 je menší. Dále porovnáváme 7:58 a 7:36.', bloky:[[15,42,55],[28,58],[9,36]], slucovane:[1,2], aktivni:[58,36], pouzite:[9,28], vystup:hotovyVystup([9,28])},
+    {text:'7:36 pokračuje do výstupu. V pravém modrém bloku už nic nezbylo.', bloky:[[15,42,55],[28,58],[9,36]], slucovane:[1,2], aktivni:[58], pouzite:[9,28,36], vystup:hotovyVystup([9,28,36])},
+    {text:'Připojením 7:58 vznikl pravý blok se čtyřmi zásilkami. Zůstávají dva velké bloky.', bloky:[[15,42,55],[9,28,36,58]], vystup:hotovyVystup([9,28,36,58])},
+
+    {text:'Při posledním sloučení jsou modře označené oba zbývající bloky. Začínáme čely 7:15 a 7:09.', bloky:[[15,42,55],[9,28,36,58]], slucovane:[0,1], aktivni:[15,9], vystup:[]},
+    {text:'7:09 je ve výstupu. Nová čela jsou 7:15 a 7:28.', bloky:[[15,42,55],[9,28,36,58]], slucovane:[0,1], aktivni:[15,28], pouzite:[9], vystup:hotovyVystup([9])},
+    {text:'7:15 pokračuje do výstupu. Dále porovnáváme 7:42 a 7:28.', bloky:[[15,42,55],[9,28,36,58]], slucovane:[0,1], aktivni:[42,28], pouzite:[9,15], vystup:hotovyVystup([9,15])},
+    {text:'7:28 je menší. Nová čela jsou 7:42 a 7:36.', bloky:[[15,42,55],[9,28,36,58]], slucovane:[0,1], aktivni:[42,36], pouzite:[9,15,28], vystup:hotovyVystup([9,15,28])},
+    {text:'7:36 je ve výstupu. Následuje porovnání 7:42 a 7:58.', bloky:[[15,42,55],[9,28,36,58]], slucovane:[0,1], aktivni:[42,58], pouzite:[9,15,28,36], vystup:hotovyVystup([9,15,28,36])},
+    {text:'7:42 je menší. Jako poslední dvojici porovnáme 7:55 a 7:58.', bloky:[[15,42,55],[9,28,36,58]], slucovane:[0,1], aktivni:[55,58], pouzite:[9,15,28,36,42], vystup:hotovyVystup([9,15,28,36,42])},
+    {text:'7:55 pokračuje do výstupu a poslední 7:58 pouze připojíme — celá řada je seřazená.', bloky:[[9,15,28,36,42,55,58]], vystup:hotovyVystup([9,15,28,36,42,55,58])}
+  ];
+  ovladacAnimace('merge-mini', mergeSnimky.length, index => {
+    const snimek = mergeSnimky[index];
+    document.getElementById('merge-mini-popis').textContent = snimek.text;
+    vykresliRadek(document.getElementById('merge-mini-vstup'), 'původní řada', rada([42,15,55,28,58,9,36]), false);
+    vykresliRadek(
+      document.getElementById('merge-mini-casti'),
+      index < 4 ? 'dělení na bloky' : 'aktuální rozdělení řady',
+      zobrazBloky(snimek.bloky, snimek.slucovane, snimek.aktivni, snimek.pouzite),
+      index === 0
+    );
+    vykresliRadek(document.getElementById('merge-mini-vystup'), 'výstup tohoto sloučení', snimek.vystup, index < 4);
+  });
+})();
+
 (function () {
   'use strict';
   const P={n:24,usporadani:'nahodne',rychlost:180,seed:4021};

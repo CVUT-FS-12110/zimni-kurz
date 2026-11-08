@@ -52,7 +52,7 @@ window.LEKCE = [
     okruh: 'strojové učení'
   },
   {
-    nazev: 'Lekce 4 — Která zásilka přišla první?',
+    nazev: 'Lekce 7 — Která zásilka přišla první?',
     popis: 'Zásilky je potřeba vyřídit podle času příchodu. Dva postupy je seřadí správně, ale proč jednomu s rostoucím počtem dat dochází dech?',
     soubor: 'ulohy/04-razeni-zasilek.html',
     verejna: false,
