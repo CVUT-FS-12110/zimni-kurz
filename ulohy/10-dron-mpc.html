@@ -1,0 +1,1597 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dron, který myslí dopředu — Zimní kurz</title>
+<link rel="stylesheet" href="../assets/css/styl.css">
+<style>
+  .podsekce { margin-top: 2.5rem; padding-top: 1rem; border-top: 2px solid var(--ram-silny); font-size: 1.3rem; }
+  h4 { margin: 1.6rem 0 .5rem; font-size: 1.05rem; }
+  .dilna .platno-ram { aspect-ratio: 16 / 9; }
+  @media (max-width: 560px) { .dilna .platno-ram { aspect-ratio: 4 / 3; } }
+  .scena { position: relative; min-width: 0; }
+  .scena .tlacitka { margin-top: .6rem; }
+  .ovladac[hidden] { display: none; }
+  .hlaska { margin: 0 0 .6rem; padding: .5rem .6rem; border-left: 5px solid var(--shluk-3); background: #fff; font-weight: 700; }
+  .hlaska.spatne { border-left-color: var(--shluk-2); }
+  .hlaska[hidden] { display: none; }
+  .skupina { margin: .9rem 0 .3rem; font-weight: 700; color: var(--akcent); }
+  .skupina:first-of-type { margin-top: 0; }
+  .pevne { margin: 0 0 .9rem; color: var(--text-slaby); font-size: .9rem; }
+
+  .graf-ram { position: relative; height: 360px; border: 2px solid var(--ram-silny); border-radius: var(--radius); background: #fff; overflow: hidden; }
+  .graf-ram canvas { display: block; width: 100%; height: 100%; }
+  @media (max-width: 600px) { .graf-ram { height: 420px; } }
+  .legenda { display: flex; flex-wrap: wrap; gap: .3rem 1.1rem; margin: .4rem 0 0; padding: 0; list-style: none; font-size: .88rem; color: var(--text-slaby); }
+  .legenda li { display: flex; align-items: center; gap: .4rem; }
+  .legenda svg { flex: 0 0 auto; }
+
+  .tabulka { width: 100%; max-width: 980px; border-collapse: collapse; font-size: .92rem; }
+  .tabulka th, .tabulka td { padding: .4rem .5rem; border: 1px solid var(--ram); text-align: left; vertical-align: top; }
+  .tabulka thead { background: var(--pozadi-panel); }
+  .tabulka td.cislo, .tabulka th.cislo { text-align: right; font-variant-numeric: tabular-nums; }
+  .tabulka tr.nejlepsi td { background: #e2f4e8; font-weight: 700; }
+  .tabulka td.spatne { background: #fbe4e8; }
+  .tabulka-obal { overflow-x: auto; max-width: 980px; }
+  .pokusy-hlava { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .5rem; max-width: 980px; }
+  .pokusy-hlava .akce { flex: 0 0 auto; padding: .35rem .7rem; font-size: .9rem; }
+  @media (max-width: 560px) { .tabulka { font-size: .8rem; } }
+
+  .vzorec { width: fit-content; max-width: 100%; box-sizing: border-box; margin: .7rem 0; padding: .6rem 1.2rem; border: 2px solid var(--ram); border-radius: var(--radius); background: var(--pozadi-panel); overflow-x: auto; }
+  .vzorec math { margin: 0; font-size: 1.2rem; font-family: "Cambria Math", "STIX Two Math", "Latin Modern Math", math; }
+  .navaznost { max-width: 70ch; padding: .6rem .9rem; border: 2px solid var(--ram); border-radius: var(--radius); background: var(--pozadi-panel); }
+  .navaznost p { margin: .3rem 0; }
+
+  .postup { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .8rem; margin: 0 0 1rem; padding: .45rem .7rem; border: 2px solid var(--ram-silny); border-radius: var(--radius); background: #fff; font-size: .9rem; font-weight: 700; }
+  .postup-cara { flex: 0 0 120px; height: 8px; border-radius: 4px; background: var(--pozadi-zvyraz); overflow: hidden; }
+  .postup-cara span { display: block; height: 100%; width: 0; background: var(--akcent); transition: width .3s; }
+  .postup-vse { margin-left: auto; padding: .2rem .5rem; border: 0; background: none; color: var(--akcent); font: inherit; font-weight: 600; text-decoration: underline; cursor: pointer; }
+  .postup-vse[hidden] { display: none; }
+  .odkryti, .dilna { scroll-margin-top: 4rem; }
+  .kroky { max-width: 70ch; border: 2px solid var(--ram-silny); border-radius: var(--radius); background: var(--pozadi-panel); }
+  .krok { padding: .8rem 1rem .4rem; }
+  .krok[hidden], .krok-vysvetleni[hidden], .odkryti[hidden], .brana[hidden] { display: none; }
+  .krok-ukol { margin: 0 0 .6rem; }
+  .krok-ukaz { padding: .35rem .8rem; font-size: .9rem; }
+  .krok-ukaz:disabled { opacity: 1; border-style: dashed; color: var(--text-slaby); font-weight: 600; cursor: not-allowed; }
+  .krok-vysvetleni { margin: .6rem 0 .2rem; padding: .5rem .8rem; border-left: 5px solid var(--shluk-3); background: #fff; }
+  .krok-vysvetleni p { margin: 0; }
+  .krok-vysvetleni p + p { margin-top: .5rem; }
+  .dilna input:disabled, .dilna select:disabled { opacity: .5; cursor: not-allowed; }
+  .kod { max-width: 100%; box-sizing: border-box; margin: .7rem 0; padding: .8rem 1rem; overflow-x: auto; border: 2px solid var(--ram); border-radius: var(--radius); background: #fafbfc; font: 14px/1.55 ui-monospace, "Cascadia Code", Consolas, "DejaVu Sans Mono", monospace; tab-size: 4; }
+  .kod .k-klic { color: #a626a4; font-weight: 600; }
+  .kod .k-fun { color: #1e5bd8; font-weight: 700; }
+  .kod .k-str { color: #3f8a3a; }
+  .kod .k-cis { color: #986801; }
+  .kod .k-kom { color: #6a737d; font-style: italic; }
+  .kod .k-vest { color: #0b7fa8; }
+  .kroky-ovladani { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; padding: .6rem 1rem; border-top: 2px solid var(--ram); }
+  .kroky-ovladani .akce { flex: 0 1 auto; padding: .4rem .8rem; white-space: normal; }
+  .kroky-ovladani .akce[hidden] { display: none; }
+  .kroky-pocet { font-weight: 700; color: var(--text-slaby); font-variant-numeric: tabular-nums; }
+  .brana { margin: 1.2rem 0; }
+  .teorie-blok { margin: .5rem 0; border: 2px solid var(--ram); border-radius: var(--radius); }
+  .teorie-blok > summary { padding: .5rem .8rem; cursor: pointer; background: var(--pozadi-panel); }
+  .teorie-blok > summary h3 { display: inline; margin: 0; font-size: 1.08rem; }
+  .teorie-blok[open] > summary { border-bottom: 2px solid var(--ram); }
+  .teorie-blok > :not(summary) { margin-left: .9rem; margin-right: .9rem; }
+
+  /* schémata odkrývaná po krocích */
+  .uro, .kroky-uro { width: min(1140px, calc(100vw - 2.5rem)); max-width: none; box-sizing: border-box; }
+  .uro { margin: 1rem 0 0; }
+  .uro-plocha { overflow-x: auto; }
+  .uro svg { display: block; width: 100%; min-width: 680px; height: auto; border: 2px solid var(--ram-silny); border-radius: var(--radius) var(--radius) 0 0; background: #fff; }
+  .uro text { font-family: "Segoe UI", system-ui, sans-serif; fill: var(--text); font-size: 16px; }
+  .uro .blok { fill: var(--pozadi-panel); stroke: var(--ram-silny); stroke-width: 2.5; }
+  .uro .blok-reg { fill: #dce7ff; stroke: var(--akcent); }
+  .uro .blok-mpc { fill: #efe3fb; stroke: #7622d6; }
+  .uro .cara { fill: none; stroke: var(--ram-silny); stroke-width: 2.5; }
+  .uro .nazev { font-weight: 700; text-anchor: middle; }
+  .uro .maly { font-size: 14px; fill: var(--text-slaby); text-anchor: middle; }
+  .uro .popis { font-size: 15px; font-weight: 700; }
+  .uro .dopln { font-size: 13px; fill: var(--text-slaby); }
+  .uro [data-k] { transition: opacity .35s; }
+  .uro [data-k].skryto { opacity: 0; }
+  .uro figcaption { margin: 0; min-height: 4.6em; padding: .6rem .9rem; border: 2px solid var(--ram-silny); border-top: 0; background: var(--pozadi-panel); font-size: 1.1rem; }
+  .kroky-uro { border: 2px solid var(--ram-silny); border-top: 0; border-radius: 0 0 var(--radius) var(--radius); }
+  .kroky-uro .akce[hidden] { display: none; }
+  .uvod-schema, .uvod-schema + .kroky-uro { width: auto; max-width: 860px; }
+  .uvod-schema svg { min-width: 560px; }
+
+  /* Kde se to učí — stejné karty předmětů jako v lekcích 3–3c, čtyři karty ve dvou sloupcích */
+  .predmety-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; max-width: 1000px; margin-top: 1rem; }
+  .predmet { display: flex; flex-direction: column; padding: .8rem 1rem; border: 2px solid var(--ram); border-radius: var(--radius); background: var(--pozadi-panel); }
+  .predmet h3 { margin: .1rem 0 .4rem; font-size: 1.05rem; }
+  .predmet p { margin: 0; }
+  .predmet .predmet-stupen { color: var(--akcent); font-size: .75rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+  .predmet .predmet-odkaz { margin-top: auto; padding-top: .6rem; font-size: .9rem; font-weight: 700; }
+  @media (max-width: 700px) { .predmety-grid { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body>
+<main class="stranka">
+  <a class="zpet" href="../index.html">← Zpět na rozcestník</a>
+  <p class="pod-nadpisem">Lekce 3d — Poslední metry vzduchem, tentokrát se závorou</p>
+  <h1>Dron, který myslí dopředu</h1>
+  <div class="postup" id="postup">
+    <span class="postup-cara" aria-hidden="true"><span id="postup-vypln"></span></span>
+    <span id="postup-text" aria-live="polite"></span>
+    <button class="postup-vse" id="odkryt-vse" hidden>Odkrýt celou lekci</button>
+  </div>
+
+  <!-- ============ 1. PŘEDSTAVENÍ PROBLÉMU ============ -->
+  <section class="sekce">
+    <h2>1. Závora před oknem</h2>
+    <p class="uvod">Dron z minulé lekce už umí doručit balík k oknu fakulty. Teď mu ale do cesty postavili závoru: cesta vede průjezdem pod lávkou a deska v průjezdu se pravidelně zvedá a spouští. Regulátor z minula reaguje jen na to, co měří právě teď. Jak má dron poznat, <em>kdy</em> má k závoře přiletět, aby byla zrovna nahoře?</p>
+    <p class="sekce">Nejdřív si zopakujeme model dronu a jeho řízení z minula a ukážeme si novou překážku. Obrázek se odkrývá po krocích.</p>
+
+    <figure class="uro uvod-schema" id="uvod">
+      <div class="uro-plocha" id="uvod-plocha"><svg viewBox="0 0 820 520" role="img" aria-label="Dron letí od dodávky k oknu fakulty. Model dronu: tyčka s vrtulemi, tahy F1 a F2, tíha G, úhel náklonu θ a zrychlení a = g · tg θ. Kaskáda: regulátor polohy objednává náklon, regulátor náklonu ho zařídí. Nově je v cestě závora pod lávkou, která se podle jízdního řádu zvedá a spouští.">
+        <defs>
+          <marker id="u-modra" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="10" refX="3" refY="5" orient="auto"><path d="M0,0 L0,10 L13,5 z" fill="#1145cf"/></marker>
+          <marker id="u-seda" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="10" refX="3" refY="5" orient="auto"><path d="M0,0 L0,10 L13,5 z" fill="#4a5768"/></marker>
+          <marker id="u-cerna" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="10" refX="3" refY="5" orient="auto"><path d="M0,0 L0,10 L13,5 z" fill="#0d1218"/></marker>
+          <marker id="u-oranz" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="10" refX="3" refY="5" orient="auto"><path d="M0,0 L0,10 L13,5 z" fill="#d97000"/></marker>
+          <marker id="u-zelena" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="10" refX="3" refY="5" orient="auto"><path d="M0,0 L0,10 L13,5 z" fill="#0a7d38"/></marker>
+          <pattern id="u-pruhy" width="14" height="24" patternUnits="userSpaceOnUse"><rect width="14" height="12" fill="#cc1233"/><rect y="12" width="14" height="12" fill="#fff"/></pattern>
+          <g id="u-dron">
+            <rect x="-46" y="-6" width="92" height="12" rx="4" fill="#fff" stroke="#0d1218" stroke-width="2.5"/>
+            <path d="M-40 -6 L-40 -16 M40 -6 L40 -16" stroke="#0d1218" stroke-width="2.5"/>
+            <path d="M-58 -18 L-22 -18 M22 -18 L58 -18" stroke="#0d1218" stroke-width="4"/>
+            <path d="M0 6 L0 22" stroke="#4a5768" stroke-width="2"/>
+            <rect x="-12" y="22" width="24" height="20" fill="#d97000" stroke="#0d1218" stroke-width="2"/>
+          </g>
+        </defs>
+        <rect x="0" y="480" width="820" height="40" fill="#dfe5ef"/>
+
+        <!-- 1: scéna z minula -->
+        <g data-k="1">
+          <g transform="translate(58 480)" stroke="#0d1218" stroke-width="2" fill="#fff">
+            <rect x="-50" y="-44" width="66" height="32" rx="3"/>
+            <path d="M16 -36 L30 -36 L40 -22 L40 -12 L16 -12 Z"/>
+            <circle cx="-32" cy="-9" r="7" fill="#0d1218"/><circle cx="28" cy="-9" r="7" fill="#0d1218"/>
+          </g>
+          <use href="#u-dron" transform="translate(110 264) scale(0.62)"/>
+          <rect x="729" y="40" width="91" height="440" fill="#eef1f6" stroke="#0d1218" stroke-width="2.5"/>
+          <rect x="723" y="224" width="12" height="80" fill="#fff" stroke="#0d1218" stroke-width="2"/>
+          <text x="744" y="324" class="dopln">okno</text>
+          <text x="744" y="62" class="popis">fakulta</text>
+          <path d="M686 70 L686 478" stroke="#0a7d38" stroke-width="2" stroke-dasharray="6 5"/>
+          <text x="680" y="66" class="dopln" text-anchor="end" style="fill:#0a7d38">cíl u okna (8 m)</text>
+          <text x="110" y="310" class="dopln" text-anchor="middle">start (0 m), výška 3 m</text>
+        </g>
+
+        <!-- 2–3: model dronu (zvětšený výřez) -->
+        <g data-k="2" data-do="3">
+          <rect x="14" y="8" width="410" height="200" rx="8" fill="#fff" stroke="#4a5768" stroke-width="2" stroke-dasharray="6 4"/>
+          <text x="26" y="30" class="popis">Model dronu (zvětšeno)</text>
+          <g transform="rotate(14 180 120)">
+            <rect x="90" y="114" width="180" height="12" rx="5" fill="#4a5768" stroke="#0d1218" stroke-width="2"/>
+            <rect x="92" y="104" width="14" height="10" fill="#0d1218"/>
+            <rect x="254" y="104" width="14" height="10" fill="#0d1218"/>
+            <path d="M99 100 L99 52" stroke="#1145cf" stroke-width="5" marker-end="url(#u-modra)"/>
+            <path d="M261 100 L261 66" stroke="#1145cf" stroke-width="5" marker-end="url(#u-modra)"/>
+            <text x="78" y="62" class="popis" text-anchor="end" style="fill:#1145cf">F₁</text>
+            <text x="276" y="76" class="popis" style="fill:#1145cf">F₂</text>
+            <path d="M184 136 L261 136 M184 131 L184 141 M261 131 L261 141" stroke="#0d1218" stroke-width="1.5"/>
+            <text x="200" y="152" class="dopln">L = 0,25 m</text>
+          </g>
+          <circle cx="180" cy="120" r="7" fill="#fff" stroke="#0d1218" stroke-width="2"/>
+          <path d="M180 128 L180 184" stroke="#4a5768" stroke-width="5" marker-end="url(#u-seda)"/>
+          <text x="190" y="196" class="popis" style="fill:#4a5768">G = m · g</text>
+          <text x="26" y="196" class="dopln">m = 1,5 kg</text>
+        </g>
+        <g data-k="3" data-do="3">
+          <path d="M120 120 L296 120" stroke="#4a5768" stroke-width="1.5" stroke-dasharray="5 4"/>
+          <path d="M250 120 A70 70 0 0 1 247.9 136.9" fill="none" stroke="#d97000" stroke-width="3"/>
+          <text x="256" y="142" class="popis" style="fill:#d97000">θ</text>
+          <path d="M300 92 L388 92" stroke="#0a7d38" stroke-width="5" marker-end="url(#u-zelena)"/>
+          <text x="300" y="78" class="popis" style="fill:#0a7d38">zrychlení do strany</text>
+          <text x="300" y="118" class="popis">a = g · tg θ</text>
+          <text x="300" y="138" class="dopln">25° → nejvýš 4,6 m/s²</text>
+        </g>
+
+        <!-- 4: kaskáda z minula -->
+        <g data-k="4" data-do="4">
+          <rect x="24" y="16" width="360" height="50" rx="6" fill="#dce7ff" stroke="#0b46c8" stroke-width="2.5"/>
+          <text x="204" y="38" class="popis" text-anchor="middle">Regulátor polohy (vnější)</text>
+          <text x="204" y="57" class="dopln" text-anchor="middle">vzdálenost k oknu, rychlost → požadovaný náklon</text>
+          <path d="M204 66 L204 90" stroke="#0d1218" stroke-width="2.5" marker-end="url(#u-cerna)"/>
+          <text x="216" y="86" class="dopln">chci θ</text>
+          <rect x="24" y="104" width="360" height="50" rx="6" fill="#dce7ff" stroke="#0b46c8" stroke-width="2.5"/>
+          <text x="204" y="126" class="popis" text-anchor="middle">Regulátor náklonu (vnitřní)</text>
+          <text x="204" y="145" class="dopln" text-anchor="middle">náklon → rozdíl tahů vrtulí ΔF (Kp 3, Kd 4)</text>
+          <path d="M110 154 L110 226" stroke="#0d1218" stroke-width="2.5" marker-end="url(#u-cerna)"/>
+          <text x="122" y="200" class="dopln">ΔF → vrtule</text>
+        </g>
+
+        <!-- 5: závora -->
+        <g data-k="5">
+          <rect x="391" y="120" width="86" height="29" fill="#8b97a8" stroke="#0d1218" stroke-width="2"/>
+          <text x="434" y="139" class="dopln" text-anchor="middle" style="fill:#fff">lávka</text>
+          <rect x="427" y="149" width="14" height="331" fill="url(#u-pruhy)" stroke="#0d1218" stroke-width="2"/>
+          <text x="434" y="110" class="popis" text-anchor="middle">závora (4,5 m)</text>
+        </g>
+
+        <!-- 6: jízdní řád -->
+        <g data-k="6">
+          <rect x="14" y="8" width="370" height="160" rx="8" fill="#fff" stroke="#4a5768" stroke-width="2" stroke-dasharray="6 4"/>
+          <text x="26" y="32" class="popis">Jízdní řád závory (stále dokola)</text>
+          <rect x="30" y="48" width="150" height="30" fill="url(#u-pruhy)" stroke="#0d1218" stroke-width="1.5"/>
+          <rect x="180" y="48" width="25" height="30" fill="#fbe4c8" stroke="#0d1218" stroke-width="1.5"/>
+          <rect x="205" y="48" width="100" height="30" fill="#e2f4e8" stroke="#0a7d38" stroke-width="1.5"/>
+          <rect x="305" y="48" width="25" height="30" fill="#fbe4c8" stroke="#0d1218" stroke-width="1.5"/>
+          <rect x="330" y="48" width="40" height="30" fill="url(#u-pruhy)" stroke="#0d1218" stroke-width="1.5"/>
+          <text x="105" y="98" class="dopln" text-anchor="middle">zavřeno 3 s</text>
+          <text x="255" y="98" class="dopln" text-anchor="middle" style="fill:#0a7d38">otevřeno 2 s</text>
+          <text x="192" y="118" class="dopln" text-anchor="middle">↑ 0,5 s</text>
+          <text x="317" y="118" class="dopln" text-anchor="middle">↓ 0,5 s</text>
+          <text x="26" y="150" class="dopln">Dron (výška 3 m) projede, jen když je deska nahoře.</text>
+        </g>
+
+        <!-- 7: úkol -->
+        <g data-k="7">
+          <path d="M150 238 L668 238" stroke="#0a7d38" stroke-width="3" stroke-dasharray="9 6" marker-end="url(#u-zelena)"/>
+          <text x="470" y="226" class="popis" style="fill:#d97000">kdy?</text>
+        </g>
+      </svg></div>
+      <figcaption id="uvod-popis" aria-live="polite"></figcaption>
+    </figure>
+    <div class="kroky-ovladani kroky-uro">
+      <button class="akce" id="uvod-zpet">← Předchozí</button>
+      <span class="kroky-pocet" id="uvod-pocet"></span>
+      <button class="akce hlavni" id="uvod-dalsi">Další část →</button>
+    </div>
+
+    <div class="navaznost">
+      <p><strong>Navazuje na lekci Dron doručí balík.</strong> Fyzika dronu i vnitřní regulátor náklonu jsou stejné jako minule. Nové je jen to, co je v cestě: překážka, která se v čase mění.</p>
+      <p>Kdo si nepamatuje: <em>Kp</em> říká, jak silně regulátor zasáhne podle odchylky teď, <em>Kd</em> přidává zásah podle rychlosti — funguje jako brzda.</p>
+    </div>
+  </section>
+
+  <!-- ============ 2. INTERAKTIVNÍ ÚLOHA ============ -->
+  <section>
+    <h2>2. Plánovat dopředu</h2>
+    <p class="sekce">Ukázka má tři navazující části. Další část se odkryje, až projdete úkoly té předchozí.</p>
+
+    <!-- ---------- 2.1 KASKÁDA PROTI ZÁVOŘE ---------- -->
+    <h3 class="podsekce">2.1 Kaskáda z minula proti závoře</h3>
+    <div class="sekce">
+      <p>Dron řídí kaskáda z minulé lekce. Vnější PID regulátor polohy objednává náklon, vnitřní ho zařídí. Výchozí nastavení vnějšího regulátoru je to, které minule spolehlivě doletělo k oknu: Kp 35, Kd 50 (Ki zůstává 0).</p>
+      <p>Pod scénou je <strong>graf polohy v čase</strong>. Vodorovně je čas, svisle vzdálenost od startu. Červeně šrafovaný pruh u 4,5 m ukazuje, kdy je závora zavřená. Modrá čára (dráha dronu) jím nesmí projít.</p>
+    </div>
+    <div class="dilna" id="a-dilna">
+      <div class="scena">
+        <div class="platno-ram"><canvas id="a-platno" role="img" aria-label="Dron s kaskádou PID letí k oknu, v cestě je závora, která se zvedá a spouští"></canvas></div>
+        <div class="tlacitka">
+          <button class="akce hlavni" id="a-spustit">Spustit</button>
+          <button class="akce" id="a-nastart">Na start</button>
+          <button class="akce" id="a-reset">Reset</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="zalozka-obsah">
+          <p class="hlaska" id="a-hlaska" aria-live="polite" hidden></p>
+          <p class="skupina">Vnější regulátor (poloha)</p>
+          <div class="ovladac">
+            <label for="a-kp">Kp <output id="a-kp-hodnota"></output></label>
+            <input type="range" id="a-kp" min="0" max="100" step="5" value="35">
+          </div>
+          <div class="ovladac">
+            <label for="a-kd">Kd <output id="a-kd-hodnota"></output></label>
+            <input type="range" id="a-kd" min="0" max="100" step="5" value="50">
+          </div>
+          <p class="pevne">Vnitřní regulátor náklonu: Kp 3, Kd 4 (jako minule).</p>
+          <p class="skupina">Závora</p>
+          <div class="ovladac">
+            <label for="a-prvni">Poprvé se otevře</label>
+            <select id="a-prvni">
+              <option value="1" selected>za 1 s</option>
+              <option value="2.5">za 2,5 s</option>
+              <option value="4">za 4 s</option>
+            </select>
+          </div>
+          <div class="ovladac">
+            <label for="a-prehravani">Rychlost přehrávání</label>
+            <select id="a-prehravani">
+              <option value="0.5">zpomaleně (×0,5)</option>
+              <option value="1" selected>skutečný čas (×1)</option>
+              <option value="2">dvakrát rychleji (×2)</option>
+            </select>
+          </div>
+          <div class="stav">
+            <dl>
+              <dt>Čas</dt><dd id="a-st-cas">–</dd>
+              <dt>K oknu zbývá</dt><dd id="a-st-x">–</dd>
+              <dt>Rychlost</dt><dd id="a-st-v">–</dd>
+              <dt>Náklon / požadovaný</dt><dd id="a-st-th">–</dd>
+              <dt>Závora</dt><dd id="a-st-zav">–</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="graf-ram"><canvas id="a-grafy" role="img" aria-label="Grafy v čase: poloha dronu s pruhy zavřené závory, náklon skutečný a požadovaný"></canvas></div>
+    <ul class="legenda" aria-hidden="true">
+      <li><svg width="28" height="12"><path d="M2 6 L26 6" stroke="#1145cf" stroke-width="3"/></svg>dráha dronu</li>
+      <li><svg width="28" height="14"><rect x="1" y="1" width="26" height="12" fill="rgba(204,18,51,0.35)" stroke="#cc1233"/></svg>závora zavřená</li>
+      <li><svg width="28" height="12"><path d="M2 6 L26 6" stroke="#0a7d38" stroke-width="2" stroke-dasharray="5 3"/></svg>okno (8 m)</li>
+      <li><svg width="28" height="12"><path d="M2 6 L26 6" stroke="#cc1233" stroke-width="2" stroke-dasharray="5 3"/></svg>zeď</li>
+    </ul>
+
+    <h4 id="a-pokusy-nadpis">Tabulka letů</h4>
+    <div class="pokusy-hlava">
+      <p class="poznamka">Každý dokončený let se zapíše. <strong>Doba letu</strong> = čas od startu do chvíle, kdy dron stojí u okna (do 10 cm) aspoň 1 s. <strong>Odstup</strong> = nejmenší vzdálenost dronu od desky závory. Nejrychlejší doručení má hvězdičku.</p>
+      <button class="akce" id="a-vymazat">Vymazat tabulku</button>
+    </div>
+    <div class="tabulka-obal">
+      <table class="tabulka" aria-labelledby="a-pokusy-nadpis">
+        <thead><tr><th>#</th><th class="cislo">Kp</th><th class="cislo">Kd</th><th>Závora se otevře</th><th>Výsledek</th><th class="cislo">Doba letu</th><th class="cislo">Odstup od závory</th></tr></thead>
+        <tbody id="a-pokusy"></tbody>
+      </table>
+    </div>
+
+    <h4>Co si zkuste</h4>
+    <div class="kroky" id="kroky-a">
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>Kaskáda z minula.</strong> Spusťte s výchozím nastavením (závora se otevře za 1 s). Projede dron?</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden><p>Projede a doručí za 7,4 s. K závoře doletí asi v 1,5 s, kdy už je otevřená, a mine ji s odstupem asi 0,8 m. V grafu modrá čára proklouzne mezerou mezi červenými pruhy.</p></div>
+      </div>
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>Jiný jízdní řád.</strong> Nechte stejné Kp a Kd, jen nastavte, že se závora poprvé otevře za 2,5 s. Co se stane?</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden><p>Dron narazí do závory asi v 1,6 s. Letí úplně stejně jako předtím, jen závora je tentokrát ještě dole. Regulátor o závoře neví: počítá jen se vzdáleností k oknu a s rychlostí.</p></div>
+      </div>
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>Najděte nastavení, se kterým projde.</strong> Závoru nechte na 2,5 s a měňte Kp a Kd. Podaří se doručit? Za jak dlouho?</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden><p>Podaří, ale jen s velmi pomalým letem, například Kp 10 a Kd 40: dron se k závoře plouží tak dlouho, že k ní dorazí až po 3 s, kdy už je otevřená. Celý let ale trvá přes 18 s. Rychlejší nastavení doletí k závoře dřív, než se otevře. Regulátor polohy neumí „počkat“, umí jen letět pomaleji.</p></div>
+      </div>
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>Pomalé nastavení a jiný jízdní řád.</strong> S Kp 10 a Kd 40 zkuste závoru, která se otevře za 1 s, a pak za 4 s.</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden><p>V obou případech dron narazí (asi ve 3,7 s a ve 3,1 s). Pokaždé dorazí k závoře zhruba ve stejnou dobu, ale závora je pokaždé v jiné fázi. Každé nastavení PID funguje jen pro „svůj“ jízdní řád, a to vlastně náhodou. Aby dron závorou spolehlivě projel, musel by <em>dopředu</em> vědět, kdy bude otevřená, a podle toho si naplánovat let.</p></div>
+      </div>
+      <div class="kroky-ovladani">
+        <button class="akce" data-zpet>← Předchozí</button>
+        <span class="kroky-pocet" aria-live="polite"></span>
+        <button class="akce hlavni" data-dalsi>Další krok →</button>
+      </div>
+    </div>
+    <p class="brana" id="brana-c" hidden><button class="akce hlavni" id="dal-c">Pokračovat: regulátor, který se dívá dopředu →</button></p>
+
+    <div class="odkryti" id="cast-c" hidden>
+    <!-- ---------- 2.2 MPC ---------- -->
+    <h3 class="podsekce">2.2 Regulátor, který se dívá dopředu</h3>
+    <div class="sekce">
+      <p>Vnější regulátor teď nahradí <strong>prediktivní regulátor</strong>, zkráceně <em>MPC</em> (z anglického <em>Model Predictive Control</em>, řízení s předpovědí podle modelu). Neřídí se jedním vzorcem. Každých 0,2 s si vyzkouší spoustu možností, jak by dron mohl v příštích sekundách letět, a vybere tu nejlepší. Vnitřní regulátor náklonu zůstává z minula. Jak jedno rozhodnutí probíhá, ukazuje schéma.</p>
+    </div>
+    <figure class="uro" id="mpc">
+      <div class="uro-plocha" id="mpc-plocha"><svg viewBox="0 0 920 250" role="img" aria-label="Jedno rozhodnutí prediktivního regulátoru: změř stav, vylosuj varianty povelů, přehraj každou v modelu, oboduj a vyber nejlepší, proveď jen první povel na 0,2 s a celé to zopakuj.">
+        <defs>
+          <marker id="m-sipka" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="10" refX="12" refY="5" orient="auto"><path d="M0,0 L0,10 L13,5 z" fill="#0d1218"/></marker>
+          <marker id="m-fial" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="10" refX="12" refY="5" orient="auto"><path d="M0,0 L0,10 L13,5 z" fill="#7622d6"/></marker>
+        </defs>
+        <g data-k="1">
+          <rect class="blok" x="12" y="50" width="160" height="96" rx="8"/>
+          <text x="92" y="78" class="nazev">1. Změř</text>
+          <text x="92" y="102" class="maly">kde dron je, jak</text>
+          <text x="92" y="120" class="maly">rychle letí, jak je</text>
+          <text x="92" y="138" class="maly">nakloněný, závoru</text>
+        </g>
+        <g data-k="2">
+          <path class="cara" d="M172 98 L194 98" marker-end="url(#m-sipka)"/>
+          <rect class="blok blok-mpc" x="196" y="50" width="160" height="96" rx="8"/>
+          <text x="276" y="78" class="nazev">2. Vylosuj</text>
+          <text x="276" y="102" class="maly">150 variant, jak se</text>
+          <text x="276" y="120" class="maly">naklánět příští 2 s</text>
+          <text x="276" y="138" class="maly">(povel na každých 0,2 s)</text>
+        </g>
+        <g data-k="3">
+          <path class="cara" d="M356 98 L378 98" marker-end="url(#m-sipka)"/>
+          <rect class="blok blok-mpc" x="380" y="50" width="160" height="96" rx="8"/>
+          <text x="460" y="78" class="nazev">3. Přehraj</text>
+          <text x="460" y="102" class="maly">každou variantu na</text>
+          <text x="460" y="120" class="maly">modelu dronu: kam by</text>
+          <text x="460" y="138" class="maly">doletěl, nenarazil by?</text>
+          <path d="M398 40 L520 14 M398 40 L522 28 M398 40 L522 40" stroke="#4a5768" stroke-width="1.5" fill="none" opacity="0.6"/>
+          <path d="M398 40 L470 16" stroke="#cc1233" stroke-width="1.5" fill="none"/>
+        </g>
+        <g data-k="4">
+          <path class="cara" d="M540 98 L562 98" marker-end="url(#m-sipka)"/>
+          <rect class="blok blok-mpc" x="564" y="50" width="160" height="96" rx="8"/>
+          <text x="644" y="78" class="nazev">4. Oboduj</text>
+          <text x="644" y="102" class="maly">body za každou</text>
+          <text x="644" y="120" class="maly">sekundu daleko od okna;</text>
+          <text x="644" y="138" class="maly">náraz = vyřazeno</text>
+        </g>
+        <g data-k="5">
+          <path class="cara" d="M724 98 L746 98" marker-end="url(#m-sipka)"/>
+          <rect class="blok blok-reg" x="748" y="50" width="160" height="96" rx="8"/>
+          <text x="828" y="78" class="nazev">5. Proveď</text>
+          <text x="828" y="102" class="maly">z nejlepší varianty</text>
+          <text x="828" y="120" class="maly">jen první povel —</text>
+          <text x="828" y="138" class="maly">na 0,2 s</text>
+        </g>
+        <g data-k="6">
+          <path d="M828 146 L828 206 L92 206 L92 150" fill="none" stroke="#7622d6" stroke-width="3" marker-end="url(#m-fial)"/>
+          <text x="460" y="230" class="nazev" style="fill:#7622d6">a za 0,2 s celé znovu — s novým měřením</text>
+        </g>
+      </svg></div>
+      <figcaption id="mpc-popis" aria-live="polite"></figcaption>
+    </figure>
+    <div class="kroky-ovladani kroky-uro">
+      <button class="akce" id="mpc-zpet">← Předchozí</button>
+      <span class="kroky-pocet" id="mpc-pocet"></span>
+      <button class="akce hlavni" id="mpc-dalsi">Další část →</button>
+    </div>
+    <div class="sekce">
+      <p><strong>Jak se boduje.</strong> Za každou sekundu předpovědi dostane varianta tolik bodů, kolik metrů dronu zbývá k oknu. Méně bodů tedy znamená, že dron bude dřív u okna. (Pár bodů se přičte i za spotřebu energie, k té se dostaneme v sekci 2.3.) Varianta, ve které by dron vjel do zavřené závory nebo narazil do zdi, je <strong>vyřazená</strong>.</p>
+      <p><strong>Co regulátor ví.</strong> Zná jízdní řád závory a vidí, co závora právě dělá. Pro jistotu pod ni nevjede dřív než 0,3 s po otevření a vyjede zpod ní aspoň 0,3 s před zavřením. Této <em>rezervě</em> se budeme věnovat v sekci 2.3.</p>
+      <p>Tlačítko <strong>Krok</strong> posune let o jedno rozhodnutí (0,2 s). V grafu polohy pak uvidíte všechny vyzkoušené varianty. Za letu jsou posuvníky zamčené.</p>
+    </div>
+    <div class="dilna" id="c-dilna">
+      <div class="scena">
+        <div class="platno-ram"><canvas id="c-platno" role="img" aria-label="Dron s prediktivním regulátorem letí k oknu přes závoru, pod ním je vyznačený plán na nejbližší sekundy"></canvas></div>
+        <div class="tlacitka">
+          <button class="akce hlavni" id="c-spustit">Spustit</button>
+          <button class="akce" id="c-krok">Krok (0,2 s)</button>
+          <button class="akce" id="c-nastart">Na start</button>
+          <button class="akce" id="c-reset">Reset</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="zalozka-obsah">
+          <p class="hlaska" id="c-hlaska" aria-live="polite" hidden></p>
+          <p class="skupina">Prediktivní regulátor</p>
+          <div class="ovladac">
+            <label for="c-horizont">Předpověď dopředu <output id="c-horizont-hodnota"></output></label>
+            <input type="range" id="c-horizont" min="0.4" max="3" step="0.2" value="2">
+          </div>
+          <div class="ovladac">
+            <label for="c-varianty">Počet variant <output id="c-varianty-hodnota"></output></label>
+            <input type="range" id="c-varianty" min="5" max="300" step="5" value="150">
+          </div>
+          <div class="ovladac">
+            <label for="c-seed">Náhoda (seed) <output id="c-seed-hodnota"></output></label>
+            <input type="range" id="c-seed" min="1" max="20" step="1" value="1">
+          </div>
+          <p class="skupina">Závora</p>
+          <div class="ovladac">
+            <label for="c-prvni">Poprvé se otevře</label>
+            <select id="c-prvni">
+              <option value="1">za 1 s</option>
+              <option value="2.5" selected>za 2,5 s</option>
+              <option value="4">za 4 s</option>
+            </select>
+          </div>
+          <label class="prepinac"><input type="checkbox" id="c-nepred"> Závora nedodržuje jízdní řád</label>
+          <div class="ovladac">
+            <label for="c-prehravani">Rychlost přehrávání</label>
+            <select id="c-prehravani">
+              <option value="0.5">zpomaleně (×0,5)</option>
+              <option value="1" selected>skutečný čas (×1)</option>
+              <option value="2">dvakrát rychleji (×2)</option>
+            </select>
+          </div>
+          <div class="stav">
+            <dl>
+              <dt>Čas</dt><dd id="c-st-cas">–</dd>
+              <dt>K oknu zbývá</dt><dd id="c-st-x">–</dd>
+              <dt>Rychlost</dt><dd id="c-st-v">–</dd>
+              <dt>Náklon / požadovaný</dt><dd id="c-st-th">–</dd>
+              <dt>Závora</dt><dd id="c-st-zav">–</dd>
+              <dt>Počet rozhodnutí</dt><dd id="c-st-rozh">–</dd>
+              <dt>Vyřazené varianty</dt><dd id="c-st-vyr">–</dd>
+              <dt>Body vybrané varianty</dt><dd id="c-st-body">–</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="graf-ram"><canvas id="c-grafy" role="img" aria-label="Grafy v čase: poloha dronu s pruhy zavřené závory a s vějířem vyzkoušených variant, náklon skutečný a požadovaný"></canvas></div>
+    <ul class="legenda" aria-hidden="true">
+      <li><svg width="28" height="12"><path d="M2 6 L26 6" stroke="#1145cf" stroke-width="3"/></svg>dráha dronu</li>
+      <li><svg width="28" height="12"><path d="M2 6 L26 6" stroke="#7622d6" stroke-width="3" stroke-dasharray="6 3"/></svg>vybraný plán</li>
+      <li><svg width="28" height="12"><path d="M2 6 L26 6" stroke="#4a5768" stroke-width="1.5" opacity=".5"/></svg>vyzkoušená varianta</li>
+      <li><svg width="28" height="12"><path d="M2 6 L20 6 M17 2 L24 10 M24 2 L17 10" stroke="#cc1233" stroke-width="1.5"/></svg>vyřazená (náraz ×)</li>
+      <li><svg width="28" height="14"><rect x="1" y="1" width="26" height="12" fill="rgba(204,18,51,0.35)" stroke="#cc1233"/></svg>závora zavřená</li>
+      <li><svg width="28" height="14"><rect x="1" y="1" width="26" height="12" fill="rgba(217,112,0,0.3)" stroke="#d97000" stroke-dasharray="3 2"/></svg>rezerva</li>
+    </ul>
+
+    <h4 id="c-pokusy-nadpis">Tabulka letů</h4>
+    <div class="pokusy-hlava">
+      <p class="poznamka">Každý dokončený let se zapíše. Nejrychlejší doručení má hvězdičku.</p>
+      <button class="akce" id="c-vymazat">Vymazat tabulku</button>
+    </div>
+    <div class="tabulka-obal">
+      <table class="tabulka" aria-labelledby="c-pokusy-nadpis">
+        <thead><tr><th>#</th><th class="cislo">Předpověď</th><th class="cislo">Variant</th><th class="cislo">Seed</th><th>Závora</th><th>Výsledek</th><th class="cislo">Doba letu</th><th class="cislo">Odstup od závory</th></tr></thead>
+        <tbody id="c-pokusy"></tbody>
+      </table>
+    </div>
+
+    <h4>Co si zkuste</h4>
+    <div class="kroky" id="kroky-c">
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>Po krocích.</strong> Klikněte několikrát na <em>Krok</em> a sledujte graf polohy: šedé čáry (vějíř) jsou vyzkoušené varianty, fialová je vybraný plán. Pak let dokončete tlačítkem <em>Spustit</em>. Co dron dělá před závorou?</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden><p>Hned na startu je asi čtvrtina variant vyřazená (červené čáry, 34 ze 150): vedou do zavřené závory. Vybraný plán dovede dron těsně před závoru a tam ho nechá čekat. Jakmile regulátor „uvidí“, že se závora otevře, plán se natáhne skrz ni až k oknu. Dron doručí za 6,2 s.</p><p>Všimněte si, že fialový plán se s každým krokem trochu mění. Dron nikdy neprovede celý plán, jen jeho první povel, a za 0,2 s plánuje znovu.</p></div>
+      </div>
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>Krátkozraký regulátor.</strong> Zkraťte předpověď na 0,6 s a pak na 0,4 s. Co se stane?</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden><p>S předpovědí 0,6 s dron narazí do závory (asi v 1,8 s). S 0,4 s závorou projede, ale narazí do zdi (asi ve 4 s). Zavřenou závoru nebo zeď regulátor „uvidí“, až když je do ní méně než 0,6 s letu. To je málo: z rychlosti 3 m/s potřebuje dron na zabrzdění přes 1 m a skoro sekundu. Ve chvíli, kdy překážku uvidí, už ji žádná varianta nemine. Předpověď musí sahat aspoň tak daleko, jak dlouho trvá zabrzdit.</p></div>
+      </div>
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>Dlouhá předpověď.</strong> Nastavte předpověď na 3 s. Je let lepší než se 2 s? Pak zvyšte počet variant na 300.</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden><p>Se 150 variantami je let delší, asi 8,7 s místo 6,2 s. Varianta na 3 s má 15 povelů místo 10, a možných kombinací je proto mnohem víc. 150 náhodných pokusů je pokryje řidčeji a dobrou variantu najde hůř. S 300 variantami dron doručí za 6,6 s. Delší předpověď tedy pomůže, jen když regulátor stihne vyzkoušet víc variant. Ve skutečném dronu je na rozhodnutí jen pár milisekund.</p></div>
+      </div>
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>Málo variant.</strong> Vraťte předpověď na 2 s a nastavte jen 5 variant. Zkuste seed 1, 2 a 3.</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden><p>Dron doletí, ale pomalu a pokaždé jinak: se seedem 1 asi za 8 s, se seedy 2 a 3 až za 20 s. Z pěti náhodných variant je ta nejlepší často jen „nejméně špatná“, a tak dron cuká a zbytečně čeká. Neočekávejte, že stejné nastavení dá s jiným seedem stejný let. S malým počtem variant rozhoduje štěstí.</p></div>
+      </div>
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>Jiný jízdní řád.</strong> Vraťte 150 variant a seed 1. Pak nastavte, že se závora otevře za 1 s, a nakonec za 4 s. Srovnejte s kaskádou v sekci 2.1.</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden><p>Pokaždé doručí: s otevřením za 1 s asi za 4,4 s (rychleji než kaskáda, ta potřebovala 7,4 s), s otevřením za 4 s asi za 7,9 s. Nic jste neladili. Regulátor jízdní řád zná a pokaždé si naplánoval jiný let: jednou rovnou proletět, jindy přiletět k závoře a chvíli počkat.</p></div>
+      </div>
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>Závora, která nedodržuje jízdní řád.</strong> Vraťte otevření na 2,5 s a zaškrtněte <em>Závora nedodržuje jízdní řád</em>. Teď se může otevřít později a zavřít dřív, než regulátor čeká. Zkuste seed 1 až 5.</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden><p>Pokaždé doručí (asi za 6 až 7,6 s). V grafu je vidět, že se červené pruhy skutečné závory liší od toho, co regulátor předpovídal. Proč dron přesto nenarazí? Každých 0,2 s regulátor znovu změří, co závora dělá, a plán přepočítá. Když se závora začne zavírat dřív, další rozhodnutí už s tím počítá. Tomu se říká <em>posuvný horizont</em>: plánuje se pořád dál a dál, nikdy se neprovede celý plán. Pomáhá i rezerva 0,3 s: pod závoru dron nejede na poslední chvíli.</p></div>
+      </div>
+      <div class="kroky-ovladani">
+        <button class="akce" data-zpet>← Předchozí</button>
+        <span class="kroky-pocet" aria-live="polite"></span>
+        <button class="akce hlavni" data-dalsi>Další krok →</button>
+      </div>
+    </div>
+    <p class="brana" id="brana-f" hidden><button class="akce hlavni" id="dal-f">Pokračovat: co vlastně chceme →</button></p>
+    </div>
+
+    <div class="odkryti" id="cast-f" hidden>
+    <!-- ---------- 2.3 CENA A OMEZENÍ ---------- -->
+    <h3 class="podsekce">2.3 Co vlastně chceme</h3>
+    <div class="sekce">
+      <p>Prediktivní regulátor neladíme jako PID přes zesílení. Říkáme mu, <em>co chceme</em>: podle čeho má varianty bodovat a co nesmí nastat. Tady se dají měnit dvě věci.</p>
+      <ul>
+        <li><strong>Váha spotřeby.</strong> Kromě bodů za vzdálenost od okna dostane varianta i body za energii, kterou by dron během předpovědi spotřeboval: za každých 100 J tolik bodů, kolik je váha. Při váze 0 regulátor na spotřebu vůbec nehledí.</li>
+        <li><strong>Rezerva u závory.</strong> O kolik sekund po otevření smí dron nejdřív vjet pod závoru a o kolik sekund před zavřením zpod ní musí vyjet. Rezerva není cena, ale <em>omezení</em>: varianta, která ji poruší, je vyřazená.</li>
+      </ul>
+      <p>Předpověď je pevně 2 s a variant 150. Druhý graf ukazuje <strong>výkon motorů</strong>. Čárkovaná čára je výkon, který dron potřebuje, jen aby visel na místě (asi 160 W).</p>
+    </div>
+    <div class="dilna" id="f-dilna">
+      <div class="scena">
+        <div class="platno-ram"><canvas id="f-platno" role="img" aria-label="Dron s prediktivním regulátorem; lze měnit váhu spotřeby a rezervu u závory"></canvas></div>
+        <div class="tlacitka">
+          <button class="akce hlavni" id="f-spustit">Spustit</button>
+          <button class="akce" id="f-nastart">Na start</button>
+          <button class="akce" id="f-reset">Reset</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="zalozka-obsah">
+          <p class="hlaska" id="f-hlaska" aria-live="polite" hidden></p>
+          <p class="skupina">Co chceme</p>
+          <div class="ovladac">
+            <label for="f-spot">Váha spotřeby <output id="f-spot-hodnota"></output></label>
+            <input type="range" id="f-spot" min="0" max="6" step="1" value="1">
+          </div>
+          <div class="ovladac">
+            <label for="f-rezerva">Rezerva u závory <output id="f-rezerva-hodnota"></output></label>
+            <input type="range" id="f-rezerva" min="0" max="1.2" step="0.1" value="0.3">
+          </div>
+          <p class="pevne">Spěch: 1 bod za každý metr od okna za každou sekundu (pevně).</p>
+          <p class="skupina">Závora</p>
+          <div class="ovladac">
+            <label for="f-prvni">Poprvé se otevře</label>
+            <select id="f-prvni">
+              <option value="1">za 1 s</option>
+              <option value="2.5" selected>za 2,5 s</option>
+              <option value="4">za 4 s</option>
+            </select>
+          </div>
+          <label class="prepinac"><input type="checkbox" id="f-nepred"> Závora nedodržuje jízdní řád</label>
+          <div class="ovladac">
+            <label for="f-seed">Náhoda (seed) <output id="f-seed-hodnota"></output></label>
+            <input type="range" id="f-seed" min="1" max="20" step="1" value="1">
+          </div>
+          <div class="ovladac">
+            <label for="f-prehravani">Rychlost přehrávání</label>
+            <select id="f-prehravani">
+              <option value="0.5">zpomaleně (×0,5)</option>
+              <option value="1" selected>skutečný čas (×1)</option>
+              <option value="2">dvakrát rychleji (×2)</option>
+            </select>
+          </div>
+          <div class="stav">
+            <dl>
+              <dt>Čas</dt><dd id="f-st-cas">–</dd>
+              <dt>K oknu zbývá</dt><dd id="f-st-x">–</dd>
+              <dt>Závora</dt><dd id="f-st-zav">–</dd>
+              <dt>Energie celkem</dt><dd id="f-st-E">–</dd>
+              <dt>z toho navíc oproti visení</dt><dd id="f-st-navic">–</dd>
+              <dt>Nejmenší odstup od závory</dt><dd id="f-st-odstup">–</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="graf-ram"><canvas id="f-grafy" role="img" aria-label="Grafy v čase: poloha dronu s pruhy zavřené závory a vybraným plánem, výkon motorů s čarou výkonu při visení"></canvas></div>
+    <ul class="legenda" aria-hidden="true">
+      <li><svg width="28" height="12"><path d="M2 6 L26 6" stroke="#1145cf" stroke-width="3"/></svg>dráha dronu / výkon</li>
+      <li><svg width="28" height="12"><path d="M2 6 L26 6" stroke="#7622d6" stroke-width="3" stroke-dasharray="6 3"/></svg>vybraný plán</li>
+      <li><svg width="28" height="14"><rect x="1" y="1" width="26" height="12" fill="rgba(204,18,51,0.35)" stroke="#cc1233"/></svg>závora zavřená</li>
+      <li><svg width="28" height="14"><rect x="1" y="1" width="26" height="12" fill="rgba(217,112,0,0.3)" stroke="#d97000" stroke-dasharray="3 2"/></svg>rezerva</li>
+      <li><svg width="28" height="12"><path d="M2 6 L26 6" stroke="#4a5768" stroke-width="2" stroke-dasharray="5 3"/></svg>výkon při visení</li>
+    </ul>
+
+    <h4 id="f-pokusy-nadpis">Tabulka letů</h4>
+    <div class="pokusy-hlava">
+      <p class="poznamka">Každý dokončený let se zapíše. <strong>Energie celkem</strong> = vše, co motory spotřebovaly od startu do doručení. <strong>Navíc</strong> = kolik z toho padlo na pohyb (víc, než by dron spotřeboval, kdyby stejně dlouho jen visel). Hvězdičku má doručení s nejmenší celkovou energií.</p>
+      <button class="akce" id="f-vymazat">Vymazat tabulku</button>
+    </div>
+    <div class="tabulka-obal">
+      <table class="tabulka" aria-labelledby="f-pokusy-nadpis">
+        <thead><tr><th>#</th><th class="cislo">Váha spotřeby</th><th class="cislo">Rezerva</th><th>Závora</th><th>Výsledek</th><th class="cislo">Doba letu</th><th class="cislo">Energie celkem</th><th class="cislo">z toho navíc</th><th class="cislo">Odstup od závory</th></tr></thead>
+        <tbody id="f-pokusy"></tbody>
+      </table>
+    </div>
+
+    <h4>Co si zkuste</h4>
+    <div class="kroky" id="kroky-f">
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>Kam jde energie.</strong> Spusťte s výchozím nastavením. Kolik energie dron spotřebuje a kolik z toho padne na samotný pohyb? Sledujte graf výkonu.</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden><p>Let trvá 6,2 s a spotřebuje asi 1 060 J. Navíc oproti visení je z toho jen asi 60 J. Výkon motorů se drží kolem 160 W a nad čárkovanou čáru vyskočí jen krátce, když se dron naklání. Skoro všechna energie jde na to, aby dron vůbec zůstal ve vzduchu.</p></div>
+      </div>
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>Šetřete.</strong> Zvyšte váhu spotřeby na 30, pak na 100 a nakonec na 300. Sledujte energii celkem a energii navíc. Ušetří dron?</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden><p>Energie navíc opravdu klesá: z 61 J na 12 J, 7 J a 3 J. Regulátor dělá přesně to, co po něm chcete, a naklání se co nejméně. Jenže let se prodlužuje (při váze 300 trvá skoro 16 s) a energie celkem <em>roste</em>, při váze 300 až na 2 550 J. Regulátor vidí jen 2 s dopředu. V tom okně je visení pro všechny varianty stejně drahé, a tak ho „nevidí“. Vidí jen to, že náklon něco stojí, a proto letí pomalu.</p><p>Nejúspornější let je tedy ten rychlý. Regulátor optimalizuje přesně to, co mu zadáte, ne to, co jste mysleli.</p></div>
+      </div>
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>Rezerva.</strong> Vraťte váhu spotřeby na 1. Nastavte, že se závora otevře za 1 s, zaškrtněte <em>Závora nedodržuje jízdní řád</em> a nastavte seed 3. Zkuste rezervu 0, pak 0,3 s a nakonec 1 s.</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden><p>Bez rezervy dron narazí do závory (asi v 1,6 s). Závora se tentokrát otevřela později, než říká jízdní řád, a dron vjel pod ni přesně ve chvíli, kdy ji čekal nahoře. S rezervou 0,3 s doručí za 5,4 s. S rezervou 1 s nedoručí vůbec: dron čeká a čeká, protože se do otevřené závory s rezervou 1 s na každé straně nikdy nevejde (otevřená je jen asi 2,3 s). Malá rezerva je riskantní, velká znamená, že dron nikdy neprojede.</p></div>
+      </div>
+      <div class="krok" hidden>
+        <p class="krok-ukol"><strong>Soutěž (volitelné).</strong> Nechte závoru nedodržovat jízdní řád a najděte nastavení, které doručí se seedy 1, 2 i 3 a spotřebuje přitom co nejméně energie.</p>
+        <button class="akce krok-ukaz" aria-expanded="false">Ukázat vysvětlení</button>
+        <div class="krok-vysvetleni" hidden><p>Dobře vychází malá váha spotřeby (0 až 10) a rezerva kolem 0,3 s, s energií zhruba 1 100 až 1 300 J podle seedu. Seed tu mění i to, jak se závora odchyluje od jízdního řádu. Jedno nastavení musí zvládnout všechny tři, stejně jako skutečný regulátor musí zvládnout závoru, jejíž odchylky nikdo dopředu nezná.</p></div>
+      </div>
+      <div class="kroky-ovladani">
+        <button class="akce" data-zpet>← Předchozí</button>
+        <span class="kroky-pocet" aria-live="polite"></span>
+        <button class="akce hlavni" data-dalsi>Další krok →</button>
+      </div>
+    </div>
+    <p class="brana" id="brana-teorie" hidden><button class="akce hlavni" id="dal-teorie">Pokračovat na vysvětlení →</button></p>
+    </div>
+  </section>
+
+  <div class="odkryti" id="cast-teorie" hidden>
+  <!-- ============ 3. TEORETICKÉ VYSVĚTLENÍ ============ -->
+  <section class="sekce">
+    <h2>3. Prediktivní řízení</h2>
+    <p class="poznamka">Kliknutím na nadpis se část rozbalí. Pointa celé lekce je v rámečku <em>Proč je to těžké</em> na konci.</p>
+
+    <details class="teorie-blok">
+      <summary><h3>Proč kaskáda z minula narazila (2.1)</h3></summary>
+      <p>Regulátor PID počítá zásah z toho, co měří <em>teď</em>: vzdálenost k oknu a rychlost. O závoře neví nic. Když se trefí do otevřené závory, je to náhoda: let zrovna vyjde na jízdní řád. Stačí, aby se závora otevřela o 1,5 s později, a stejný regulátor narazí.</p>
+      <p>Šlo by přidat pravidlo „když je závora dole, zastav“. Ale kde zastavit, kdy se rozjet a jak rychle, aby dron přiletěl přesně ve chvíli, kdy bude závora nahoře? To jsou otázky na <em>budoucnost</em> a zpětná vazba na ně neodpovídá. Ta opravuje až chybu, která už nastala.</p>
+    </details>
+
+    <details class="teorie-blok" open>
+      <summary><h3>Plánuj, proveď kousek, plánuj znovu (2.2)</h3></summary>
+      <p>Prediktivní regulátor (MPC) se v každém kroku rozhoduje takto:</p>
+      <ol>
+        <li><strong>Změří stav</strong>: polohu, rychlost a náklon dronu a co právě dělá závora.</li>
+        <li><strong>Navrhne varianty</strong>. Každá varianta je řada povelů „chci náklon θ“, jeden povel na každých 0,2 s. Při předpovědi 2 s má varianta 10 povelů.</li>
+        <li><strong>Přehraje je v modelu.</strong> Pro každou variantu spočítá, kam by se dron během předpovědi dostal. Tomu úseku budoucnosti se říká <em>horizont předpovědi</em>.</li>
+        <li><strong>Oboduje je</strong> (spočítá jejich <em>cenu</em>) a vyřadí ty, které porušují <em>omezení</em>, tedy narazí do zdi nebo do zavřené závory.</li>
+        <li><strong>Provede jen první povel</strong> nejlepší varianty a za 0,2 s začne znovu od bodu 1.</li>
+      </ol>
+      <p>Bod 5 je nejdůležitější. Regulátor nikdy neprovede celý plán. Za 0,2 s už ví víc: dron se trochu odchýlil od předpovědi, závora mohla udělat něco nečekaného. Proto plánuje znovu z nového změřeného stavu. Horizont se s časem posouvá dopředu, a tak se tomu říká <em>posuvný horizont</em>. Díky tomu je MPC pořád zpětnovazební regulátor: na nečekané události reaguje stejně jako PID, jen s výhledem do budoucnosti.</p>
+    </details>
+
+    <details class="teorie-blok">
+      <summary><h3>Model v hlavě regulátoru</h3></summary>
+      <p>Aby regulátor mohl varianty „přehrát“, potřebuje <em>model</em>: výpočet, který z povelů předpoví pohyb dronu. Náš regulátor používá stejnou fyziku, jakou jste skládali minule: vnitřní regulátor náklonu se zpožděním motorů, náklon dává zrychlení <em>a</em> = <em>g</em> · tg <em>θ</em> a výšku drží automat. Počítá ale hrubším krokem (0,01 s místo 0,002 s) a výšku bere jako přesně 3 m. Předpověď se proto od skutečného letu liší o pár centimetrů.</p>
+      <p>Kvůli tomu si regulátor představuje závoru o 25 cm a zeď o 20 cm „větší“, než ve skutečnosti jsou. To je <em>bezpečnostní odstup</em>. Bez něj by plánoval průlet o vlásek a malá chyba modelu by stačila k nárazu. U skutečného dronu je rozdíl mezi modelem a skutečností mnohem větší (vítr, slábnoucí baterie, jiná hmotnost balíku). Proto je tak důležité plánovat každých 0,2 s znovu.</p>
+    </details>
+
+    <details class="teorie-blok">
+      <summary><h3>Jak se počítají body (cena)</h3></summary>
+      <p>Cena varianty se sčítá po malých krocích předpovědi:</p>
+      <div class="vzorec"><math display="block"><mtext>cena</mtext><mo>=</mo><munder><mo>∑</mo><mtext>kroky</mtext></munder><mo>|</mo><msub><mi>x</mi><mtext>okno</mtext></msub><mo>−</mo><mi>x</mi><mo>|</mo><mo>⋅</mo><mi>Δ</mi><mi>t</mi><mo>+</mo><mi>w</mi><mo>⋅</mo><mfrac><mi>E</mi><mrow><mn>100</mn><mtext> J</mtext></mrow></mfrac></math></div>
+      <ul>
+        <li><strong>∑</strong> (řecké sigma) znamená „sečti přes všechny kroky předpovědi“.</li>
+        <li><em>x</em><sub>okno</sub> = 8 m je poloha okna, <em>x</em> předpovězená poloha dronu v daném kroku. |<em>x</em><sub>okno</sub> − <em>x</em>| je, kolik metrů ještě zbývá.</li>
+        <li><em>Δt</em> = 0,01 s je délka jednoho kroku předpovědi. První člen je tedy „metry od okna × sekundy“: dron, který stojí 8 m od okna, za 2 s nasbírá 8 · 2 = 16 bodů. Tomu říkáme <em>spěch</em>.</li>
+        <li><em>E</em> je energie v joulech, kterou by motory během předpovědi spotřebovaly, a <em>w</em> váha spotřeby ze sekce 2.3.</li>
+      </ul>
+      <p>Vedle ceny jsou <strong>omezení</strong>. Varianta, ve které dron vjede pod zavřenou závoru (i s rezervou) nebo se přiblíží ke zdi, je vyřazená. Prakticky dostane obrovskou cenu, takže ji regulátor nikdy nevybere, pokud existuje jiná. Cena říká, co chceme „co nejvíc“ nebo „co nejméně“. Omezení říká, co se nesmí stát vůbec.</p>
+    </details>
+
+    <details class="teorie-blok">
+      <summary><h3>Jedno rozhodnutí na příkladu (2.2)</h3></summary>
+      <p>Výchozí situace ze sekce 2.2 v čase 0 s: dron stojí na startu, závora je dole a otevře se za 2,5 s. Předpověď je 2 s, váha spotřeby 1. Takhle dopadnou čtyři varianty:</p>
+      <div class="tabulka-obal">
+        <table class="tabulka">
+          <thead><tr><th>Varianta (povely náklonu)</th><th>Kam doletí za 2 s</th><th class="cislo">Spěch</th><th class="cislo">Spotřeba</th><th class="cislo">Cena</th></tr></thead>
+          <tbody>
+            <tr><td>Stůj: 0° celou dobu</td><td>zůstane na 0 m</td><td class="cislo">8 · 2 = 16,0</td><td class="cislo">319 J → 3,2</td><td class="cislo">19,2</td></tr>
+            <tr><td class="spatne">Plný plyn: 25° celou dobu</td><td class="spatne">po 1,6 s vjede do zavřené závory</td><td class="cislo">—</td><td class="cislo">—</td><td class="cislo spatne">vyřazená</td></tr>
+            <tr><td>Rozjeď a zabrzdi: 25°, 25°, 0°, −25°, −25°, pak 0°</td><td>zastaví na 1,0 m</td><td class="cislo">14,5</td><td class="cislo">336 J → 3,4</td><td class="cislo">17,9</td></tr>
+            <tr class="nejlepsi"><td>Nejlepší ze 150: 15°, 18°, 6°, 20°, 17°, pak kolem 0°</td><td>zastaví na 3,8 m, těsně před závorou</td><td class="cislo">13,3</td><td class="cislo">329 J → 3,3</td><td class="cislo">16,6</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Z 150 variant jich 34 vjede do zavřené závory a jsou vyřazené. Vyhraje ta, která dovede dron co nejblíž k oknu, ale před závorou zastaví. Regulátor z ní provede jen první povel: <strong>náklon 15° na 0,2 s</strong>. Pak dron změří, kde je, a celé rozhodnutí se zopakuje. Plán se přitom natáhne o 0,2 s dál, a jakmile do něj otevření závory padne, povede plán skrz ni.</p>
+      <p>Všimněte si, že spotřeba se mezi nevyřazenými variantami liší jen o necelých 20 J (319 až 336 J, tedy necelé 2 body), kdežto spěch o několik bodů. O výběru tu rozhoduje spěch a omezení.</p>
+    </details>
+
+    <details class="teorie-blok">
+      <summary><h3>Rezerva a nečekaná závora (2.2, 2.3)</h3></summary>
+      <p>Předpověď je jen tak dobrá, jak dobře regulátor zná budoucnost. Když závora nedodržuje jízdní řád, regulátor to pozná až ve chvíli, kdy se závora začne pohybovat jinak, než čekal. Dvě věci ho chrání:</p>
+      <ul>
+        <li><strong>Plánování znovu každých 0,2 s.</strong> Jakmile regulátor změří, že se závora začala zavírat dřív, další rozhodnutí už s tím počítá.</li>
+        <li><strong>Rezerva.</strong> Regulátor pod závoru nevjede hned po otevření a nevyjíždí na poslední chvíli. Tím získá čas na reakci, když se závora zachová jinak.</li>
+      </ul>
+      <p>Rezerva ale něco stojí. Závora je (i s pohybem desky) průjezdná asi 2,3 s. S rezervou <em>R</em> na každé straně zbývá 2,3 − 2 · <em>R</em> sekundy. S rezervou 1 s je to 0,3 s, a to dron, který před závorou stojí, nestihne. Proto při rezervě 1 s nedoručil vůbec. Správná velikost rezervy závisí na tom, jak moc se závora od jízdního řádu odchyluje. Ve skutečnosti je to stejné: čím nejistější je svět kolem, tím větší rezervu potřebujete a tím pomaleji se pohybujete.</p>
+    </details>
+
+    <details class="teorie-blok">
+      <summary><h3>Proč „úsporný“ regulátor spotřeboval víc (2.3)</h3></summary>
+      <p>Dron potřebuje výkon asi 160 W jen na to, aby visel ve vzduchu. Naklánění a zrychlování přidá jen trochu: při náklonu 25° asi o 16 % víc, a to jen na chvíli. Celková energie proto závisí hlavně na tom, <em>jak dlouho</em> let trvá:</p>
+      <div class="tabulka-obal">
+        <table class="tabulka">
+          <thead><tr><th class="cislo">Váha spotřeby</th><th class="cislo">Doba letu</th><th class="cislo">Energie celkem</th><th class="cislo">z toho navíc</th></tr></thead>
+          <tbody>
+            <tr><td class="cislo">1</td><td class="cislo">6,2 s</td><td class="cislo">1 059 J</td><td class="cislo">61 J</td></tr>
+            <tr><td class="cislo">30</td><td class="cislo">8,7 s</td><td class="cislo">1 398 J</td><td class="cislo">12 J</td></tr>
+            <tr><td class="cislo">300</td><td class="cislo">15,9 s</td><td class="cislo">2 546 J</td><td class="cislo">3 J</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Regulátor ale vidí jen 2 s dopředu. V tomto okně visí všechny varianty stejně dlouho (2 s), takže energii na visení mají všechny stejnou a na výběr nemá vliv. Rozdíl dělá jen energie navíc, a tu regulátor opravdu sníží. Že kvůli tomu poletí déle a celkem spotřebuje víc, z předpovědi na 2 s nepozná.</p>
+      <p>Obecné poučení: <strong>regulátor optimalizuje přesně tu cenu, kterou mu zadáte</strong>. Napsat cenu tak, aby vyjadřovala to, co opravdu chcete, je samostatný a často nejtěžší úkol.</p>
+    </details>
+
+    <details class="teorie-blok">
+      <summary><h3>Jak to vypadá v kódu (Python)</h3></summary>
+      <p>Zjednodušený prediktivní regulátor se vejde na jednu obrazovku. Funkce <code>prehraj</code> je „model v hlavě“: přehraje jednu variantu a vrátí její body. Funkce <code>rozhodni</code> vyzkouší varianty a vrátí nejlepší. Hlavní smyčka provede vždy jen první povel.</p>
+      <pre class="kod"><code><span class="k-klic">import</span> math, random
+
+KROK = <span class="k-cis">0.2</span>                   <span class="k-kom"># jak často regulátor rozhoduje [s]</span>
+DT = <span class="k-cis">0.01</span>                    <span class="k-kom"># krok předpovědi [s]</span>
+MAX = math.radians(<span class="k-cis">25</span>)       <span class="k-kom"># největší povolený náklon</span>
+X_OKNO, X_ZAVORA = <span class="k-cis">8.0</span>, <span class="k-cis">4.5</span>   <span class="k-kom"># poloha okna a závory [m]</span>
+
+
+<span class="k-klic">def</span> <span class="k-fun">vykon</span>(naklon):
+    <span class="k-str">"""Výkon motorů [W]: při visení asi 160 W, nakloněný dron musí táhnout víc."""</span>
+    <span class="k-klic">return</span> <span class="k-cis">160</span> * (<span class="k-cis">1</span> / math.cos(naklon)) ** <span class="k-cis">1.5</span>
+
+
+<span class="k-klic">def</span> <span class="k-fun">prehraj</span>(stav, povely, zavora, w_spotreba):
+    <span class="k-str">"""Přehraje jednu variantu v modelu dronu. Vrátí body, nebo None, když dron narazí."""</span>
+    x, v, naklon = stav
+    body, t = <span class="k-cis">0.0</span>, <span class="k-cis">0.0</span>
+    <span class="k-klic">for</span> povel <span class="k-klic">in</span> povely:                         <span class="k-kom"># každý povel platí 0,2 s</span>
+        <span class="k-klic">for</span> _ <span class="k-klic">in</span> <span class="k-vest">range</span>(<span class="k-vest">round</span>(KROK / DT)):
+            naklon += (povel - naklon) * DT / <span class="k-cis">0.15</span>    <span class="k-kom"># vnitřní regulátor náklon dorovná (zjednodušeně)</span>
+            v += <span class="k-cis">9.81</span> * math.tan(naklon) * DT         <span class="k-kom"># náklon → zrychlení</span>
+            x += v * DT
+            t += DT
+            <span class="k-klic">if</span> zavora.zavrena(t) <span class="k-klic">and</span> <span class="k-vest">abs</span>(x - X_ZAVORA) &lt; <span class="k-cis">0.45</span>:
+                <span class="k-klic">return</span> <span class="k-klic">None</span>                           <span class="k-kom"># omezení: pod zavřenou závoru ne</span>
+            body += <span class="k-vest">abs</span>(X_OKNO - x) * DT               <span class="k-kom"># spěch: metry od okna × sekundy</span>
+            body += w_spotreba * vykon(naklon) * DT / <span class="k-cis">100</span>   <span class="k-kom"># spotřeba: body za 100 J</span>
+    <span class="k-klic">return</span> body
+
+
+<span class="k-klic">def</span> <span class="k-fun">rozhodni</span>(stav, minuly_plan, zavora, n_variant=<span class="k-cis">150</span>, w_spotreba=<span class="k-cis">1</span>):
+    zaklad = minuly_plan[<span class="k-cis">1</span>:] + minuly_plan[-<span class="k-cis">1</span>:]     <span class="k-kom"># minulý plán posunutý o jeden krok</span>
+    nejlepsi, nej_body = zaklad, math.inf
+    <span class="k-klic">for</span> _ <span class="k-klic">in</span> <span class="k-vest">range</span>(n_variant):
+        varianta = [<span class="k-vest">max</span>(-MAX, <span class="k-vest">min</span>(MAX, p + random.gauss(<span class="k-cis">0</span>, math.radians(<span class="k-cis">8</span>)))) <span class="k-klic">for</span> p <span class="k-klic">in</span> zaklad]
+        body = prehraj(stav, varianta, zavora, w_spotreba)
+        <span class="k-klic">if</span> body <span class="k-klic">is not</span> <span class="k-klic">None</span> <span class="k-klic">and</span> body &lt; nej_body:
+            nejlepsi, nej_body = varianta, body
+    <span class="k-klic">return</span> nejlepsi
+
+
+plan = [<span class="k-cis">0.0</span>] * <span class="k-cis">10</span>                    <span class="k-kom"># 10 povelů × 0,2 s = předpověď na 2 s</span>
+<span class="k-klic">while</span> <span class="k-klic">not</span> dorucen():
+    plan = rozhodni(zmer_stav(), plan, zavora)
+    pozadovany_naklon(plan[<span class="k-cis">0</span>])          <span class="k-kom"># provede se jen první povel…</span>
+    cekej(KROK)                         <span class="k-kom"># …a za 0,2 s se plánuje znovu</span></code></pre>
+      <ul>
+        <li>Funkce <code>zmer_stav</code>, <code>pozadovany_naklon</code>, <code>cekej</code> a <code>dorucen</code> patří ke konkrétnímu dronu (senzory, motory) a tady nejsou rozepsané. <code>zavora.zavrena(t)</code> říká, jestli bude závora za <em>t</em> sekund podle předpovědi zavřená.</li>
+        <li>Regulátor na stránce je o něco chytřejší: varianty losuje ve třech kolech (nejdřív hrubě, pak jemně kolem dosud nejlepší), náklon přehrává přesnějším modelem a počítá s rezervou i bezpečnostním odstupem. Myšlenka je stejná.</li>
+        <li>Náročnost: 150 variant × 200 kroků předpovědi = 30 000 výpočtů pohybu na <em>jedno</em> rozhodnutí, a rozhoduje se pětkrát za sekundu. Regulátor PID z minula na jeden krok potřeboval pár násobení.</li>
+      </ul>
+    </details>
+
+    <details class="teorie-blok">
+      <summary><h3>PID a MPC vedle sebe</h3></summary>
+      <div class="tabulka-obal">
+        <table class="tabulka">
+          <thead><tr><th></th><th>Kaskáda PID (2.1)</th><th>Prediktivní regulátor (2.2, 2.3)</th></tr></thead>
+          <tbody>
+            <tr><td>Z čeho počítá zásah</td><td>z toho, co měří teď</td><td>z předpovědi, co by se stalo při různých povelech</td></tr>
+            <tr><td>Co potřebuje znát</td><td>jen měření</td><td>měření, model dronu a předpověď okolí (jízdní řád)</td></tr>
+            <tr><td>Co se ladí</td><td>zesílení Kp, Ki, Kd</td><td>cenu (co chceme), omezení (co nesmí nastat), délku předpovědi, počet variant</td></tr>
+            <tr><td>Překážka, která se mění v čase</td><td>neumí: projede jen náhodou</td><td>umí: naplánuje, kdy přiletět</td></tr>
+            <tr><td>Výpočet</td><td>pár násobení na krok</td><td>tisíce simulací za sekundu</td></tr>
+            <tr><td>Kdy selže</td><td>když je potřeba myslet dopředu</td><td>když je předpověď krátká, model špatný, budoucnost nepředvídatelná nebo když regulátor nestihne spočítat dost variant</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>V praxi se obojí kombinuje, stejně jako v této lekci: rychlý vnitřní regulátor náklonu zůstal PID a prediktivní regulátor nad ním řídí pomalejší polohu.</p>
+    </details>
+
+    <details class="teorie-blok">
+      <summary><h3>Kde se prediktivní řízení používá</h3></summary>
+      <ul>
+        <li><strong>Chemické továrny a rafinerie</strong>: tady se MPC začalo používat. Procesy jsou pomalé, takže je čas počítat, a mají mnoho omezení (teploty, tlaky, hladiny).</li>
+        <li><strong>Autonomní auta</strong>: plánování jízdy kolem chodců a jiných aut, jejichž pohyb je potřeba předpovídat.</li>
+        <li><strong>Drony a rakety</strong>: průlet překážkami, závodní drony, přistání raket zpět na Zemi.</li>
+        <li><strong>Vytápění budov</strong>: regulátor podle předpovědi počasí a ceny elektřiny topí dopředu.</li>
+      </ul>
+      <p>Prediktivní řízení se rozšířilo s rychlými počítači. Dřív by výpočet nestihl běžet v reálném čase.</p>
+    </details>
+
+    <div class="pointa">
+      <h2>Proč je to těžké</h2>
+      <p>Myšlenka prediktivního řízení zní jednoduše: přehraj si budoucnost dost daleko dopředu a vyber nejlepší plán. Každá část té věty ale skrývá vlastní problém.</p>
+      <ul>
+        <li><strong>„Přehraj si budoucnost“</strong> předpokládá model dronu i okolí. Model nikdy není přesný a okolí (závora, vítr, chodci) se nemusí chovat podle předpovědi. Proto MPC plánuje znovu každých 0,2 s a potřebuje rezervu a bezpečnostní odstup.</li>
+        <li><strong>„Dost daleko“</strong>: s krátkou předpovědí regulátor překážku uvidí pozdě. Dlouhá předpověď má ale víc možností a vyžaduje víc výpočtu. To všechno se musí stihnout za zlomek sekundy, dřív, než dron potřebuje další povel.</li>
+        <li><strong>„Nejlepší plán“</strong>: co je nejlepší, musí člověk zapsat do ceny. Regulátor ji splní doslova, i když to není to, co jsme mysleli. Úsporný regulátor spotřeboval nejvíc.</li>
+      </ul>
+      <p>Místo ladění zesílení se tak ladí model, cena a omezení, a k tomu je potřeba výkonný počítač na palubě.</p>
+    </div>
+  </section>
+
+  <!-- ============ 4. KDE SE TO UČÍ ============ -->
+  <section class="predmety">
+    <h2>4. Kde se to učí</h2>
+    <p class="sekce">Regulace se na Fakultě strojní ČVUT probírá ve třech navazujících předmětech, stejných jako u předchozích lekcí. Prediktivnímu řízení z této lekce se podrobně věnuje čtvrtý předmět, který stojí na matematickém modelu soustavy a na optimalizaci.</p>
+    <div class="predmety-grid">
+      <article class="predmet">
+        <p class="predmet-stupen">Základní kurz</p>
+        <h3>Automatické řízení</h3>
+        <p>Základní pojmy regulace, PID regulátor a jeho seřizování — zkusmo i výpočtem — a stabilita regulačního obvodu. To je regulátor z minula, který v této lekci narazil do závory. Návrhy v Matlabu/Simulinku a cvičení na skutečných úlohách.</p>
+        <p class="predmet-odkaz"><a href="https://kos.fs.cvut.cz/synopsis/2371047" target="_blank" rel="noopener">Anotace předmětu ↗</a></p>
+      </article>
+      <article class="predmet">
+        <p class="predmet-stupen">Pokračovací kurz, magisterské studium</p>
+        <h3>Matematické a simulační modely</h3>
+        <p>Jak z rovnic sestavit model, se kterým jde počítat, a jak ho numericky řešit v počítači. Prediktivní regulátor bez takového modelu nemá co „přehrát v hlavě“.</p>
+        <p class="predmet-odkaz"><a href="https://kos.fs.cvut.cz/synopsis/course/2371097" target="_blank" rel="noopener">Anotace předmětu ↗</a></p>
+      </article>
+      <article class="predmet">
+        <p class="predmet-stupen">Navazuje na Matematické a simulační modely</p>
+        <h3>Řízení systémů a procesů</h3>
+        <p>Návrh PID a stavových regulátorů z modelu, robustní návrh, který snese změnu soustavy, a řízení soustav se zpožděním.</p>
+        <p class="predmet-odkaz"><a href="https://kos.fs.cvut.cz/synopsis/course/2371002" target="_blank" rel="noopener">Anotace předmětu ↗</a></p>
+      </article>
+      <article class="predmet">
+        <p class="predmet-stupen">Navazuje na Matematické a simulační modely a Řízení systémů a procesů</p>
+        <h3>Optimální a prediktivní systémy řízení</h3>
+        <p>Návrh řízení jako optimalizační úloha: hledání nejlepšího povelu a metody, jak ho najít výpočtem místo losování variant. Prediktivní regulátor (MPC) s posuvným horizontem a s omezeními veličin, jako byla závora a rezerva v této lekci. Úlohy ze strojírenské praxe.</p>
+        <p class="predmet-odkaz"><a href="https://kos.fs.cvut.cz/synopsis/2371101" target="_blank" rel="noopener">Anotace předmětu ↗</a></p>
+      </article>
+    </div>
+  </section>
+  </div>
+
+  <p class="paticka"><a href="../index.html">← Zpět na rozcestník</a></p>
+</main>
+
+<script src="../assets/js/spolecne.js"></script>
+<script>
+(function () {
+  'use strict';
+  const generator = Kurz.generator;
+
+  /* ================= model dronu, závory a prediktivního regulátoru =================
+     Rovinný dron jako v lekci 3c: dvě vrtule, vnitřní regulátor náklonu (Kp 3, Kd 4), zpoždění motorů, automat výšky.
+     Požadovaný náklon S.thr dodává buď vnější PID regulátor polohy (2.1), nebo prediktivní regulátor (2.2, 2.3). */
+/* MODEL-START */
+  const RAD = Math.PI / 180;
+  const K = { g: 9.81, m: 1.5, J: 0.03, L: 0.25, tauM: 0.05, dFmax: 6, thMax: 25 * RAD, dt: 0.002, kz: 4, dz: 4, kappa: 4 };
+  K.Tmax = 2 * K.m * K.g;
+  const Z0 = 3, X_CIL = 8, PUL = 0.3, X_ZED = X_CIL + PUL + 0.3;
+  const ZAV = { x: 4.5, sirka: 0.2, horni: 4.6 };                 // závora: deska x ∈ [4,4; 4,6] m, visí od b(t) do 4,6 m
+  const DRON = { pul: 0.35, nahoru: 0.17 };                        // obrys dronu: půl šířky, vrtule nad těžištěm
+  const ZONA = ZAV.sirka / 2 + DRON.pul;                           // těžiště blíž než 0,45 m od osy závory = dron je pod ní
+  const VOLNO = Z0 + DRON.nahoru;                                  // spodní hrana desky musí být nad 3,17 m
+  const JR = { zavreno: 3, otevira: 0.5, otevreno: 2, zavira: 0.5 };  // jízdní řád závory [s]
+  const PORADI = ['zavreno', 'otevira', 'otevreno', 'zavira'];
+  const clamp = (v, a) => Math.max(-a, Math.min(a, v));
+  const P_VISENI = 2 * K.kappa * Math.pow(K.m * K.g / 2, 1.5);    // výkon při visení na místě ≈ 160 W
+
+  /* Závora: seznam fází. `plan` = jízdní řád (co regulátor ví), `skut` = co závora opravdu dělá. */
+  function vytvorZavoru(prvni, nepredvidatelna, seed) {
+    const rng = generator(seed * 7919 + 13);
+    const plan = [], skut = [];
+    let ts = 0, i = 0;
+    while (ts < 200) {
+      const f = PORADI[i % 4];
+      const d = i === 0 ? prvni : JR[f];
+      let ds = d;
+      if (nepredvidatelna && (f === 'zavreno' || f === 'otevreno')) ds = d * (f === 'otevreno' ? rng.rozsah(0.5, 1) : rng.rozsah(0.85, 1.35));
+      plan.push({ f, d }); skut.push({ f, t0: ts, t1: ts + ds });
+      ts += ds; i++;
+    }
+    function otevreni(f, e, d) {   // 0 = zavřeno, 1 = otevřeno
+      return f === 'zavreno' ? 0 : f === 'otevreno' ? 1 : f === 'otevira' ? Math.min(1, e / d) : Math.max(0, 1 - e / d);
+    }
+    function index(t) { let j = 0; while (j < skut.length - 1 && skut[j].t1 <= t) j++; return j; }
+    return {
+      skut,
+      b(t) { const j = index(t), s = skut[j]; return ZAV.horni * otevreni(s.f, t - s.t0, s.t1 - s.t0); },
+      // před kolika sekundami (nejvýš r) byla závora naposledy zavřená; null = v posledních r sekundách nebyla
+      posledniZavreno(t, r) { for (let q = 0.01; q <= r + 1e-9; q += 0.01) if (t - q >= 0 && this.b(t - q) < VOLNO) return -q; return null; },
+      // předpověď: regulátor vidí, ve které fázi závora je a jak dlouho, dál věří jízdnímu řádu
+      predpovez(t, n, dtp) {
+        const j = index(t), e = t - skut[j].t0, out = new Float64Array(n + 1);
+        let k = j, zac = t - e, delka = plan[j].f === 'otevira' || plan[j].f === 'zavira' ? plan[j].d : Math.max(plan[j].d, e + 0.05);
+        for (let q = 0; q <= n; q++) {
+          const tq = t + q * dtp;
+          while (tq >= zac + delka && k < plan.length - 1) { zac += delka; k++; delka = plan[k].d; }
+          out[q] = ZAV.horni * otevreni(plan[k].f, tq - zac, delka);
+        }
+        return out;
+      }
+    };
+  }
+
+  function odstupOd(x, z, b) {     // vzdálenost obrysu dronu od desky závory [m]; 0 = náraz
+    const dx = Math.max(0, Math.abs(x - ZAV.x) - ZONA), dz = Math.max(0, b - (z + DRON.nahoru));
+    return Math.hypot(dx, dz);
+  }
+
+  function novyStav() {
+    return { t: 0, x: 0, z: Z0, vx: 0, vz: 0, th: 0, om: 0, dF: 0, T: K.m * K.g, thr: 0, E: 0, P: P_VISENI, odstup: Infinity, drzi: 0, konec: null };
+  }
+  /* Jeden krok skutečného dronu (stejná fyzika jako v lekci 3c). S.thr = požadovaný náklon (od PID polohy nebo od MPC). */
+  function krokModelu(S, P, zav) {
+    if (P.rizeni === 'pid') S.thr = clamp(P.kp * RAD * (X_CIL - S.x) - P.kd * RAD * S.vx, K.thMax);
+    const dFc = clamp(3 / (10 * RAD) * (S.thr - S.th) - 4 / (100 * RAD) * S.om, K.dFmax);   // vnitřní regulátor náklonu z 3c
+    S.dF += (dFc - S.dF) * K.dt / K.tauM;
+    S.T = Math.max(0, Math.min(K.Tmax, K.m * (K.g + K.kz * (Z0 - S.z) - K.dz * S.vz) / Math.max(Math.cos(S.th), 0.01)));
+    const F1 = Math.max(0, S.T / 2 + S.dF / 2), F2 = Math.max(0, S.T / 2 - S.dF / 2);
+    S.P = K.kappa * (Math.pow(F1, 1.5) + Math.pow(F2, 1.5));   // výkon motorů [W]
+    S.E += S.P * K.dt;
+    S.om += K.L * S.dF / K.J * K.dt; S.th += S.om * K.dt;
+    S.vx += S.T * Math.sin(S.th) / K.m * K.dt;
+    S.vz += (S.T * Math.cos(S.th) / K.m - K.g) * K.dt;
+    S.x += S.vx * K.dt; S.z += S.vz * K.dt; S.t += K.dt;
+    const d = odstupOd(S.x, S.z, zav.b(S.t));
+    S.odstup = Math.min(S.odstup, d);
+    if (d <= 0) return (S.konec = 'zavora');
+    if (S.x + PUL > X_ZED) return (S.konec = 'naraz');
+    if (Math.abs(X_CIL - S.x) < 0.1 && Math.abs(S.vx) < 0.1) { S.drzi += K.dt; if (S.drzi >= 1) return (S.konec = 'doruceno'); } else S.drzi = 0;
+    if (S.t >= P.limit) return (S.konec = 'nedoruceno');
+    return null;
+  }
+
+  /* ================= MPC ================= */
+  const DT_R = 0.2, DT_P = 0.01, SUB = 20;
+  const ODSTUP_Z = 0.25, ODSTUP_ZED = 0.2;   // v předpovědi je závora i zeď o kus „větší“: bezpečnostní odstup [m]
+  /* Jedno rozhodnutí: vylosuje varianty povelů, každou „přehraje v hlavě“ a vybere tu s nejmenší cenou. */
+  function rozhodni(S, P, zav, rng, minuly) {
+    const n = Math.round(P.horizont / DT_R), N = P.varianty;
+    const bp = zav.predpovez(S.t, n * SUB, DT_P);
+    // zavřeno = deska níž, než dron potřebuje; s rezervou R se každé zavření v předpovědi prodlouží o R na obě strany
+    const nk = n * SUB, r = Math.round(P.rezerva / DT_P), zavreno = new Uint8Array(nk + 1), zavrenoR = new Uint8Array(nk + 1);
+    for (let k = 0; k <= nk; k++) zavreno[k] = bp[k] < VOLNO ? 1 : 0;
+    // rezerva platí i za zavření, které právě skončilo: kdy naposledy (před teď) byla závora zavřená?
+    const posledni = zav.posledniZavreno(S.t, P.rezerva);
+    for (let k = 0; k <= nk; k++) {
+      let z = posledni !== null && k * DT_P - posledni <= P.rezerva ? 1 : 0;
+      for (let q = Math.max(0, k - r); q <= Math.min(nk, k + r) && !z; q++) z = zavreno[q];
+      zavrenoR[k] = z;
+    }
+    const zaklad = [];
+    for (let j = 0; j < n; j++) zaklad.push(minuly && minuly.length ? minuly[Math.min(j + 1, minuly.length - 1)] : 0);
+    // odstup nesmí být větší, než jaký dron právě má (jinak by „narážela“ hned každá varianta)
+    const meze = {
+      zona: ZONA + Math.max(0, Math.min(ODSTUP_Z, Math.abs(S.x - ZAV.x) - ZONA - 0.02)),
+      zed: Math.min(X_ZED - PUL, Math.max(X_ZED - PUL - ODSTUP_ZED, S.x + 0.02))
+    };
+    const kandidati = [], varianty = [];
+    const zkus = c => { kandidati.push(c); varianty.push(ohodnot(S, P, c, zavreno, zavrenoR, meze)); };
+    [zaklad, new Array(n).fill(0), new Array(n).fill(-K.thMax), new Array(n).fill(K.thMax)].slice(0, N).forEach(zkus);
+    // tři kola: hrubé varianty kolem minulého plánu, pak stále jemnější úpravy dosud nejlepší varianty
+    const KOLA = [8, 3, 1];
+    let nej = 0;
+    for (let r = 0; r < KOLA.length; r++) {
+      varianty.forEach((v, i) => { if (v.cena < varianty[nej].cena) nej = i; });
+      const konec = Math.round(N * (r + 1) / KOLA.length);
+      while (kandidati.length < konec) {
+        // v prvním kole se střídá okolí minulého plánu a okolí dosud nejlepší varianty
+        const stred = r === 0 && kandidati.length % 2 ? zaklad : kandidati[nej];
+        const c = []; let sum = rng.gauss() * KOLA[r] * RAD;
+        for (let j = 0; j < n; j++) { sum += rng.gauss() * KOLA[r] * 0.6 * RAD; c.push(clamp(stred[j] + sum + rng.gauss() * KOLA[r] * 0.4 * RAD, K.thMax)); }
+        zkus(c);
+      }
+    }
+    varianty.forEach((v, i) => { if (v.cena < varianty[nej].cena) nej = i; });
+    return { plan: kandidati[nej], varianty, nej, zavreno, zavrenoR };
+  }
+  function ohodnot(S, P, c, zavreno, zavrenoR, meze) {
+    let x = S.x, vx = S.vx, th = S.th, om = S.om, dF = S.dF, E = 0, spech = 0, naraz = false, kdy = null;
+    const dr = [x], nk = c.length * SUB;
+    let vjel = Math.abs(x - ZAV.x) >= meze.zona;   // rezerva platí pro vjezd pod závoru; kdo už pod ní je, smí ven bez ní
+    for (let k = 1; k <= nk; k++) {
+      const thr = c[Math.floor((k - 1) / SUB)];
+      // stejná fyzika náklonu jako skutečný dron (vnitřní regulátor, zpoždění motorů), jen hrubším krokem; výška se drží
+      const dFc = clamp(3 / (10 * RAD) * (thr - th) - 4 / (100 * RAD) * om, K.dFmax);
+      dF += (dFc - dF) * DT_P / K.tauM;
+      om += K.L * dF / K.J * DT_P; th += om * DT_P;
+      vx += K.g * Math.tan(th) * DT_P; x += vx * DT_P;
+      E += 2 * K.kappa * Math.pow(K.m * K.g / Math.cos(th) / 2, 1.5) * DT_P;
+      spech += Math.abs(X_CIL - x) * DT_P;
+      if (k % 10 === 0) dr.push(x);
+      const pod = Math.abs(x - ZAV.x) < meze.zona;
+      if (!pod) vjel = true;
+      if ((pod && (vjel ? zavrenoR[k] : zavreno[k])) || x > meze.zed) { naraz = true; kdy = k * DT_P; dr.push(x); break; }
+    }
+    let cena = P.wSpech * spech + P.wSpot * E / 100;
+    if (naraz) cena += 1000 + 1000 * (1 - kdy / (nk * DT_P));
+    return { cena, dr, naraz, kdy, E, spech };
+  }
+/* MODEL-END */
+
+  const el = id => document.getElementById(id);
+  const pis = (id, text) => { const e = el(id); if (e) e.textContent = text; };
+  const cislo = (x, des) => x.toLocaleString('cs-CZ', { minimumFractionDigits: des, maximumFractionDigits: des });
+  const znamenko = (x, des) => (x > 0 ? '+' : x < 0 ? '−' : '') + cislo(Math.abs(x), des);
+  const VAHY_SPOT = [0, 1, 3, 10, 30, 100, 300];
+  const FAZE = { zavreno: 'zavřená', otevira: 'zvedá se', otevreno: 'otevřená', zavira: 'spouští se' };
+
+  // Dokončené lety v jednotlivých ukázkách (odemykají vysvětlení a další kroky).
+  const ZKOUSENO = { a: 0, c: 0, f: 0 };
+  const PREKRESLI = [];
+
+  /* ================= kreslení ================= */
+  function stitek(c, text, x, y, zarovnani, barva, tucne, vel) {
+    c.font = (tucne ? '700 ' : '600 ') + (vel || 13) + 'px "Segoe UI", system-ui, sans-serif';
+    c.textAlign = zarovnani; c.textBaseline = 'middle';
+    const s = c.measureText(text).width;
+    const x0 = zarovnani === 'right' ? x - s : zarovnani === 'center' ? x - s / 2 : x;
+    c.fillStyle = 'rgba(255,255,255,0.88)'; c.fillRect(x0 - 3, y - 10, s + 6, 20);
+    c.fillStyle = barva; c.fillText(text, x, y);
+  }
+  function sipka(c, x1, y1, x2, y2, barva, tl) {
+    const u = Math.atan2(y2 - y1, x2 - x1), hl = 10;
+    c.strokeStyle = barva; c.fillStyle = barva; c.lineWidth = tl;
+    c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2 - Math.cos(u) * hl * 0.6, y2 - Math.sin(u) * hl * 0.6); c.stroke();
+    c.beginPath(); c.moveTo(x2, y2);
+    c.lineTo(x2 - hl * Math.cos(u - 0.45), y2 - hl * Math.sin(u - 0.45));
+    c.lineTo(x2 - hl * Math.cos(u + 0.45), y2 - hl * Math.sin(u + 0.45)); c.closePath(); c.fill();
+  }
+  /* Dron v soustavě, kde 1 m = s px; obrys = jen šedý obrys (požadovaný náklon). */
+  function kresliDron(c, s, theta, F1, F2, otoceni, obrys) {
+    c.save(); c.rotate(theta);
+    const w = 0.6 * s, h = 0.1 * s;
+    if (obrys) {
+      c.strokeStyle = 'rgba(74,87,104,0.55)'; c.lineWidth = 2; c.setLineDash([5, 4]);
+      c.strokeRect(-w / 2, -h / 2, w, h);
+      c.beginPath(); c.moveTo(-w / 2 - 0.08 * s, -h / 2 - 0.12 * s); c.lineTo(w / 2 + 0.08 * s, -h / 2 - 0.12 * s); c.stroke();
+      c.setLineDash([]); c.restore(); return;
+    }
+    [[-w / 2 + 0.04 * s, F1], [w / 2 - 0.04 * s, F2]].forEach(([x, F]) => sipka(c, x, -h / 2 - 0.16 * s, x, -h / 2 - 0.16 * s - F * 0.05 * s, '#1145cf', 3));
+    c.fillStyle = '#fff'; c.strokeStyle = '#0d1218'; c.lineWidth = 2.5;
+    c.beginPath(); c.roundRect(-w / 2, -h / 2, w, h, 4); c.fill(); c.stroke();
+    [-1, 1].forEach(st => {
+      const x = st * (w / 2 - 0.04 * s);
+      c.beginPath(); c.moveTo(x, -h / 2); c.lineTo(x, -h / 2 - 0.1 * s); c.stroke();
+      const r = 0.13 * s * Math.abs(Math.cos(otoceni + st));
+      c.lineWidth = 4; c.beginPath(); c.moveTo(x - r, -h / 2 - 0.12 * s); c.lineTo(x + r, -h / 2 - 0.12 * s); c.stroke(); c.lineWidth = 2.5;
+    });
+    c.strokeStyle = '#4a5768'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(0, h / 2); c.lineTo(0, h / 2 + 0.14 * s); c.stroke();
+    c.fillStyle = '#d97000'; c.strokeStyle = '#0d1218'; c.lineWidth = 1.5;
+    c.fillRect(-0.09 * s, h / 2 + 0.14 * s, 0.18 * s, 0.15 * s); c.strokeRect(-0.09 * s, h / 2 + 0.14 * s, 0.18 * s, 0.15 * s);
+    c.restore();
+  }
+  function dodavka(c, x, yZem, s) {
+    c.save(); c.translate(x, yZem); c.fillStyle = '#fff'; c.strokeStyle = '#0d1218'; c.lineWidth = 2;
+    c.beginPath(); c.roundRect(-0.6 * s, -0.55 * s, 0.9 * s, 0.42 * s, 3); c.fill(); c.stroke();
+    c.beginPath(); c.moveTo(0.3 * s, -0.45 * s); c.lineTo(0.48 * s, -0.45 * s); c.lineTo(0.6 * s, -0.27 * s); c.lineTo(0.6 * s, -0.13 * s); c.lineTo(0.3 * s, -0.13 * s); c.closePath(); c.fill(); c.stroke();
+    c.fillStyle = '#0d1218'; [-0.35, 0.42].forEach(xx => { c.beginPath(); c.arc(xx * s, -0.11 * s, 0.1 * s, 0, 7); c.fill(); });
+    c.restore();
+  }
+  /* Deska závory s červenobílými pruhy od výšky b do lávky. */
+  function kresliZavoru(c, X, Y, s, b) {
+    c.fillStyle = '#8b97a8'; c.strokeStyle = '#0d1218'; c.lineWidth = 2;
+    c.fillRect(X(3.9), Y(5.0), X(5.1) - X(3.9), Y(ZAV.horni) - Y(5.0)); c.strokeRect(X(3.9), Y(5.0), X(5.1) - X(3.9), Y(ZAV.horni) - Y(5.0));
+    const x1 = X(ZAV.x - ZAV.sirka / 2), sw = X(ZAV.x + ZAV.sirka / 2) - x1, yH = Y(ZAV.horni), yD = Y(b);
+    if (yD - yH > 1) {
+      c.save(); c.beginPath(); c.rect(x1, yH, sw, yD - yH); c.clip();
+      const pruh = 0.3 * s;
+      for (let i = 0, y = yD; y > yH - pruh; y -= pruh, i++) { c.fillStyle = i % 2 ? '#fff' : '#cc1233'; c.fillRect(x1, y - pruh, sw, pruh); }
+      c.restore(); c.strokeStyle = '#0d1218'; c.lineWidth = 2; c.strokeRect(x1, yH, sw, yD - yH);
+    }
+  }
+
+  function osaY(min, max) {
+    const r = max - min;
+    const krok = [0.5, 1, 2, 5, 10, 20, 50].find(k => r / k <= 5) || 100;
+    const t = []; for (let v = Math.ceil(min / krok) * krok; v <= max + 1e-9; v += krok) t.push(Math.round(v / krok) * krok + 0); return t;
+  }
+  /* Grafy v čase pod sebou. Řádek: { nazev, min, max, podil, cary, rady, pozadi(c, X, Y), popredi(c, X, Y) }. */
+  function kresliRadky(pl, data, tKonec, radky) {
+    const c = pl.ctx, w = pl.sirka, h = pl.vyska;
+    if (!c || !w) return;
+    c.fillStyle = '#fff'; c.fillRect(0, 0, w, h);
+    const vlevo = 52, vpravo = w - 12, nadpis = 20, dole = 24;
+    const X = t => vlevo + (vpravo - vlevo) * t / tKonec;
+    const celkem = h - dole - nadpis * radky.length - 4;
+    let y = nadpis;
+    radky.forEach(r => {
+      const vr = celkem * r.podil, y0 = y, y1 = y0 + vr; y = y1 + nadpis;
+      const Y = v => y1 - (y1 - y0) * (v - r.min) / (r.max - r.min);
+      c.strokeStyle = '#aab4c2'; c.lineWidth = 1; c.strokeRect(vlevo, y0, vpravo - vlevo, vr);
+      c.save(); c.beginPath(); c.rect(vlevo, y0, vpravo - vlevo, vr); c.clip();
+      if (r.pozadi) r.pozadi(c, X, Y, tKonec);
+      c.restore();
+      c.font = '600 11px "Segoe UI", system-ui, sans-serif'; c.fillStyle = '#4a5768'; c.textAlign = 'right'; c.textBaseline = 'middle';
+      osaY(r.min, r.max).forEach(v => { const yy = Y(v); c.strokeStyle = 'rgba(170,180,194,0.35)'; c.beginPath(); c.moveTo(vlevo + 1, yy); c.lineTo(vpravo - 1, yy); c.stroke(); c.fillText(cislo(v, 0), vlevo - 5, yy); });
+      (r.cary || []).forEach(([v, barva, popis, nahoru]) => {
+        c.strokeStyle = barva; c.lineWidth = 1.5; c.setLineDash([6, 4]); c.beginPath(); c.moveTo(vlevo, Y(v)); c.lineTo(vpravo, Y(v)); c.stroke(); c.setLineDash([]);
+        c.fillStyle = barva; c.textAlign = 'right'; c.textBaseline = nahoru ? 'bottom' : 'top'; c.font = '700 11px "Segoe UI", system-ui, sans-serif'; c.fillText(popis, vpravo - 4, Y(v) + (nahoru ? -2 : 2));
+      });
+      c.save(); c.beginPath(); c.rect(vlevo, y0, vpravo - vlevo, vr); c.clip();
+      r.rady.forEach(rd => {
+        c.strokeStyle = rd.barva; c.lineWidth = rd.sirka; c.setLineDash(rd.carky || []); c.beginPath();
+        let zac = false;
+        data.forEach(d => { const v = rd.hodnota(d); if (v === null) { zac = false; return; } const xx = X(d.t), yy = Y(v); zac ? c.lineTo(xx, yy) : c.moveTo(xx, yy); zac = true; });
+        c.stroke();
+      });
+      c.setLineDash([]);
+      if (r.popredi) r.popredi(c, X, Y, tKonec);
+      c.restore();
+      c.font = '700 12px "Segoe UI", system-ui, sans-serif'; c.textAlign = 'left'; c.textBaseline = 'top'; c.fillStyle = '#0d1218';
+      c.fillText(r.kratky && c.measureText(r.nazev).width > vpravo - vlevo ? r.kratky : r.nazev, vlevo, y0 - 16);
+    });
+    c.fillStyle = '#4a5768'; c.font = '600 11px "Segoe UI", system-ui, sans-serif'; c.textAlign = 'center'; c.textBaseline = 'top';
+    const krokT = tKonec > 30 ? 5 : 2;
+    for (let t = 0; t <= tKonec + 1e-9; t += krokT) c.fillText(t + ' s', X(t), h - dole + 5);
+  }
+  /* Šrafovaný pruh v grafu polohy: kdy je závora (pro dron) zavřená. */
+  function pruh(c, X, Y, t0, t1, styl) {
+    const xa = X(t0), xb = X(t1), ya = Y(ZAV.x + ZONA), yb = Y(ZAV.x - ZONA);
+    c.fillStyle = styl.vypln; c.fillRect(xa, ya, xb - xa, yb - ya);
+    if (styl.okraj) { c.strokeStyle = styl.okraj; c.lineWidth = 1; c.setLineDash(styl.carky || []); c.strokeRect(xa, ya, xb - xa, yb - ya); c.setLineDash([]); }
+    if (styl.srafy) {
+      c.save(); c.beginPath(); c.rect(xa, ya, xb - xa, yb - ya); c.clip();
+      c.strokeStyle = styl.srafy; c.lineWidth = 1;
+      for (let x = xa - (yb - ya); x < xb; x += 7) { c.beginPath(); c.moveTo(x, yb); c.lineTo(x + (yb - ya), ya); c.stroke(); }
+      c.restore();
+    }
+  }
+  /* Z řady 0/1 vzorkované po dt od t0 udělá úseky [od, do]. */
+  function useky(rada, t0, dt) {
+    const out = []; let zac = null;
+    for (let k = 0; k < rada.length; k++) {
+      if (rada[k] && zac === null) zac = k;
+      if ((!rada[k] || k === rada.length - 1) && zac !== null) { out.push([t0 + zac * dt, t0 + (rada[k] ? k + 1 : k) * dt]); zac = null; }
+    }
+    return out;
+  }
+  const STYL_SKUT = { vypln: 'rgba(204,18,51,0.30)', okraj: '#cc1233', srafy: 'rgba(204,18,51,0.55)' };
+  const STYL_BUDOUCI = { vypln: 'rgba(204,18,51,0.16)', okraj: 'rgba(204,18,51,0.6)', carky: [4, 3], srafy: 'rgba(204,18,51,0.3)' };
+  const STYL_REZERVA = { vypln: 'rgba(217,112,0,0.22)', okraj: '#d97000', carky: [3, 2] };
+
+  /* ================= simulátor (tři ukázky) ================= */
+  const NASTAVENI = {
+    pid:  { klic: 'a', vychozi: { rizeni: 'pid', kp: 35, kd: 50, prvni: 1, nepred: false, seed: 1, prehravani: 1, limit: 30 } },
+    mpc:  { klic: 'c', vychozi: { rizeni: 'mpc', horizont: 2, varianty: 150, seed: 1, prvni: 2.5, nepred: false, rezerva: 0.3, wSpech: 1, wSpot: 1, prehravani: 1, limit: 30 } },
+    cena: { klic: 'f', vychozi: { rizeni: 'mpc', horizont: 2, varianty: 150, seed: 1, prvni: 2.5, nepred: false, rezerva: 0.3, wSpech: 1, wSpot: 1, spot: 1, prehravani: 1, limit: 30 } }
+  };
+
+  function simulator(pre, rezim) {
+    const { klic, vychozi: VYCHOZI } = NASTAVENI[rezim];
+    const P = { ...VYCHOZI };
+    const mpc = P.rizeni === 'mpc';
+    let S, zav, rng, plan, dalsi, nRozh, posledni, log, stav, pokusy = [];
+
+    const zaznam = () => ({ t: S.t, x: S.x, th: S.th / RAD, thr: S.thr / RAD, P: S.P });
+    // Za letu (i při pauze) jsou parametry zamčené – do tabulky se tak zapíše nastavení, se kterým dron opravdu letěl.
+    const zamkni = ano => el(pre + 'dilna').querySelectorAll('input, select:not([id$="prehravani"])').forEach(v => { v.disabled = ano; });
+    function rozhodniTed() {
+      const r = rozhodni(S, P, zav, rng, plan);
+      plan = r.plan; S.thr = plan[0]; dalsi = S.t + DT_R; nRozh++;
+      posledni = { t: S.t, varianty: r.varianty, nej: r.nej, zavreno: r.zavreno, zavrenoR: r.zavrenoR };
+    }
+    function start() {
+      S = novyStav(); zav = vytvorZavoru(P.prvni, P.nepred, P.seed); rng = generator(P.seed);
+      plan = null; dalsi = 0; nRozh = 0; posledni = null; stav = 'pripraveno'; zamkni(false);
+      if (mpc) rozhodniTed();
+      log = [zaznam()];
+      el(pre + 'hlaska').hidden = true;
+    }
+    function krok() {
+      if (mpc && S.t >= dalsi - 1e-9) rozhodniTed();
+      krokModelu(S, P, zav);
+      if (S.konec || S.t >= log[log.length - 1].t + 0.02 - 1e-9) log.push(zaznam());
+      if (S.konec) konec();
+    }
+
+    /* ---- výsledek letu ---- */
+    const zavoraText = p => 'za ' + cislo(p.prvni, p.prvni % 1 ? 1 : 0) + ' s' + (p.nepred ? ', nedodržuje řád (seed ' + p.seed + ')' : '');
+    function konec() {
+      stav = 'konec'; zastav(); zamkni(false);
+      ZKOUSENO[klic] += 1;
+      const v = { stav: S.konec, t: S.t, E: S.E, navic: S.E - P_VISENI * S.t, odstup: S.odstup, kp: P.kp, kd: P.kd, horizont: P.horizont, varianty: P.varianty, seed: P.seed, prvni: P.prvni, nepred: P.nepred, rezerva: P.rezerva, wSpot: P.wSpot, x: S.x };
+      let t, spatne = true;
+      switch (v.stav) {
+        case 'doruceno': t = 'Doručeno! (' + cislo(v.t, 1) + ' s, energie ' + cislo(v.E, 0) + ' J)'; spatne = false; break;
+        case 'zavora': t = 'Náraz do závory! (' + cislo(v.t, 1) + ' s)'; break;
+        case 'naraz': t = 'Náraz do zdi! (' + cislo(v.t, 1) + ' s)'; break;
+        default: t = v.x < ZAV.x ? 'Balík nedoručen — dron za ' + P.limit + ' s závorou neprojel.' : 'Balík nedoručen — dron za ' + P.limit + ' s u okna nezastavil.';
+      }
+      const h = el(pre + 'hlaska');
+      h.textContent = t; h.className = 'hlaska' + (spatne ? ' spatne' : ''); h.hidden = false;
+      pokusy.push(v); vypisPokusy();
+    }
+
+    /* ---- tabulka letů ---- */
+    const NAZVY = { doruceno: 'doručeno', zavora: 'náraz do závory', naraz: 'náraz do zdi', nedoruceno: 'nedoručeno' };
+    const odstupText = p => p.stav === 'zavora' ? '0 m' : cislo(p.odstup, 2) + ' m';
+    const TABULKA = {
+      pid: { sloupcu: 7, cisla: [1, 2, 5, 6], vysledek: 4, lepsi: (p, q) => p.t < q.t,
+        radek: (p, ok) => [p.kp, p.kd, zavoraText(p), NAZVY[p.stav], ok ? cislo(p.t, 1) + ' s' : '—', odstupText(p)] },
+      mpc: { sloupcu: 8, cisla: [1, 2, 3, 6, 7], vysledek: 5, lepsi: (p, q) => p.t < q.t,
+        radek: (p, ok) => [cislo(p.horizont, 1) + ' s', p.varianty, p.seed, zavoraText(p), NAZVY[p.stav], ok ? cislo(p.t, 1) + ' s' : '—', odstupText(p)] },
+      cena: { sloupcu: 9, cisla: [1, 2, 5, 6, 7, 8], vysledek: 4, lepsi: (p, q) => p.E < q.E,
+        radek: (p, ok) => [p.wSpot, cislo(p.rezerva, 1) + ' s', zavoraText(p), NAZVY[p.stav], ok ? cislo(p.t, 1) + ' s' : '—', ok ? cislo(p.E, 0) + ' J' : '—', ok ? cislo(p.navic, 0) + ' J' : '—', odstupText(p)] }
+    }[rezim];
+    function vypisPokusy() {
+      const tb = el(pre + 'pokusy'); if (!tb) return;
+      tb.textContent = '';
+      if (!pokusy.length) { const c = tb.insertRow().insertCell(); c.colSpan = TABULKA.sloupcu; c.textContent = 'Zatím žádný dokončený let.'; return; }
+      let nej = -1;
+      pokusy.forEach((p, i) => { if (p.stav === 'doruceno' && (nej < 0 || TABULKA.lepsi(p, pokusy[nej]))) nej = i; });
+      pokusy.forEach((p, i) => {
+        const r = tb.insertRow(); if (i === nej) r.className = 'nejlepsi';
+        const ok = p.stav === 'doruceno';
+        [(i + 1) + (i === nej ? ' ★' : '')].concat(TABULKA.radek(p, ok)).forEach((h, j) => {
+          const c = r.insertCell(); c.textContent = (j === TABULKA.vysledek && !ok ? '⚠ ' : '') + h;
+          if (TABULKA.cisla.includes(j)) c.className = 'cislo';
+          if (j === TABULKA.vysledek && !ok) c.className = 'spatne';
+        });
+      });
+    }
+
+    function fazeZavory(t) {
+      const s = zav.skut.find(q => q.t1 > t) || zav.skut[zav.skut.length - 1];
+      return FAZE[s.f];
+    }
+    const nejlepsi = () => posledni && posledni.varianty[posledni.nej];
+
+    /* ---- scéna ---- */
+    const pl = Kurz.platno(el(pre + 'platno'), () => kresli());
+    function kresli() {
+      const c = pl.ctx, w = pl.sirka, h = pl.vyska;
+      if (!c || !w || !S) return;
+      c.fillStyle = '#fff'; c.fillRect(0, 0, w, h);
+      const yZem = h * 0.92;
+      const s = Math.min(w / (X_ZED + 2.8), yZem / 5.6);
+      const x0m = -1.6;
+      const X = xm => (xm - x0m) * s, Y = zm => yZem - zm * s;
+      c.fillStyle = '#dfe5ef'; c.fillRect(0, yZem, w, h - yZem);
+      dodavka(c, X(-0.9), yZem, s);
+      // fakulta, okno a cíl
+      c.fillStyle = '#eef1f6'; c.strokeStyle = '#0d1218'; c.lineWidth = 2.5;
+      const yStrecha = Y(5.4);
+      c.fillRect(X(X_ZED), yStrecha, w - X(X_ZED), yZem - yStrecha); c.strokeRect(X(X_ZED), yStrecha, w - X(X_ZED) + 4, yZem - yStrecha);
+      const yOkno = Y(Z0);
+      c.fillStyle = '#fff'; c.fillRect(X(X_ZED) - 4, yOkno - 0.55 * s, 10, 1.1 * s); c.strokeRect(X(X_ZED) - 4, yOkno - 0.55 * s, 10, 1.1 * s);
+      stitek(c, 'okno', X(X_ZED) + 10, yOkno + 0.75 * s, 'left', '#0d1218', true);
+      c.strokeStyle = '#0a7d38'; c.lineWidth = 2; c.setLineDash([6, 5]);
+      c.beginPath(); c.moveTo(X(X_CIL), Y(4.2)); c.lineTo(X(X_CIL), yZem); c.stroke(); c.setLineDash([]);
+      stitek(c, 'cíl', X(X_CIL) - 6, Y(4.2), 'right', '#0a7d38', true);
+      // závora
+      const b = zav.b(S.t);
+      kresliZavoru(c, X, Y, s, b);
+      stitek(c, 'závora: ' + fazeZavory(S.t), X(ZAV.x), Y(5.0) - 12, 'center', b < VOLNO ? '#cc1233' : '#0a7d38', true);
+      // plán MPC: kam se dron podle vybrané varianty dostane (tečky po 0,5 s)
+      const v = mpc && nejlepsi();
+      if (v && stav !== 'konec') {
+        const yp = Y(Z0 - 0.75);
+        c.strokeStyle = '#7622d6'; c.lineWidth = 2.5; c.setLineDash([7, 4]);
+        c.beginPath(); c.moveTo(X(S.x), yp); c.lineTo(X(v.dr[v.dr.length - 1]), yp); c.stroke(); c.setLineDash([]);
+        c.fillStyle = '#7622d6';
+        for (let i = 5; i < v.dr.length; i += 5) { c.beginPath(); c.arc(X(v.dr[i]), yp, 4, 0, 7); c.fill(); }
+        stitek(c, 'plán (tečka = 0,5 s)', X(Math.max(S.x, 0.2)), yp + 18, 'left', '#7622d6', true, 12);
+      }
+      // dron
+      c.save(); c.translate(X(S.x), Y(S.z));
+      kresliDron(c, s, S.thr, 0, 0, 0, true);
+      kresliDron(c, s, S.th, S.T / 2 + S.dF / 2, S.T / 2 - S.dF / 2, S.t * 40, false);
+      c.restore();
+      // údaje
+      stitek(c, 'čas ' + cislo(S.t, 1) + ' s', 10, 18, 'left', '#0d1218', true, 14);
+      const zbyva = X_CIL - S.x;
+      stitek(c, 'k oknu ' + znamenko(zbyva, 2) + ' m', 10, 40, 'left', Math.abs(zbyva) < 0.1 ? '#0a7d38' : '#0d1218', true, 14);
+      stitek(c, 'náklon ' + znamenko(S.th / RAD, 0) + '° (chce ' + znamenko(S.thr / RAD, 0) + '°)', 10, 62, 'left', '#1145cf', true, 14);
+      if (w > 520) stitek(c, 'šedý obrys = požadovaný náklon', 10, 84, 'left', '#4a5768', false, 12);
+    }
+
+    /* ---- grafy ---- */
+    const gr = Kurz.platno(el(pre + 'grafy'), () => kresliGrafy());
+    function kresliGrafy() {
+      if (!log) return;
+      const tKonec = Math.max(12, Math.ceil(S.t + (mpc ? P.horizont : 0) + 0.5));
+      const radekPoloha = {
+        nazev: 'Poloha v čase [m] — červeně: závora zavřená', kratky: 'Poloha [m]', min: -0.5, max: 9.2, podil: 0.62,
+        cary: [[X_CIL, '#0a7d38', 'okno', false], [X_ZED - PUL, '#cc1233', 'zeď', true]],
+        rady: [{ hodnota: d => d.x, barva: '#1145cf', sirka: 2.6 }],
+        pozadi: (c, X, Y, tK) => {
+          // minulost: skutečná závora
+          const dt = 0.02, n = Math.ceil(S.t / dt), rada = new Uint8Array(n + 1);
+          for (let k = 0; k <= n; k++) rada[k] = zav.b(Math.min(k * dt, S.t)) < VOLNO ? 1 : 0;
+          useky(rada, 0, dt).forEach(([a, bb]) => pruh(c, X, Y, a, Math.min(bb, S.t), STYL_SKUT));
+          // budoucnost: PID = skutečný jízdní řád; MPC = to, co regulátor předpovídá
+          const nb = Math.ceil((tK - S.t) / dt);
+          const pred = mpc ? zav.predpovez(S.t, nb, dt) : null, rb = new Uint8Array(nb + 1);
+          for (let k = 0; k <= nb; k++) rb[k] = (mpc ? pred[k] : zav.b(S.t + k * dt)) < VOLNO ? 1 : 0;
+          if (mpc && posledni && P.rezerva > 0) useky(posledni.zavrenoR, posledni.t, DT_P).forEach(([a, bb]) => pruh(c, X, Y, Math.max(a, S.t), bb, STYL_REZERVA));
+          useky(rb, S.t, dt).forEach(([a, bb]) => pruh(c, X, Y, a, bb, STYL_BUDOUCI));
+          c.strokeStyle = '#0d1218'; c.lineWidth = 1; c.setLineDash([2, 3]);
+          c.beginPath(); c.moveTo(X(S.t), Y(-0.5)); c.lineTo(X(S.t), Y(9.2)); c.stroke(); c.setLineDash([]);
+        },
+        popredi: (c, X) => {
+          if (!mpc || !posledni || stav === 'konec') return;
+          const Yp = radekPoloha.Y;
+          const cara = (v, barva, sirka, carky) => {
+            c.strokeStyle = barva; c.lineWidth = sirka; c.setLineDash(carky || []); c.beginPath();
+            v.dr.forEach((xx, i) => { const t = posledni.t + (v.naraz && i === v.dr.length - 1 ? v.kdy : i * 0.1); i ? c.lineTo(X(t), Yp(xx)) : c.moveTo(X(t), Yp(xx)); });
+            c.stroke(); c.setLineDash([]);
+          };
+          if (rezim === 'mpc') {
+            posledni.varianty.forEach((v, i) => {
+              if (i === posledni.nej) return;
+              cara(v, v.naraz ? 'rgba(204,18,51,0.45)' : 'rgba(74,87,104,0.28)', 1);
+              if (v.naraz) {
+                const xx = X(posledni.t + v.kdy), yy = Yp(v.dr[v.dr.length - 1]);
+                c.strokeStyle = 'rgba(204,18,51,0.7)'; c.lineWidth = 1.5; c.beginPath();
+                c.moveTo(xx - 3, yy - 3); c.lineTo(xx + 3, yy + 3); c.moveTo(xx + 3, yy - 3); c.lineTo(xx - 3, yy + 3); c.stroke();
+              }
+            });
+          }
+          cara(posledni.varianty[posledni.nej], '#7622d6', 3, [7, 4]);
+        }
+      };
+      // kresliRadky volá pozadi/popredi s Y; pro vějíř si Y uložíme
+      const obal = r => ({ ...r, pozadi: r.pozadi && ((c, X, Y, tK) => { radekPoloha.Y = Y; r.pozadi(c, X, Y, tK); }), popredi: r.popredi && ((c, X, Y, tK) => { radekPoloha.Y = Y; r.popredi(c, X, Y, tK); }) });
+      const druhy = rezim === 'cena' ? {
+        nazev: 'Výkon motorů [W] — čárkovaně: výkon při visení na místě', kratky: 'Výkon [W]', min: 120, max: 220, podil: 0.38,
+        cary: [[P_VISENI, '#4a5768', 'visení ' + cislo(P_VISENI, 0) + ' W', true]],
+        rady: [{ hodnota: d => Math.max(120, Math.min(220, d.P)), barva: '#1145cf', sirka: 2 }]
+      } : {
+        nazev: 'Náklon [°] — modrá: skutečný, šedá čárkovaná: požadovaný', kratky: 'Náklon [°]', min: -30, max: 30, podil: 0.38,
+        cary: [[0, '#4a5768', '']],
+        rady: [{ hodnota: d => d.thr, barva: '#8b97a8', sirka: 2, carky: [6, 4] }, { hodnota: d => d.th, barva: '#1145cf', sirka: 2.2 }]
+      };
+      kresliRadky(gr, log, tKonec, [obal(radekPoloha), druhy]);
+    }
+
+    function obnov() {
+      pis(pre + 'st-cas', cislo(S.t, 1) + ' s');
+      pis(pre + 'st-x', znamenko(X_CIL - S.x, 2) + ' m');
+      pis(pre + 'st-v', cislo(S.vx, 2) + ' m/s');
+      pis(pre + 'st-th', znamenko(S.th / RAD, 1) + '° / ' + znamenko(S.thr / RAD, 1) + '°');
+      pis(pre + 'st-zav', fazeZavory(S.t));
+      pis(pre + 'st-E', cislo(S.E, 0) + ' J');
+      pis(pre + 'st-navic', cislo(S.E - P_VISENI * S.t, 0) + ' J');
+      pis(pre + 'st-odstup', S.odstup === Infinity ? '–' : cislo(S.odstup, 2) + ' m');
+      if (mpc && posledni) {
+        pis(pre + 'st-rozh', String(nRozh));
+        pis(pre + 'st-vyr', posledni.varianty.filter(v => v.naraz).length + ' z ' + posledni.varianty.length);
+        const v = nejlepsi();
+        pis(pre + 'st-body', v.naraz ? 'všechny narazí' : cislo(v.cena, 1));
+      }
+    }
+    function vse() { kresli(); kresliGrafy(); obnov(); }
+    PREKRESLI.push(vse);
+
+    /* ---- smyčka ---- */
+    let zbytek = 0;
+    const smycka = Kurz.smycka(dt => {
+      zbytek += dt * P.prehravani;
+      const t0 = performance.now();
+      while (zbytek >= K.dt && stav === 'leti') {
+        krok(); zbytek -= K.dt;
+        if (performance.now() - t0 > 40) { zbytek = 0; break; }   // pomalý počítač: raději zpomalit než zamrznout
+      }
+      vse();
+    });
+    const tlacitko = el(pre + 'spustit');
+    function zastav() { smycka.stop(); tlacitko.textContent = stav === 'konec' ? 'Letět znovu' : 'Spustit'; }
+    tlacitko.addEventListener('click', () => {
+      if (smycka.bezi) { stav = 'pozastaveno'; smycka.stop(); tlacitko.textContent = 'Pokračovat'; return; }
+      if (stav === 'konec') start();
+      stav = 'leti'; zbytek = 0; zamkni(true); smycka.start(); tlacitko.textContent = 'Pozastavit';
+    });
+    if (el(pre + 'krok')) el(pre + 'krok').addEventListener('click', () => {
+      smycka.stop();
+      if (stav === 'konec') start();
+      stav = 'pozastaveno'; zamkni(true); tlacitko.textContent = 'Pokračovat';
+      while (!S.konec && S.t < dalsi - 1e-9) krok();
+      if (!S.konec) { rozhodniTed(); stav = 'pozastaveno'; }
+      vse();
+    });
+    el(pre + 'nastart').addEventListener('click', () => { smycka.stop(); start(); tlacitko.textContent = 'Spustit'; vse(); });
+
+    /* ---- ovládání ---- */
+    // Změna nastavení před startem hned překreslí scénu (a u MPC i první plán).
+    const zmena = () => { if (stav === 'pripraveno') { start(); vse(); } };
+    const posuvnik = (id, f, format) => { if (el(pre + id)) Kurz.posuvnik(pre + id, v => { f(v); zmena(); }, format); };
+    posuvnik('kp', v => { P.kp = v; }, v => v + ' ° na m');
+    posuvnik('kd', v => { P.kd = v; }, v => v + ' ° na m/s');
+    posuvnik('horizont', v => { P.horizont = v; }, v => cislo(v, 1) + ' s');
+    posuvnik('varianty', v => { P.varianty = v; });
+    posuvnik('seed', v => { P.seed = v; });
+    posuvnik('spot', v => { P.spot = v; P.wSpot = VAHY_SPOT[v]; }, v => { const w = VAHY_SPOT[v]; return w + (!w ? ' (nehledí na spotřebu)' : w === 1 ? ' bod za 100 J' : w < 5 ? ' body za 100 J' : ' bodů za 100 J'); });
+    posuvnik('rezerva', v => { P.rezerva = v; }, v => cislo(v, 1) + ' s');
+    if (el(pre + 'prvni')) el(pre + 'prvni').addEventListener('change', e => { P.prvni = Number(e.target.value); zmena(); });
+    if (el(pre + 'nepred')) el(pre + 'nepred').addEventListener('change', e => { P.nepred = e.target.checked; zmena(); });
+    el(pre + 'prehravani').addEventListener('change', e => { P.prehravani = Number(e.target.value); });
+    el(pre + 'vymazat').addEventListener('click', () => { pokusy = []; vypisPokusy(); });
+
+    el(pre + 'reset').addEventListener('click', () => {
+      smycka.stop(); Object.assign(P, VYCHOZI); stav = 'konec';
+      ['kp', 'kd', 'horizont', 'varianty', 'seed', 'spot', 'rezerva'].forEach(id => { const e = el(pre + id); if (e) { e.disabled = false; e.value = P[id]; e.dispatchEvent(new Event('input')); } });
+      if (el(pre + 'prvni')) el(pre + 'prvni').value = String(P.prvni);
+      if (el(pre + 'nepred')) el(pre + 'nepred').checked = false;
+      el(pre + 'prehravani').value = String(P.prehravani);
+      start(); tlacitko.textContent = 'Spustit'; vse();
+    });
+
+    start(); vypisPokusy(); vse();
+  }
+
+  simulator('a-', 'pid');
+  simulator('c-', 'mpc');
+  simulator('f-', 'cena');
+
+  /* ================= schémata po krocích ================= */
+  function schemaPoKrocich(id, popisy) {
+    const casti = [...el(id).querySelectorAll('[data-k]')], plocha = el(id + '-plocha');
+    const sirka = plocha.querySelector('svg').viewBox.baseVal.width;
+    let i = 0;
+    function ukaz() {
+      casti.forEach(c => c.classList.toggle('skryto', Number(c.dataset.k) > i + 1 || Number(c.dataset.do || 99) < i + 1));
+      el(id + '-popis').innerHTML = popisy[i];
+      pis(id + '-pocet', 'Krok ' + (i + 1) + ' z ' + popisy.length);
+      el(id + '-zpet').disabled = i === 0;
+      el(id + '-dalsi').hidden = i === popisy.length - 1;
+      posun();
+    }
+    function posun() {
+      if (plocha.scrollWidth <= plocha.clientWidth + 2) return;
+      const bb = casti.find(c => Number(c.dataset.k) === i + 1).getBBox(), m = plocha.scrollWidth / sirka;
+      plocha.scrollTo({ left: (bb.x + bb.width / 2) * m - plocha.clientWidth / 2, behavior: 'smooth' });
+    }
+    PREKRESLI.push(posun);
+    el(id + '-zpet').addEventListener('click', () => { i--; ukaz(); });
+    el(id + '-dalsi').addEventListener('click', () => { i++; ukaz(); });
+    ukaz();
+  }
+  schemaPoKrocich('uvod', [
+    '<strong>Minule.</strong> Dron s balíkem letí od dodávky k oknu fakulty, 8 m daleko a 3 m vysoko. U okna musí přesně zastavit: kousek před ním balík nikdo nepřevezme, kousek za ním dron narazí do zdi.',
+    '<strong>Model dronu.</strong> Pro výpočet je dron tuhá tyčka (m = 1,5 kg) s vrtulí na každém konci. Vrtule táhnou silami F₁ a F₂ kolmo k tyčce, v těžišti působí tíha G. Součet tahů drží dron ve vzduchu (výšku hlídá automat), rozdíl tahů dron otáčí.',
+    '<strong>Náklon řídí zrychlení.</strong> Nakloněný dron táhne trochu do strany, a tak zrychluje: a = g · tg θ. Zrychluje, dokud je nakloněný. Náklon je omezený na 25°, takže dron zrychlí nebo zabrzdí nejvýš o 4,6 m/s za každou sekundu.',
+    '<strong>Kaskáda z minula.</strong> Vnitřní regulátor drží náklon, jaký se po něm chce (Kp 3, Kd 4). Vnější regulátor podle vzdálenosti k oknu a rychlosti rozhoduje, jaký náklon chtít. Vnitřní regulátor zůstane i dnes, měnit se bude jen ten vnější.',
+    '<strong>Nově: závora.</strong> Cesta k oknu vede průjezdem pod lávkou, 4,5 m od startu. V průjezdu je závora: deska, která se zvedá a spouští. Když je dole, dron neproletí.',
+    '<strong>Jízdní řád.</strong> Závora jezdí pořád dokola: 3 s je zavřená, za 0,5 s se zvedne, 2 s je otevřená a za 0,5 s se zase spustí. Kdy se poprvé otevře, se v ukázkách dá nastavit. Dron letí ve výšce 3 m a projede, jen když je deska nahoře.',
+    '<strong>Úkol.</strong> Doletět k oknu, cestou projet otevřenou závorou a nenarazit. Zvládne to kaskáda z minula? A jak má dron poznat, <em>kdy</em> má k závoře přiletět?'
+  ]);
+  schemaPoKrocich('mpc', [
+    '<strong>Změř.</strong> Na začátku každého rozhodnutí regulátor zjistí, kde dron je, jak rychle letí a jak je nakloněný. Podívá se i na závoru: je dole, nahoře, nebo se zrovna pohybuje?',
+    '<strong>Vylosuj varianty.</strong> Každá varianta je řada povelů „chci náklon θ“, jeden povel na každých 0,2 s. Při předpovědi 2 s má varianta 10 povelů. Regulátor jich vylosuje 150, hlavně kolem plánu, který vybral minule.',
+    '<strong>Přehraj v modelu.</strong> Každou variantu regulátor „přehraje v hlavě“: na stejném modelu dronu jako v úvodu spočítá, kam by dron za 2 s doletěl. Z jízdního řádu pozná, jestli by cestou nevjel do zavřené závory.',
+    '<strong>Oboduj a vyber.</strong> Za každou sekundu předpovědi dostane varianta tolik bodů, kolik metrů zbývá k oknu. Varianta, se kterou by dron narazil, je vyřazená. Vyhraje varianta s nejmenším počtem bodů.',
+    '<strong>Proveď jen první povel.</strong> Z vítězné varianty se provede jen první povel, tedy náklon na příštích 0,2 s. Zbytek plánu se zahodí.',
+    '<strong>A znovu.</strong> Za 0,2 s je dron jinde, než počítal, a závora se možná zachovala jinak. Regulátor proto celé rozhodnutí zopakuje s novým měřením. Rozhoduje se pětkrát za sekundu.'
+  ]);
+
+  /* ================= postupné odkrývání s pojistkami ================= */
+  (function () {
+    const UCITEL = new URLSearchParams(location.search).has('ucitel');
+    // potreba: kolik dokončených letů je třeba v daném kroku, než se odemkne vysvětlení a další krok
+    const CASTI = [
+      { klic: 'a', nazev: 'Kaskáda proti závoře', potreba: [1, 1, 3, 2] },
+      { klic: 'c', nazev: 'Regulátor, který se dívá dopředu', potreba: [1, 2, 2, 3, 2, 3] },
+      { klic: 'f', nazev: 'Co vlastně chceme', potreba: [1, 3, 3, 0] }
+    ];
+    const JEDNOTKA = { 1: 'po dokončeném letu', 2: 'po dvou dokončených letech', 3: 'po třech dokončených letech' };
+    const CELKEM = CASTI.reduce((a, c) => a + c.potreba.length, 0) + 1;
+    const postup = { faze: 'a', max: 1, vse: false };
+    let odemknoutVse = false;
+
+    function obnovPostup() {
+      let krok = CELKEM, nazev = 'Vysvětlení', pred = 0;
+      for (const c of CASTI) { if (postup.faze === c.klic) { krok = pred + (postup[c.klic] || 0) + 1; nazev = c.nazev; } pred += c.potreba.length; }
+      postup.max = Math.max(postup.max, krok);
+      pis('postup-text', postup.vse ? 'Celá lekce je odkrytá · právě: ' + nazev
+        : 'Krok ' + krok + ' z ' + CELKEM + ' · ' + nazev + (postup.max > krok ? ' (nejdál: krok ' + postup.max + ')' : ''));
+      el('postup-vypln').style.width = (postup.vse ? 100 : 100 * postup.max / CELKEM) + '%';
+      el('odkryt-vse').hidden = !UCITEL || postup.vse;
+    }
+    function prekresli() { requestAnimationFrame(() => requestAnimationFrame(() => PREKRESLI.forEach(f => f()))); }
+    function odkryj(cast, brana, faze, posun) {
+      el(cast).hidden = false; if (brana) el(brana).hidden = true;
+      postup.faze = faze; obnovPostup(); prekresli();
+      if (posun) el(cast).scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function kroky(c, brana, cast) {
+      const koren = el('kroky-' + c.klic), polozky = [...koren.querySelectorAll('.krok')];
+      const zpet = koren.querySelector('[data-zpet]'), dalsi = koren.querySelector('[data-dalsi]');
+      const zaklad = polozky.map(() => null);
+      let i = 0;
+      const vyzkouseno = j => odemknoutVse || (zaklad[j] !== null && ZKOUSENO[c.klic] - zaklad[j] >= c.potreba[j]);
+      function zamky() {
+        polozky.forEach((k, j) => {
+          const b = k.querySelector('.krok-ukaz');
+          if (b.dataset.odemceno) return;
+          if (vyzkouseno(j)) { b.disabled = false; b.dataset.odemceno = '1'; b.textContent = 'Ukázat vysvětlení'; }
+          else { b.disabled = true; b.textContent = 'Nejdřív to vyzkoušejte (vysvětlení se odemkne ' + JEDNOTKA[c.potreba[j]] + ')'; }
+        });
+        const ok = vyzkouseno(i);
+        dalsi.disabled = !ok;
+        dalsi.textContent = ok ? 'Další krok →' : 'Další krok (' + JEDNOTKA[c.potreba[i]] + ')';
+        if (i === polozky.length - 1 && ok && el(cast).hidden) el(brana).hidden = false;
+      }
+      setInterval(zamky, 500);
+      function ukaz(uzivatel) {
+        if (zaklad[i] === null) zaklad[i] = ZKOUSENO[c.klic];
+        polozky.forEach((k, j) => { k.hidden = j !== i; });
+        koren.querySelector('.kroky-pocet').textContent = 'Krok ' + (i + 1) + ' ze ' + polozky.length;
+        zpet.disabled = i === 0;
+        dalsi.hidden = i === polozky.length - 1;
+        postup[c.klic] = i;
+        if (uzivatel) postup.faze = c.klic;
+        zamky(); obnovPostup();
+      }
+      zpet.addEventListener('click', () => { i--; ukaz(true); });
+      dalsi.addEventListener('click', () => { i++; ukaz(true); });
+      polozky.forEach(k => {
+        const b = k.querySelector('.krok-ukaz'), v = k.querySelector('.krok-vysvetleni');
+        b.addEventListener('click', () => {
+          v.hidden = !v.hidden;
+          b.textContent = v.hidden ? 'Ukázat vysvětlení' : 'Skrýt vysvětlení';
+          b.setAttribute('aria-expanded', String(!v.hidden));
+        });
+      });
+      ukaz(false);
+    }
+
+    const DALSI = ['c', 'f', 'teorie'];
+    CASTI.forEach((c, i) => kroky(c, 'brana-' + DALSI[i], 'cast-' + DALSI[i]));
+    DALSI.forEach(k => el('dal-' + k).addEventListener('click', () => odkryj('cast-' + k, 'brana-' + k, k, true)));
+    el('odkryt-vse').addEventListener('click', () => {
+      postup.vse = true; odemknoutVse = true;
+      DALSI.forEach(k => odkryj('cast-' + k, 'brana-' + k, postup.faze, false));
+    });
+    obnovPostup();
+  })();
+})();
+</script>
+</body>
+</html>

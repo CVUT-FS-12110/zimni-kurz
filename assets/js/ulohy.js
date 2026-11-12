@@ -44,6 +44,14 @@ window.LEKCE = [
     okruh: 'řízení a regulace'
   },
   {
+    nazev: 'Lekce 3d — Dron, který myslí dopředu',
+    popis: 'Před oknem fakulty se zvedá a spouští závora. Regulátor z minula reaguje jen na to, co měří teď, a narazí. Prediktivní regulátor si budoucnost nejdřív přehraje v hlavě — ale co když je předpověď krátká, nebo se závora nechová podle plánu?',
+    soubor: 'ulohy/10-dron-mpc.html',
+    verejna: true,
+    tema: 'Prediktivní řízení (MPC): plánování dopředu',
+    okruh: 'řízení a regulace'
+  },
+  {
     nazev: 'Lekce 3 — Třídění zásilek',
     popis: 'V centru se smíchaly různé zásilky. Lze z jejich naměřených vlastností odhadnout skupinu, ve které budou přihlášky ke studiu?',
     soubor: 'ulohy/03-kmeans.html',
