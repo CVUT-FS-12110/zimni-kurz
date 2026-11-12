@@ -369,7 +369,7 @@
       <p>Vnější regulátor teď nahradí <strong>prediktivní regulátor</strong>, zkráceně <em>MPC</em> (z anglického <em>Model Predictive Control</em>, řízení s předpovědí podle modelu). Neřídí se jedním vzorcem. Každých 0,2 s si vyzkouší spoustu možností, jak by dron mohl v příštích sekundách letět, a vybere tu nejlepší. Vnitřní regulátor náklonu zůstává z minula. Jak jedno rozhodnutí probíhá, ukazuje schéma.</p>
     </div>
     <figure class="uro" id="mpc">
-      <div class="uro-plocha" id="mpc-plocha"><svg viewBox="0 0 920 250" role="img" aria-label="Jedno rozhodnutí prediktivního regulátoru: změř stav, vylosuj varianty povelů, přehraj každou v modelu, oboduj a vyber nejlepší, proveď jen první povel na 0,2 s a celé to zopakuj.">
+      <div class="uro-plocha" id="mpc-plocha"><svg viewBox="0 0 920 250" role="img" aria-label="Jedno rozhodnutí prediktivního regulátoru: změř stav, navrhni varianty povelů, přehraj každou v modelu, oboduj a vyber nejlepší, proveď jen první povel na 0,2 s a celé to zopakuj.">
         <defs>
           <marker id="m-sipka" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="10" refX="12" refY="5" orient="auto"><path d="M0,0 L0,10 L13,5 z" fill="#0d1218"/></marker>
           <marker id="m-fial" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="10" refX="12" refY="5" orient="auto"><path d="M0,0 L0,10 L13,5 z" fill="#7622d6"/></marker>
@@ -384,7 +384,7 @@
         <g data-k="2">
           <path class="cara" d="M172 98 L194 98" marker-end="url(#m-sipka)"/>
           <rect class="blok blok-mpc" x="196" y="50" width="160" height="96" rx="8"/>
-          <text x="276" y="78" class="nazev">2. Vylosuj</text>
+          <text x="276" y="78" class="nazev">2. Navrhni</text>
           <text x="276" y="102" class="maly">150 variant, jak se</text>
           <text x="276" y="120" class="maly">naklánět příští 2 s</text>
           <text x="276" y="138" class="maly">(povel na každých 0,2 s)</text>
@@ -1503,7 +1503,7 @@ plan = [<span class="k-cis">0.0</span>] * <span class="k-cis">10</span>         
   ]);
   schemaPoKrocich('mpc', [
     '<strong>Změř.</strong> Na začátku každého rozhodnutí regulátor zjistí, kde dron je, jak rychle letí a jak je nakloněný. Podívá se i na závoru: je dole, nahoře, nebo se zrovna pohybuje?',
-    '<strong>Vylosuj varianty.</strong> Každá varianta je řada povelů „chci náklon θ“, jeden povel na každých 0,2 s. Při předpovědi 2 s má varianta 10 povelů. Regulátor jich vylosuje 150, hlavně kolem plánu, který vybral minule.',
+    '<strong>Navrhni varianty.</strong> Každá varianta je řada povelů „chci náklon θ“, jeden povel na každých 0,2 s. Při předpovědi 2 s má varianta 10 povelů. Regulátor jich navrhne 150, hlavně kolem plánu, který vybral minule.',
     '<strong>Přehraj v modelu.</strong> Každou variantu regulátor „přehraje v hlavě“: na stejném modelu dronu jako v úvodu spočítá, kam by dron za 2 s doletěl. Z jízdního řádu pozná, jestli by cestou nevjel do zavřené závory.',
     '<strong>Oboduj a vyber.</strong> Za každou sekundu předpovědi dostane varianta tolik bodů, kolik metrů zbývá k oknu. Varianta, se kterou by dron narazil, je vyřazená. Vyhraje varianta s nejmenším počtem bodů.',
     '<strong>Proveď jen první povel.</strong> Z vítězné varianty se provede jen první povel, tedy náklon na příštích 0,2 s. Zbytek plánu se zahodí.',
