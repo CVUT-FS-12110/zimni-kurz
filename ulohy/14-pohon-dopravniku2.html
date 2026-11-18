@@ -1,0 +1,1034 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pohon pásového dopravníku — Zimní kurz</title>
+<link rel="stylesheet" href="../assets/css/styl.css">
+<style>
+  .schema { max-width: 760px; margin: 1rem 0; }
+  .schema svg { display: block; width: 100%; height: auto; border: 2px solid var(--ram-silny); border-radius: var(--radius); background: #fff; }
+  .schema text { font-family: "Segoe UI", system-ui, sans-serif; fill: var(--text); }
+  .schema .popis { font-size: 15px; font-weight: 700; }
+  .schema .dopln { font-size: 13px; fill: var(--text-slaby); }
+  .platno-ram { aspect-ratio: 16 / 10; }
+  .vysledek { margin-top: 1rem; padding: .75rem; border: 2px solid var(--ram); border-radius: var(--radius); background: #fff; }
+  .vysledek h3 { margin: 0 0 .4rem; }
+  .podminka { display: grid; grid-template-columns: 1fr auto; gap: .25rem .6rem; padding: .35rem 0; border-top: 1px solid var(--ram); }
+  .podminka strong { font-variant-numeric: tabular-nums; }
+  .splneno { color: var(--shluk-3); }
+  .nesplneno { color: var(--shluk-2); }
+  .souhrn { margin: .65rem 0 0; font-weight: 800; }
+  .rovnice { white-space: pre-line; overflow-wrap: anywhere; max-width: 760px; margin: .7rem 0; padding: .7rem 1rem; border: 2px solid var(--ram); border-radius: var(--radius); background: var(--pozadi-panel); font: .94rem/1.65 ui-monospace, "Cascadia Code", "SFMono-Regular", Consolas, monospace; }
+  .tabulka { width: 100%; max-width: 760px; border-collapse: collapse; font-size: .92rem; }
+  .tabulka th, .tabulka td { padding: .4rem .5rem; border: 1px solid var(--ram); text-align: right; }
+  .tabulka th:first-child, .tabulka td:first-child, .tabulka td:nth-child(2) { text-align: left; }
+  .tabulka thead { background: var(--pozadi-panel); }
+  .prazdny-blok { min-height: 5rem; }
+  @media (max-width: 540px) { .tabulka { font-size: .78rem; } .tabulka th, .tabulka td { padding: .3rem; } }
+
+  .prevod-detail { margin: 1.5rem 0; padding: 1rem; border: 2px solid var(--ram-silny); border-radius: var(--radius); background: var(--pozadi-panel); }
+  .prevod-detail h3 { margin-top: 0; }
+  .prevod-detail svg { display: block; width: 100%; height: auto; background: var(--pozadi); border: 1px solid var(--ram); border-radius: var(--radius); }
+  .prevod-detail svg text { fill: var(--text); font: 16px "Segoe UI", system-ui, sans-serif; }
+  .prevod-detail svg .maly-popis { font-size: 14px; fill: var(--text-slaby); }
+  .prevod-detail svg .hridel { fill: none; stroke: var(--text-slaby); stroke-width: 8; stroke-linecap: round; }
+  .prevod-detail svg .spojeni { fill: none; stroke: var(--text-slaby); stroke-width: 2; stroke-dasharray: 6 5; }
+  .prevod-detail svg .kolo { stroke: var(--ram-silny); stroke-width: 1.5; stroke-linejoin: round; }
+  .prevod-detail svg .znacka { stroke: var(--pozadi); stroke-width: 5; stroke-linecap: round; }
+  .prevod-detail svg .stred { fill: var(--pozadi); stroke: var(--ram-silny); stroke-width: 2; }
+  .prevod-udaje { display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; margin: .7rem 0; font-variant-numeric: tabular-nums; }
+  .prevod-udaje span { flex: 1 1 190px; }
+  .prevod-detail .ovladac { max-width: 24rem; margin-top: .8rem; }
+  .prevod-detail .tlacitka { max-width: 36rem; }
+  @media (max-width: 540px) { .prevod-detail { padding: .6rem; } }
+
+
+  .dopad-detail { margin: 1.5rem 0; padding: 1rem; border: 2px solid var(--ram-silny); border-radius: var(--radius); background: var(--pozadi-panel); }
+  .dopad-detail h3 { margin-top: 0; }
+  .dopad-detail svg { display: block; width: 100%; height: auto; background: var(--pozadi); border: 1px solid var(--ram); border-radius: var(--radius); }
+  .dopad-detail svg text { fill: var(--text); font: 16px "Segoe UI", system-ui, sans-serif; }
+  .dopad-ovladani { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 1rem; }
+  .dopad-grafy { display: grid; gap: 1rem; margin-top: 1rem; }
+  .dopad-grafy figure { margin: 0; min-width: 0; }
+  .dopad-grafy figcaption { font-size: .9rem; margin: .3rem 0; }
+  .dopad-detail .prubeh { fill: none; stroke: var(--shluk-1); stroke-width: 2.5; stroke-linejoin: round; }
+  .dopad-detail .zatez { stroke: var(--shluk-4); stroke-dasharray: 7 4; }
+  .dopad-detail .reference { stroke: var(--text-slaby); stroke-width: 1.5; stroke-dasharray: 3 5; }
+  .dopad-detail .osa { stroke: var(--ram); stroke-width: 1; }
+  .dopad-detail .udalost { stroke: var(--shluk-2); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .dopad-detail .kurzor { stroke: var(--text); stroke-width: 1; }
+  .dopad-detail .stav { min-height: 3.4rem; }
+  .dopad-cas { margin-top: 1rem; }
+  @media (max-width: 540px) { .dopad-detail { padding: .6rem; } .dopad-ovladani { grid-template-columns: 1fr; gap: 0; } }
+
+
+  .rezim-detail .rezim-b { stroke: var(--shluk-5); stroke-dasharray: 9 5; }
+  .rezim-detail .rezim-tab { max-width: none; margin-top: 1rem; }
+  .rezim-detail .rezim-tab td, .rezim-detail .rezim-tab th { text-align: right; }
+  .rezim-detail .rezim-tab td:first-child, .rezim-detail .rezim-tab th:first-child { text-align: left; }
+  .rezim-detail .rezim-legenda { margin: .5rem 0; font-size: .9rem; }
+  .rezim-detail .dopad-ovladani { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+  .rezim-detail .rezim-hodnoty { overflow-x: auto; }
+
+
+  .pruvodce { padding: .6rem 1rem; margin: 1.5rem 0; border-left: 4px solid var(--akcent); background: var(--pozadi-panel); }
+  .pruvodce ol { display: flex; flex-wrap: wrap; gap: .4rem 2rem; margin: .3rem 0; padding-left: 1.4rem; }
+  .prechod { padding: .6rem .8rem; border-left: 3px solid var(--akcent); background: var(--pozadi); margin: 1rem 0 1.5rem; }
+  h4 { font-size: 1rem; margin: 1rem 0 .4rem; }
+  [id] { scroll-margin-top: 1rem; }
+  .tabulka caption { text-align: left; font-weight: 600; margin-bottom: .4rem; }
+
+  .predmety-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; max-width: 1000px; margin-top: 1rem; }
+  .predmet { display: flex; flex-direction: column; padding: .8rem 1rem; border: 2px solid var(--ram); border-radius: var(--radius); background: var(--pozadi-panel); }
+  .predmet h3 { margin: .1rem 0 .4rem; font-size: 1.05rem; }
+  .predmet p { margin: 0; }
+  .predmet .predmet-stupen { color: var(--akcent); font-size: .75rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+  .predmet .predmet-odkaz { margin-top: auto; padding-top: .6rem; font-size: .9rem; font-weight: 700; }
+  @media (max-width: 800px) { .predmety-grid { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body>
+<main class="stranka">
+  <a class="zpet" href="../index.html">← Zpět na rozcestník</a>
+  <p class="pod-nadpisem">Lekce 5 — Balíček stoupá do další části linky</p>
+  <h1>Pohon pásového dopravníku</h1>
+
+  <section class="sekce">
+    <h2>1. Jak dostat balíček do vyšší části linky</h2>
+    <p class="uvod">Balíček je vytříděný a&nbsp;má pokračovat do vyššího patra linky. Vede tam nakloněný pás, ke kterému je potřeba vybrat pohon. Musí zásilku dopravit dostatečně rychle a&nbsp;zvládnout i&nbsp;chvíli, kdy na něj přistane další balíček.</p>
+    <p>Motor přes převodovku roztáčí <strong>hnací buben</strong>, který táhne pás. Převodovka přizpůsobuje otáčení motoru tomu, co potřebuje dopravník.</p>
+    <div class="schema" role="img" aria-label="Motor přes převodovku otáčí bubnem nakloněného pásu, který veze balíček vzhůru.">
+      <svg viewBox="0 0 760 280">
+        <defs><marker id="sipka" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#0b46c8"/></marker></defs>
+        <path d="M250 220 L680 85" stroke="#0d1218" stroke-width="34" stroke-linecap="round"/>
+        <path d="M250 220 L680 85" stroke="#dfe5ef" stroke-width="26" stroke-dasharray="18 10" stroke-linecap="round"/>
+        <circle cx="250" cy="220" r="28" fill="#fff" stroke="#0d1218" stroke-width="5"/><circle cx="680" cy="85" r="28" fill="#fff" stroke="#0d1218" stroke-width="5"/>
+        <rect x="470" y="111" width="82" height="54" rx="4" fill="#d97000" stroke="#0d1218" stroke-width="3" transform="rotate(-17 511 138)"/><text x="492" y="142" class="popis" transform="rotate(-17 511 138)">balíček</text>
+        <rect x="22" y="176" width="92" height="67" rx="8" fill="#1145cf" stroke="#0d1218" stroke-width="3"/><text x="45" y="207" class="popis" fill="#fff" style="fill:#fff">motor</text><text x="35" y="224" class="dopln" fill="#fff" style="fill:#fff">1400&nbsp;ot/min</text>
+        <rect x="140" y="181" width="80" height="58" rx="5" fill="#eef1f6" stroke="#0d1218" stroke-width="3"/><text x="152" y="206" class="popis">převod</text><text x="161" y="226" class="dopln">1 : 20</text>
+        <path d="M115 210 H137 M222 210 H235" stroke="#0b46c8" stroke-width="4" marker-end="url(#sipka)"/>
+        <path d="M388 194 L462 171" stroke="#0b46c8" stroke-width="4" marker-end="url(#sipka)"/><text x="384" y="222" class="popis">rychlost pásu</text>
+        <path d="M615 246 A70 70 0 0 1 681 225" fill="none" stroke="#cc1233" stroke-width="3"/><text x="640" y="259" class="popis">sklon 10°</text>
+        <path d="M262 242 L280 258" fill="none" stroke="var(--text-slaby)" stroke-width="2"/>
+        <text x="286" y="267" class="popis">hnací buben</text>
+      </svg>
+    </div>
+    <p>Nejprve vybereme pohon pro plynulou jízdu. Potom se podíváme do převodovky, přidáme dopad nové zásilky a&nbsp;nakonec rozhodneme, co má pás&nbsp;dělat při&nbsp;čekání. Všechny části používají stejný dopravník&nbsp;a&nbsp;navazují na jeden výchozí návrh.</p>
+  </section>
+  <nav class="pruvodce" aria-label="Postup lekce">
+    <ol>
+      <li><a href="#navrh">Pohon pro plynulou jízdu</a></li>
+      <li><a href="#prevody">Co dělá převodovka</a></li>
+      <li><a href="#dopad">Dopad nové zásilky</a></li>
+      <li><a href="#cekani">Čekání a&nbsp;nový rozjezd</a></li>
+    </ol>
+  </nav>
+
+
+  <section aria-labelledby="ukazky">
+    <h2 id="ukazky">2. Od plynulé jízdy k&nbsp;řízení celého pásu</h2>
+    <div class="sekce" id="navrh">
+      <h3>2.1 Vyberte pohon pro plynulou jízdu</h3>
+      <p>Začněte jednoduchou situací: balíček už jede a&nbsp;rychlost se nemění. Zatím neřešíme dopad ani rozjezd. Návrh má splnit dvě podmínky: pás&nbsp;jede alespoň 0,50 m/s&nbsp;a&nbsp;pohon dokáže překonat zatížení.</p>
+      <p><strong>Otáčky <var>n</var></strong> říkají, kolikrát se motor nebo buben otočí za minutu (ot/min). <strong>Moment <var>M</var></strong> vyjadřuje, jak silně pohon roztáčí buben; udává se v&nbsp;newtonmetrech (Nm). V&nbsp;panelu porovnávejte dostupný moment s&nbsp;potřebným. Motor s&nbsp;vysokými otáčkami nemusí mít dostatečný moment.</p>
+      <p>Značka <var>n</var><sub>m</sub> označuje otáčky motoru a&nbsp;<var>n</var><sub>b</sub> otáčky bubnu; rychlost pásu značíme <var>v</var> [m/s]. Pro moment motoru použijeme <var>M</var><sub>m</sub>, pro dostupný moment pohonu na bubnu <var>M</var><sub>max</sub> a&nbsp;pro potřebný moment při plynulé jízdě <var>M</var><sub>pot</sub> [Nm]. Požadované minimum rychlosti je <var>v</var><sub>min</sub> = 0,50&nbsp;m/s.</p>
+      <p>Rozměry a&nbsp;zatížení popíšeme značkami: hmotnost zásilky <var>m</var> [kg], sklon pásu <var>α</var> [°], průměr bubnu <var>d</var> [m] a&nbsp;jeho poloměr <var>r</var> [m]. Obvod bubnu bude <var>o</var> [m]. Průměr se v&nbsp;ovládání zadává v&nbsp;milimetrech; do vztahů jej dosadíme v&nbsp;metrech.</p>
+      <p class="poznamka">Výchozí příklad je motor C, převodovka P2, zásilka 25&nbsp;kg, sklon 10° a&nbsp;buben 160&nbsp;mm. Pro první pokus ponechte ostatní parametry a&nbsp;měňte jen převodovku. Tlačítko „Obnovit výchozí návrh“ vrací nastavení celé lekce; další ukázky mají i&nbsp;vlastní resety.</p>
+    </div>
+
+    <div class="dilna">
+      <div class="platno-ram"><canvas id="platno" aria-label="Animovaný nakloněný dopravník s balíčkem, motorem a převodovkou"></canvas></div>
+      <div class="panel"><div class="zalozka-obsah">
+        <div class="ovladac"><label for="motor">Elektromotor</label><select id="motor"></select></div>
+        <div class="ovladac"><label for="prevodovka">Převodovka</label><select id="prevodovka"></select></div>
+        <div class="ovladac"><label for="hmotnost">Hmotnost zásilky <output id="hmotnost-hodnota"></output></label><input id="hmotnost" type="range" min="5" max="60" value="25" step="1"></div>
+        <div class="ovladac"><label for="sklon">Sklon pásu <output id="sklon-hodnota"></output></label><input id="sklon" type="range" min="0" max="25" value="10" step="1"></div>
+        <div class="ovladac"><label for="prumer">Průměr bubnu <output id="prumer-hodnota"></output></label><input id="prumer" type="range" min="100" max="300" value="160" step="10"></div>
+        <div class="ovladac"><label for="hridele">Požadované uspořádání hřídelí</label><select id="hridele"><option value="libovolne">libovolné</option><option value="rovnobezne">rovnoběžné</option><option value="kolme">kolmé</option></select></div>
+        <div class="tlacitka"><button class="akce hlavni" id="spustit">Spustit</button><button class="akce" id="reset">Obnovit výchozí návrh</button></div>
+        <div class="vysledek" aria-live="polite">
+          <h3>Ověření návrhu</h3>
+          <div class="podminka"><span>Rychlost pásu</span><strong id="rychlost">–</strong><span>minimum 0,50&nbsp;m/s</span><strong id="rychlost-stav">–</strong></div>
+          <div class="podminka"><span>Dostupný moment</span><strong id="moment">–</strong><span>Potřebný moment</span><strong id="potrebny">–</strong></div>
+          <div class="podminka"><span>Hřídele</span><strong id="hridele-stav">–</strong><span>Cena / hmotnost</span><strong id="cena">–</strong></div>
+          <p class="souhrn" id="souhrn">–</p>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="sekce">
+      <h4>Co si zkuste</h4>
+      <ol>
+        <li>Spusťte výchozí návrh s&nbsp;P2. Ověřte v&nbsp;panelu, že splňuje požadovanou rychlost i&nbsp;moment.</li>
+        <li>Při&nbsp;stejném motoru porovnejte P2 (1 : 20) a&nbsp;P7 (1 : 50). Co získáte na momentu a&nbsp;co ztratíte na rychlosti?</li>
+        <li>Vraťte P2 a&nbsp;zvětšete buben ze 160 na 250&nbsp;mm. Sledujte zároveň rychlost i&nbsp;potřebný moment.</li>
+        <li>Obnovte výchozí návrh, nastavte zásilku 40&nbsp;kg a&nbsp;sklon 20°. Stačí původní pohon i&nbsp;pro tuto změnu?</li>
+      </ol>
+      <p class="prechod"><strong>Další otázka:</strong> Proč větší převod pomáhá momentu, ale snižuje otáčky? Vraťte výchozí návrh a&nbsp;podívejte se na pohyb kol.</p>
+    </div>
+
+    <div class="prevod-detail" id="prevody" aria-labelledby="prevod-nadpis">
+      <h3 id="prevod-nadpis">2.2 Proč převodovka mění otáčky a&nbsp;moment</h3>
+      <p>V&nbsp;prvním kroku se po změně převodovky změnila rychlost i&nbsp;dostupný moment. Teď se podívejte dovnitř. <strong>Soukolí</strong> je dvojice ozubených kol, která si předávají pohyb. Kola se otáčejí na <strong>hřídelích</strong>, tedy tyčích, které přenášejí otáčení. Několik soukolí za sebou tvoří vícestupňovou převodovku.</p>
+      <p>Výběr motoru a&nbsp;převodovky zůstává v <a href="#navrh">prvním kroku</a>. Bílé značky na kolech umožňují sledovat otáčky; přerušované spojnice označují společnou hřídel. <strong>Účinnost <var>η</var></strong> v&nbsp;procentech říká, jaká část přenášeného výkonu zbude po ztrátách.</p>
+      <p><strong>Převodový poměr <var>i</var></strong> udává počet otáček motoru na jednu otáčku bubnu. Pro zápis 1 : 20 tedy platí <var>i</var> = 20. Značky <var>i</var><sub>1</sub> a&nbsp;<var>i</var><sub>2</sub> rozliší jednotlivé stupně a&nbsp;<var>n</var><sub>s</sub> [ot/min] bude označovat otáčky společné mezilehlé hřídele. <var>i</var> a&nbsp;<var>η</var> jsou bez jednotky; účinnost 94&nbsp;% dosazujeme jako <var>η</var> = 0,94.</p>
+      <p id="prevod-popis"></p>
+      <svg id="prevod-schema" viewBox="0 0 760 300" role="img" aria-labelledby="prevod-titul prevod-svg-popis">
+        <title id="prevod-titul">Přenos pohybu převodovkou</title>
+        <desc id="prevod-svg-popis"></desc>
+        <g id="prevod-kresba"></g>
+      </svg>
+      <div class="prevod-udaje" aria-live="polite">
+        <span>Vstup: <strong id="prevod-vstup"></strong></span>
+        <span>Výstup: <strong id="prevod-vystup"></strong></span>
+        <span>Dostupný moment: <strong id="prevod-moment"></strong></span>
+      </div>
+      <div class="prevod-udaje">
+        <span>Otáčky vstupu od resetu: <strong id="prevod-otacky-vstup">0</strong></span>
+        <span>Otáčky výstupu od resetu: <strong id="prevod-otacky-vystup">0</strong></span>
+      </div>
+      <div class="ovladac">
+        <label for="prevod-zpomaleni">Zpomalení přehrávání</label>
+        <select id="prevod-zpomaleni">
+          <option value="30">30× pomaleji</option>
+          <option value="60" selected>60× pomaleji</option>
+          <option value="120">120× pomaleji</option>
+        </select>
+      </div>
+      <div class="tlacitka">
+        <button type="button" class="akce hlavni" id="prevod-spustit">Spustit soukolí</button>
+        <button type="button" class="akce" id="prevod-krok">Krok: vstup o&nbsp;90°</button>
+        <button type="button" class="akce" id="prevod-reset">Reset soukolí</button>
+      </div>
+      <p class="poznamka">Schéma ukazuje přenos otáčení bez zatížení; ovládá se nezávisle na dopravníku. Značka na kole pomáhá sledovat jednu otáčku. Rozměry a&nbsp;počet nakreslených zubů jsou schematické, úhlové posuny odpovídají uvedenému převodu. Rozdělení převodu mezi stupně je ilustrační.</p>
+      <div class="sekce">
+        <h4>Co si zkuste</h4>
+        <ul>
+          <li>Vyberte P1 a&nbsp;proveďte čtyři&nbsp;kroky. Vstup dokončí jednu otáčku. Jakou část otáčky vykoná výstup?</li>
+          <li>Potom porovnejte P2 a&nbsp;P4. Sledujte změnu směru v&nbsp;každém čelním soukolí a&nbsp;stejný pohyb kol spojených společnou hřídelí.</li>
+          <li>Nakonec porovnejte P5 a&nbsp;P6 se stejným motorem. Výstupní otáčky jsou stejné; jak se liší uspořádání a&nbsp;dostupný moment?</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="sekce prechod"><strong>Další otázka:</strong> Pro plynulou jízdu už umíme odhadnout rychlost a&nbsp;moment. Co se ale stane, když musí pás&nbsp;právě přicházející balíček teprve rozjet?</p>
+
+    <div class="dopad-detail" id="dopad" aria-labelledby="dopad-nadpis">
+      <h3 id="dopad-nadpis">2.3 Co změní dopad balíčku</h3>
+      <p>Pohon pro plynulou jízdu je vybraný a&nbsp;víme, co dělá převodovka. Zatím jsme ale neřešili, jak se stojící balíček na rychlost pásu vůbec dostane. V&nbsp;této ukázce pás&nbsp;nejprve běží naprázdno a&nbsp;ve 2. sekundě na něj dopadne nová zásilka.</p>
+      <p>Rozlišujte <strong>zatěžovací moment <var>M</var><sub>z</sub></strong>, kterým balíček a&nbsp;odpory brzdí buben, a <strong>moment pohonu <var>M</var><sub>p</sub></strong>, který dodává motor přes převodovku. Když zatížení na chvíli převáží, otáčky klesnou. <strong>Regulace otáček</strong> sleduje tento pokles a&nbsp;přidává moment, aby se pás&nbsp;vrátil k&nbsp;požadované rychlosti.</p>
+      <p>Čas značíme <var>t</var> [s], výšku pádu <var>h</var> [m] a&nbsp;dobu reakce pohonu <var>τ</var><sub>m</sub> [s]. Pro požadované otáčky bubnu použijeme <var>n</var><sub>ref</sub> [ot/min], pro jeho momentový limit <var>M</var><sub>max</sub> [Nm] a&nbsp;pro vlastní odpor prázdného pásu <var>M</var><sub>0</sub> [Nm].</p>
+      <p class="poznamka">Nejprve použijte výchozí návrh z&nbsp;prvního kroku: motor C, P2 a&nbsp;zásilku 25&nbsp;kg. Pak spusťte pokus a&nbsp;čtěte oba grafy podle stejného času. Časovým posuvníkem se lze vracet. „Doba reakce pohonu“ určuje, jak rychle se skutečný moment přiblíží tomu, který požaduje regulace; vyšší hodnota znamená pomalejší reakci.</p>
+      <p class="poznamka">Motor, převodovka, sklon a&nbsp;buben se přebírají z&nbsp;prvního kroku. Posuvníky hmotnosti v&nbsp;celé lekci jsou propojené. Změna společných parametrů zahájí nové pokusy; místní reset dopadu obnoví také hmotnost 25&nbsp;kg.</p>
+      <p id="dopad-konfigurace" class="poznamka"></p>
+      <svg id="dopad-scena" viewBox="0 0 760 310" role="img" aria-labelledby="dopad-scena-titul dopad-scena-popis">
+        <title id="dopad-scena-titul">Dopad balíčku na běžící pás</title>
+        <desc id="dopad-scena-popis">Balíček padá na pás, po zachycení zrychluje a&nbsp;pás&nbsp;se dočasně zpomalí.</desc>
+        <text x="22" y="30" id="dopad-faze">Pás&nbsp;běží naprázdno.</text>
+        <g id="dopad-sklon">
+          <path d="M-40 0 H800" fill="none" stroke="var(--text)" stroke-width="28"/>
+          <path id="dopad-pas" d="M-40 0 H800" fill="none" stroke="var(--ram)" stroke-width="20" stroke-dasharray="22 14"/>
+          <g id="dopad-balik">
+            <rect x="-24" y="-62" width="48" height="48" rx="3" fill="var(--shluk-4)" stroke="var(--text)" stroke-width="2"/>
+            <path d="M0 -61 V-15 M-23 -48 H23" stroke="var(--pozadi)" stroke-width="3"/>
+          </g>
+        </g>
+        <text x="22" y="288" id="dopad-pohled">Výřez dlouhého pásu; dráha není v&nbsp;měřítku.</text>
+      </svg>
+      <div class="dopad-ovladani">
+        <div class="ovladac"><label for="dopad-hmotnost">Hmotnost balíčku <output id="dopad-hmotnost-hodnota"></output></label><input id="dopad-hmotnost" type="range" min="5" max="60" step="1" value="25"></div>
+        <div class="ovladac"><label for="dopad-vyska">Výška pádu <output id="dopad-vyska-hodnota"></output></label><input id="dopad-vyska" type="range" min="0.1" max="1" step="0.1" value="0.4"></div>
+        <div class="ovladac"><label for="dopad-reakce">Doba reakce pohonu <output id="dopad-reakce-hodnota"></output></label><input id="dopad-reakce" type="range" min="0.04" max="0.4" step="0.02" value="0.12"></div>
+      </div>
+      <div class="tlacitka">
+        <button type="button" class="akce hlavni" id="dopad-spustit">Spustit pokus</button>
+        <button type="button" class="akce" id="dopad-shodit">Shodit balíček nyní</button>
+        <button type="button" class="akce" id="dopad-krok">Krok: 0,05&nbsp;s</button>
+        <button type="button" class="akce" id="dopad-reset">Reset pokusu</button>
+      </div>
+      <div class="ovladac dopad-cas"><label for="dopad-cas">Čas pokusu <output id="dopad-cas-hodnota"></output></label><input id="dopad-cas" type="range" min="0" max="10" step="0.01" value="0"></div>
+      <div class="prevod-udaje">
+        <span>Otáčky bubnu: <strong id="dopad-otacky"></strong></span>
+        <span>Moment pohonu na bubnu: <strong id="dopad-motor"></strong></span>
+        <span>Zatěžovací moment na bubnu: <strong id="dopad-zatez"></strong></span>
+      </div>
+      <p class="stav" id="dopad-stav" aria-live="polite"></p>
+      <div class="dopad-grafy">
+        <figure><svg id="dopad-graf-otacky" viewBox="0 0 760 220" role="img" aria-label="Otáčky bubnu v otáčkách za minutu podle času v sekundách"></svg><figcaption>Plná čára: otáčky bubnu. Tečkovaná čára: požadované otáčky.</figcaption></figure>
+        <figure><svg id="dopad-graf-moment" viewBox="0 0 760 220" role="img" aria-label="Moment pohonu a zatěžovací moment na bubnu v newtonmetrech podle času v sekundách"></svg><figcaption>Plná modrá čára: moment pohonu. Přerušovaná oranžová: zatěžovací moment. Tečkovaná: momentový limit pohonu v&nbsp;modelu. Svislá červená čára označuje dopad.</figcaption></figure>
+      </div>
+      <p class="poznamka">Ilustrační model pohonu s&nbsp;regulací otáček: moment reaguje se zpožděním a&nbsp;jeho limit je převzatý ze zvolené kombinace motoru a&nbsp;převodovky. Nejde o&nbsp;měření konkrétního motoru. Počítá se zachycení třením a&nbsp;jízda vpřed, bez odskoku a&nbsp;zpětného chodu.</p>
+      <div class="sekce">
+        <h4>Co si zkuste</h4>
+        <ul>
+          <li>Spusťte výchozí pokus a&nbsp;zastavte jej krátce po dopadu. Který moment vzroste jako první a&nbsp;kdy jsou otáčky nejnižší? Časovým posuvníkem se vraťte k&nbsp;dopadu.</li>
+          <li>Porovnejte zásilku o&nbsp;hmotnosti 5 a&nbsp;60&nbsp;kg. Sledujte velikost poklesu otáček i&nbsp;dobu návratu.</li>
+          <li>Zvyšte dobu reakce pohonu. Porovnejte pokles a&nbsp;následné překročení požadovaných otáček.</li>
+          <li>Vraťte hmotnost na 25&nbsp;kg a&nbsp;porovnejte výšku pádu 0,1 a&nbsp;1 m. Sledujte špičku zatížení. Potom v&nbsp;prvním kroku zvolte slabší motor a&nbsp;ověřte návrat otáček.</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="sekce prechod"><strong>Další otázka:</strong> Rozjezd zásilky krátce zatížil pohon. Má tedy smysl prázdný pás&nbsp;mezi zásilkami úplně zastavovat, když jej pak musíme znovu rozjet?</p>
+
+    <div class="dopad-detail rezim-detail" id="cekani" aria-labelledby="rezim-nadpis">
+      <h3 id="rezim-nadpis">2.4 Co dělat mezi dvěma zásilkami</h3>
+      <p>Dopad ukázal, že změna rychlosti a&nbsp;zatížení potřebuje čas. Teď přibývá rozhodnutí: má prázdný pás&nbsp;stále pomalu běžet, nebo má úplně zastavit? Porovnáme oba režimy se stejným pohonem a&nbsp;stejnou zásilkou.</p>
+      <p>V&nbsp;1. sekundě dostanou prázdné pásy pokyn ke změně: A&nbsp;sníží otáčky, B zastaví. Před dalším balíčkem se oba rozjíždějí zpět na provozní rychlost. <strong>Předstih <var>Δt</var></strong> říká, jak dlouho před příchodem balíčku dá snímač pokyn k&nbsp;rozběhu. Vyšší hodnota dává pohonu více času.</p>
+      <p>Příchod balíčku nastane v&nbsp;čase <var>t</var><sub>p</sub>, pokyn k&nbsp;rozběhu v&nbsp;<var>t</var><sub>r</sub>. Změna požadovaných otáček trvá <var>T</var><sub>r</sub> a&nbsp;skončí v&nbsp;<var>t</var><sub>k</sub>; všechny tyto časy i&nbsp;předstih <var>Δt</var> jsou v&nbsp;sekundách. Otáčky pásů označíme <var>n</var><sub>A</sub> a&nbsp;<var>n</var><sub>B</sub>. Poměr otáček A při čekání k&nbsp;provozním otáčkám značíme <var>k</var><sub>A</sub> bez jednotky: 35&nbsp;% odpovídá <var>k</var><sub>A</sub> = 0,35.</p>
+      <p>Nově sledujte i&nbsp;znaménko momentu pohonu. Kladný moment pás&nbsp;pohání, záporný jej <strong>aktivně brzdí</strong>. To znamená, že pohon cíleně odebírá pohyb; nejde o&nbsp;pouhé vypnutí motoru. Oproti předchozí ukázce proto graf momentu pohonu sahá i&nbsp;pod nulu.</p>
+      <p class="poznamka">Zachovejte motor C a&nbsp;P2, aby bylo možné navázat na předchozí pokus. Hmotnost je opět společná. Porovnání má vlastní čas a&nbsp;ovládání; jeho místní reset obnoví i&nbsp;hmotnost 25&nbsp;kg.</p>
+      <p id="rezim-konfigurace" class="poznamka"></p>
+      <svg id="rezim-scena" viewBox="0 0 760 370" role="img" aria-labelledby="rezim-titul rezim-popis">
+        <title id="rezim-titul">Porovnání zpomalení a&nbsp;zastavení prázdného pásu</title>
+        <desc id="rezim-popis">Dva pásy na společné časové ose. A&nbsp;udržuje snížené otáčky, B stojí. Po příchodu balíčku se oba rozjíždějí na provozní otáčky.</desc>
+        <text x="22" y="27">A&nbsp;— při&nbsp;čekání zpomalí</text>
+        <text x="22" y="53" id="rezim-faze-0"></text>
+        <path d="M75 140 H730" stroke="var(--text)" stroke-width="28"/>
+        <path id="rezim-pas-0" d="M75 140 H730" stroke="var(--shluk-1)" stroke-width="20" stroke-dasharray="22 14"/>
+        <circle cx="48" cy="140" r="20" fill="var(--pozadi-panel)" stroke="var(--text)" stroke-width="2"/>
+        <path id="rezim-rotor-0" d="M48 140 H64" stroke="var(--shluk-1)" stroke-width="4"/>
+        <g id="rezim-balik-0"><rect x="-24" y="-62" width="48" height="48" rx="3" fill="var(--shluk-4)" stroke="var(--text)" stroke-width="2"/><path d="M0 -61 V-15" stroke="var(--pozadi)" stroke-width="3"/></g>
+        <text x="22" y="199">B — při&nbsp;čekání zastaví</text>
+        <text x="22" y="225" id="rezim-faze-1"></text>
+        <path d="M75 312 H730" stroke="var(--text)" stroke-width="28"/>
+        <path id="rezim-pas-1" d="M75 312 H730" stroke="var(--shluk-5)" stroke-width="20" stroke-dasharray="22 14"/>
+        <circle cx="48" cy="312" r="20" fill="var(--pozadi-panel)" stroke="var(--text)" stroke-width="2"/>
+        <path id="rezim-rotor-1" d="M48 312 H64" stroke="var(--shluk-5)" stroke-width="4"/>
+        <g id="rezim-balik-1"><rect x="-24" y="-62" width="48" height="48" rx="3" fill="var(--shluk-4)" stroke="var(--text)" stroke-width="2"/><path d="M0 -61 V-15" stroke="var(--pozadi)" stroke-width="3"/></g>
+        <text x="22" y="355">Výřezy dlouhých pásů; sklon je zahrnutý ve výpočtu.</text>
+      </svg>
+      <div class="dopad-ovladani">
+        <div class="ovladac"><label for="rezim-hmotnost">Hmotnost balíčku <output id="rezim-hmotnost-hodnota"></output></label><input id="rezim-hmotnost" type="range" min="5" max="60" step="1" value="25"></div>
+        <div class="ovladac"><label for="rezim-podil">Rychlost pásu A&nbsp;při&nbsp;čekání <output id="rezim-podil-hodnota"></output></label><input id="rezim-podil" type="range" min="10" max="60" step="5" value="35"></div>
+        <div class="ovladac"><label for="rezim-prichod">Příchod balíčku <output id="rezim-prichod-hodnota"></output></label><input id="rezim-prichod" type="range" min="4" max="10" step="0.5" value="6"></div>
+        <div class="ovladac"><label for="rezim-predstih">Předstih pokynu k&nbsp;rozběhu <output id="rezim-predstih-hodnota"></output></label><input id="rezim-predstih" type="range" min="0" max="2" step="0.1" value="0.5"></div>
+      </div>
+      <div class="tlacitka">
+        <button type="button" class="akce hlavni" id="rezim-spustit">Spustit porovnání</button>
+        <button type="button" class="akce" id="rezim-krok">Krok: 0,05&nbsp;s</button>
+        <button type="button" class="akce" id="rezim-reset">Reset porovnání</button>
+      </div>
+      <div class="ovladac dopad-cas"><label for="rezim-cas">Čas porovnání <output id="rezim-cas-hodnota"></output></label><input id="rezim-cas" type="range" min="0" max="14" step="0.01" value="0"></div>
+      <div class="rezim-hodnoty">
+        <table class="tabulka rezim-tab">
+          <caption>Okamžité hodnoty na bubnu</caption>
+          <thead><tr><th>Režim</th><th>Otáčky [ot/min]</th><th>Moment pohonu [Nm]</th><th>Zatěžovací moment [Nm]</th></tr></thead>
+          <tbody>
+            <tr><th>A&nbsp;— zpomalí</th><td id="rezim-n-0"></td><td id="rezim-motor-0"></td><td id="rezim-zatez-0"></td></tr>
+            <tr><th>B — zastaví</th><td id="rezim-n-1"></td><td id="rezim-motor-1"></td><td id="rezim-zatez-1"></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="rezim-legenda">Ve všech grafech: plná modrá čára = A&nbsp;(zpomalí), přerušovaná fialová = B (zastaví). Svislé čáry označují začátek úsporného režimu, pokyn k&nbsp;rozběhu a&nbsp;příchod balíčku.</p>
+      <div class="dopad-grafy">
+        <figure><svg id="rezim-graf-otacky" viewBox="0 0 760 230" role="img" aria-label="Porovnání otáček obou bubnů v čase"></svg><figcaption>Tečkovaná vodorovná čára ukazuje provozní otáčky.</figcaption></figure>
+        <figure><svg id="rezim-graf-motor" viewBox="0 0 760 230" role="img" aria-label="Hnací a brzdný moment obou pohonů v čase"></svg><figcaption>Kladný moment pohání pás&nbsp;vpřed. Záporný moment jej aktivně brzdí. Vodorovné tečkované čáry vyznačují momentové limity modelu.</figcaption></figure>
+        <figure><svg id="rezim-graf-zatez" viewBox="0 0 760 230" role="img" aria-label="Zatěžovací moment obou pásů při čekání a zachycení balíčku"></svg><figcaption>Zatěžovací moment zahrnuje vlastní odpor pásu a&nbsp;zachycení balíčku. Je oddělený od momentu, který dodává pohon.</figcaption></figure>
+      </div>
+      <p class="poznamka">Oba pásy používají stejný vybraný motor, převodovku, sklon a&nbsp;průměr bubnu. Mají stejnou regulaci s&nbsp;dobou reakce 0,12 s&nbsp;a&nbsp;sekundovou rampou požadovaných otáček. Ilustrační model předpokládá řízený pohon s&nbsp;aktivním brzděním a&nbsp;stejným limitem hnacího i&nbsp;brzdného momentu; nepopisuje prosté vypnutí motoru ani spotřebu elektřiny. Balíček přichází z&nbsp;klidu ve směru pásu, z&nbsp;výšky 0,4 m.</p>
+      <div class="sekce">
+        <h4>Co si zkuste</h4>
+        <ul>
+          <li>Nejprve obnovte výchozí návrh a&nbsp;posuňte čas porovnání na 4&nbsp;s. Ověřte, že pás&nbsp;A&nbsp;stále běží a&nbsp;pás&nbsp;B už stojí. Porovnejte jejich momenty při&nbsp;čekání.</li>
+          <li>Nastavte nulový předstih. Sledujte, jaký moment oba pohony potřebují při&nbsp;rozjezdu s&nbsp;novým balíčkem.</li>
+          <li>Zvětšete předstih na 2&nbsp;s. Jak se změní otáčky v&nbsp;okamžiku příchodu a&nbsp;špička zatěžovacího momentu?</li>
+          <li>Porovnejte hmotnosti 5 a&nbsp;60&nbsp;kg. Sledujte, kdy moment pohonu dosáhne limitu a&nbsp;zda se pás&nbsp;vrátí na provozní otáčky.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="sekce" aria-labelledby="vysvetleni">
+    <h2 id="vysvetleni">3. Jak pozorování vysvětlit a&nbsp;spočítat</h2>
+    <p>Vraťme se ke stejnému příkladu: motor C, převodovka P2, zásilka 25&nbsp;kg, sklon 10° a&nbsp;buben o&nbsp;průměru 160&nbsp;mm. Nejprve spočítáme plynulou jízdu. Potom přidáme rozjíždění balíčku a&nbsp;nakonec zastavování celého pásu.</p>
+
+    <h3>3.1 Z&nbsp;otáček motoru k&nbsp;rychlosti pásu</h3>
+    <p><strong>Převodový poměr</strong> říká, kolikrát se motor otočí během jedné otáčky výstupního bubnu. V&nbsp;této lekci zápis 1 : 20 znamená dvacet otáček motoru na jednu otáčku bubnu. Motor C má 1400 otáček za minutu, takže s&nbsp;P2 zbývá na bubnu 70 otáček za minutu.</p>
+    <p>Během jedné otáčky se pás&nbsp;posune o&nbsp;obvod bubnu. Obvod kruhu dostaneme vynásobením průměru číslem <strong>π</strong> (přibližně 3,14). Průměr nejprve převedeme z&nbsp;milimetrů na metry; číslem 60 převedeme otáčky za minutu na otáčky za sekundu.</p>
+    <div class="rovnice"><var>i</var> = <var>n</var><sub>m</sub> / <var>n</var><sub>b</sub> = 20
+<var>n</var><sub>b</sub> = <var>n</var><sub>m</sub> / <var>i</var> = 1400 / 20 = 70&nbsp;ot/min
+<var>d</var> = 160&nbsp;mm = 0,16&nbsp;m
+<var>o</var> = π · <var>d</var> = π · 0,16 ≈ 0,503&nbsp;m
+<var>v</var> = <var>o</var> · <var>n</var><sub>b</sub> / 60 ≈ 0,503 · 70 / 60 ≈ 0,586&nbsp;m/s</div>
+    <p>Výsledek překračuje požadovaných 0,50&nbsp;m/s. Větší převod by buben zpomalil; větší buben by při&nbsp;stejných otáčkách posunul pás&nbsp;dál.</p>
+
+    <h3>3.2 Od potřebné síly k&nbsp;potřebnému momentu</h3>
+    <p>Rychlost sama nestačí. Proti jízdě do svahu působí část tíhy zásilky a&nbsp;odpor pohybu. Sílu značíme <var>F</var> [N]. Tíha <var>F</var><sub>g</sub> je součin <var>m</var> a&nbsp;gravitačního zrychlení <var>g</var> = 9,81&nbsp;m/s². Ze sklonu určíme, jak velká část tíhy působí podél pásu.</p>
+    <p>V&nbsp;následujícím výpočtu jsou <strong>sin</strong> a <strong>cos</strong> funkce kalkulačky pro rozdělení tíhy podle sklonu; úhel se zadává ve stupních. Značka <var>μ</var> = 0,05 označuje modelový součinitel odporu bez jednotky. <var>F</var><sub>∥</sub> je složka tíhy podél pásu, <var>F</var><sub>o</sub> odpor pohybu a&nbsp;<var>F</var> jejich součet, vše v&nbsp;newtonech. Pro zásilku 25&nbsp;kg na sklonu 10° vyjde:</p>
+    <div class="rovnice"><var>F</var><sub>g</sub> = <var>m</var> · <var>g</var> = 25 · 9,81 = 245,25&nbsp;N
+<var>F</var><sub>∥</sub> = <var>m</var> · <var>g</var> · sin(<var>α</var>) = 25 · 9,81 · sin(10°) ≈ 42,6&nbsp;N
+<var>F</var><sub>o</sub> = <var>μ</var> · <var>m</var> · <var>g</var> · cos(<var>α</var>) = 0,05 · 25 · 9,81 · cos(10°) ≈ 12,1&nbsp;N
+<var>F</var> = <var>F</var><sub>∥</sub> + <var>F</var><sub>o</sub> ≈ 42,6 + 12,1 = 54,7&nbsp;N
+<var>r</var> = <var>d</var> / 2 = 0,16 / 2 = 0,08&nbsp;m
+<var>M</var><sub>pot</sub> = <var>F</var> · <var>r</var> ≈ 54,7 · 0,08 = 4,38&nbsp;Nm</div>
+    <p><strong>Moment</strong> vyjadřuje otáčivý účinek síly. Stejná síla působící dál od osy potřebuje větší moment – podobně jako při&nbsp;práci s&nbsp;delší klikou. Proto větší buben pás&nbsp;zrychlí, ale zároveň zvýší nárok na pohon.</p>
+    <p>Motor C dodává moment 1,23&nbsp;Nm. Převodovka P2 jej v&nbsp;ideálním případě násobí dvaceti. Její <strong>účinnost</strong> 94&nbsp;% říká, jak velká část přenášeného výkonu zůstane po ztrátách. Při&nbsp;daných otáčkách se to promítne i&nbsp;do dostupného momentu:</p>
+    <div class="rovnice"><var>M</var><sub>max</sub> = <var>M</var><sub>m</sub> · <var>i</var> · <var>η</var> = 1,23 · 20 · 0,94 ≈ 23,1&nbsp;Nm
+<var>v</var> ≥ <var>v</var><sub>min</sub> : 0,586&nbsp;m/s ≥ 0,50&nbsp;m/s
+<var>M</var><sub>max</sub> ≥ <var>M</var><sub>pot</sub> : 23,1&nbsp;Nm ≥ 4,38&nbsp;Nm</div>
+    <p>Kombinace vyhovuje oběma podmínkám prvního kroku. Tato základní kontrola počítá se zatížením od zásilky a&nbsp;zanedbává vlastní odpor prázdného dopravníku. Další dvě ukázky jej pro názornost přidávají jako 0,4&nbsp;Nm na bubnu.</p>
+
+    <h3>3.3 Proč existuje více druhů převodovek</h3>
+    <p>Ve schématech byly vidět tři&nbsp;způsoby přenosu pohybu. Čelní soukolí pracuje s&nbsp;rovnoběžnými osami. Kuželový stupeň v&nbsp;kuželo-čelní převodovce změní směr přenosu; potom navazuje čelní soukolí. U&nbsp;šnekového převodu má vstup tvar šroubu a&nbsp;osy se neprotínají, přestože mají kolmé směry.</p>
+    <p>Vícestupňový převod rozdělí zpomalení mezi několik soukolí. V&nbsp;ilustračním schématu P2 mají stupně poměry 1 : 4 a&nbsp;1 : 5. Na společné hřídeli se výstup prvního a&nbsp;vstup druhého stupně otáčejí společně:</p>
+    <div class="rovnice"><var>i</var><sub>1</sub> = 4; <var>i</var><sub>2</sub> = 5
+<var>n</var><sub>s</sub> = <var>n</var><sub>m</sub> / <var>i</var><sub>1</sub> = 1400 / 4 = 350&nbsp;ot/min
+<var>n</var><sub>b</sub> = <var>n</var><sub>s</sub> / <var>i</var><sub>2</sub> = 350 / 5 = 70&nbsp;ot/min
+<var>i</var> = <var>i</var><sub>1</sub> · <var>i</var><sub>2</sub> = 4 · 5 = 20</div>
+    <p>To vysvětluje stejné výstupní otáčky jako při&nbsp;přímém dělení dvaceti. Rozměry a&nbsp;počty nakreslených zubů jsou schematické; uvedené úhly a&nbsp;otáčky odpovídají zvolenému převodu. Rozdělení poměrů mezi stupně je příklad, nikoli údaj výrobce.</p>
+    <table class="tabulka">
+      <caption>Co ovlivní volbu typu převodovky</caption>
+      <thead><tr><th>Typ</th><th>Uspořádání</th><th>Výhoda</th><th>Omezení</th></tr></thead>
+      <tbody>
+        <tr><td>čelní</td><td>rovnoběžné osy</td><td>vysoká účinnost</td><td>pro velký převod více stupňů</td></tr>
+        <tr><td>kuželo-čelní</td><td>změna směru o&nbsp;90°</td><td>dobrá účinnost</td><td>vyšší cena a&nbsp;složitost</td></tr>
+        <tr><td>šneková</td><td>kolmé směry, osy se neprotínají</td><td>velký převod v&nbsp;malém prostoru</td><td>větší ztráty a&nbsp;zahřívání</td></tr>
+      </tbody>
+    </table>
+    <p>Stejný celkový převod zaručuje stejné výstupní otáčky při&nbsp;stejných vstupních otáčkách. Nezaručuje stejný dostupný moment: ten závisí i&nbsp;na ztrátách. Proto P5 a&nbsp;P6 se shodným poměrem 1 : 40 vykazují jiný moment.</p>
+
+    <h3>3.4 Co se změní během dopadu a&nbsp;rozjezdu</h3>
+    <p>Dosavadní výpočet popisoval <strong>ustálenou jízdu</strong>, při&nbsp;které se rychlost nemění. Balíček před dopadem ale stojí ve směru pásu. Po dotyku jej tření urychluje; stejně velká síla působí opačně na pás. Ten proto zpomalí. Vyšší pád v&nbsp;modelu krátce zvýší přítlak, a&nbsp;tím i&nbsp;sílu při&nbsp;zachycení. Svislý náraz a&nbsp;podélné rozjíždění balíčku jsou dva různé děje.</p>
+    <p>V&nbsp;grafu se proto odděluje zatěžovací moment od momentu pohonu. Rozdíl mezi nimi mění <var>n</var><sub>b</sub>. Značka <var>Δn</var><sub>b</sub> [ot/min] vyjadřuje změnu otáček během krátkého časového kroku. <strong>Setrvačnost</strong> vyjadřuje, jak obtížné je rychlost změnit: roztočené části ani pás&nbsp;se nerozběhnou nebo nezastaví okamžitě.</p>
+    <div class="rovnice"><var>M</var><sub>p</sub> &lt; <var>M</var><sub>z</sub> ⇒ <var>Δn</var><sub>b</sub> &lt; 0
+<var>M</var><sub>p</sub> &gt; <var>M</var><sub>z</sub> ⇒ <var>Δn</var><sub>b</sub> &gt; 0
+<var>M</var><sub>p</sub> = <var>M</var><sub>z</sub> ⇒ <var>Δn</var><sub>b</sub> = 0</div>
+    <p>Výchozí pokus začíná na 70&nbsp;ot/min. Před dopadem stačí překonávat vlastní odpor 0,4&nbsp;Nm. Po rozjetí zásilky přibude přibližně 4,38&nbsp;Nm z&nbsp;předchozího výpočtu, celkem tedy asi 4,8&nbsp;Nm. Během zachycení je zatěžovací moment krátce větší. Pohon nezvýší svůj moment okamžitě, takže otáčky poklesnou.</p>
+    <p>Regulace v&nbsp;ukázce sleduje rozdíl mezi požadovanými a&nbsp;skutečnými otáčkami. Moment přidává podle velikosti odchylky i&nbsp;podle toho, jak dlouho odchylka trvá. Pohon však reaguje se zpožděním a&nbsp;má momentový limit. Při&nbsp;návratu mohou otáčky krátce překročit požadovanou hodnotu. Pokud moment nestačí ani pro ustálenou jízdu, samotná rychlejší reakce návrat nezajistí.</p>
+    <p>Časové průběhy platí pro zvolený model regulovaného pohonu, nikoli pro každý elektromotor. Tření, setrvačnost a&nbsp;zachycení balíčku jsou zjednodušené; model nepopisuje odskok ani zpětný chod. Záporný zatěžovací moment znamená, že rozjetý balíček krátce předává pohyb zpomalujícímu pásu.</p>
+
+    <h3>3.5 Jak na rozjezd navazuje čekání a&nbsp;brzdění</h3>
+    <p>Při&nbsp;čekání přibývá další volba: zachovat část rychlosti, nebo pás&nbsp;zastavit. Při&nbsp;zpomalení musí pohon odebrat část energie pohybu; při&nbsp;zastavení ji odebere celou. Porovnávací model používá <strong>aktivní brzdění</strong>, proto může být moment pohonu záporný. Po zastavení prázdného pásu klesne na nulu, pomalu běžící pás&nbsp;dál překonává vlastní odpor.</p>
+    <p>Po příchodu další zásilky musí pohon zrychlit pás&nbsp;a&nbsp;balíček. Pás&nbsp;A&nbsp;začíná se zachovanou částí rychlosti, pás&nbsp;B z&nbsp;klidu. Oba potřebují čas. Ve výchozím nastavení snímač ohlásí zásilku v&nbsp;5,5 s&nbsp;a&nbsp;balíček přijde v&nbsp;6&nbsp;s. Požadované otáčky se zvyšují postupně během jedné sekundy:</p>
+    <div class="rovnice"><var>n</var><sub>ref</sub> = 70&nbsp;ot/min
+<var>k</var><sub>A</sub> = 0,35
+<var>n</var><sub>A</sub> = <var>k</var><sub>A</sub> · <var>n</var><sub>ref</sub> = 0,35 · 70 = 24,5&nbsp;ot/min
+<var>n</var><sub>B</sub> = 0&nbsp;ot/min
+<var>t</var><sub>r</sub> = <var>t</var><sub>p</sub> − <var>Δt</var> = 6 − 0,5 = 5,5&nbsp;s
+<var>T</var><sub>r</sub> = 1&nbsp;s
+<var>t</var><sub>k</sub> = <var>t</var><sub>r</sub> + <var>T</var><sub>r</sub> = 5,5 + 1 = 6,5&nbsp;s</div>
+    <p>Při&nbsp;příchodu v&nbsp;6 s&nbsp;tedy ještě není dokončena ani změna požadovaných otáček. Skutečné otáčky navíc závisejí na reakci a&nbsp;momentu pohonu. Zvětšení předstihu poskytne oběma pásům více času.</p>
+    <p>Špička zatěžovacího momentu nemusí být vyšší u&nbsp;předtím zastaveného pásu. Rychlejší pás&nbsp;totiž musí právě přicházející balíček více urychlit. Dlouhé čekání, četnost zásilek a&nbsp;dostupný moment proto mohou vést k&nbsp;různým vhodným režimům. Z&nbsp;pouhého grafu momentu nelze určit úsporu elektřiny; záleží také na otáčkách a&nbsp;ztrátách pohonu.</p>
+
+    <div class="pointa">
+      <h2>Proč je to těžké</h2>
+      <p><strong>Pohon musí zvládnout celý provoz, nejen rovnoměrnou jízdu.</strong> Převodovka může dodat dostatečný moment, ale pás&nbsp;pak bude příliš pomalý. Větší buben jej zrychlí, současně však zvýší potřebný moment. Motor, převodovku a&nbsp;buben proto nelze vybírat odděleně.</p>
+      <p>Po dopadu balíčku se zatížení změní rychleji, než na ně pohon stihne zareagovat. Pás&nbsp;část pohybu předá balíčku a&nbsp;zpomalí. Regulace zvýší moment, ale naráží na jeho limit a&nbsp;na zpoždění pohonu. Příliš prudká reakce může naopak způsobit překročení požadovaných otáček. Návrh, který vyhovuje pro ustálenou jízdu, tak ještě nemusí dobře zvládnout rozjezd nebo náhlé zatížení.</p>
+      <p><strong>Ani pro prázdný pás&nbsp;neexistuje jeden nejlepší režim.</strong> Při&nbsp;pomalém chodu pohon dál překonává odpory. Zastavený pás&nbsp;je pak nutné znovu rozjet. Záleží na délce čekání, hmotnosti dalších zásilek i&nbsp;na tom, zda snímač oznámí jejich příchod včas. Vyšší rychlost před příchodem navíc může znamenat větší špičku při&nbsp;zachycení balíčku. Proto je třeba porovnávat otáčky i&nbsp;oba momenty v&nbsp;čase; samotná výška momentové špičky neřekne, který režim spotřebuje méně elektřiny.</p>
+      <p>V&nbsp;praxi se k&nbsp;výpočtu přidává model změn v&nbsp;čase a&nbsp;měření na skutečném zařízení. Ověřuje se také prokluz, zahřívání a&nbsp;opotřebení při&nbsp;opakovaných rozjezdech. Zdejší model pomáhá vysvětlit souvislosti, ale konkrétní motor nebo pás&nbsp;se může chovat jinak. Dalším krokem je proto porovnat simulaci s&nbsp;naměřenými průběhy a&nbsp;podle rozdílů upravit model i&nbsp;nastavení pohonu.</p>
+    </div>
+  </section>
+
+  <section class="predmety">
+    <h2>4. Kde se to učí</h2>
+    <p class="sekce">Návrh dopravníku na Fakultě strojní ČVUT propojuje konstrukci, elektrické pohony a&nbsp;automatické řízení. Každý z&nbsp;těchto předmětů rozvíjí jinou část lekce: od přenosu pohybu přes vlastnosti motoru až po reakci na změny zatížení.</p>
+    <div class="predmety-grid">
+      <article class="predmet">
+        <p class="predmet-stupen">Mechanická část pohonu</p>
+        <h3>Části a&nbsp;mechanizmy strojů</h3>
+        <p>Konstrukce strojních mechanismů a&nbsp;přenos pohybu. Na tuto oblast navazuje výběr převodovky a&nbsp;uspořádání hřídelí v&nbsp;lekci: jak dostat pohyb od motoru k&nbsp;bubnu a&nbsp;jak spolu souvisejí otáčky a&nbsp;moment.</p>
+        <p class="predmet-odkaz"><a href="https://konstruovani.fs.cvut.cz/studium/predmety/" target="_blank" rel="noopener">Přehled předmětů ústavu ↗</a></p>
+      </article>
+      <article class="predmet">
+        <p class="predmet-stupen">Elektromotor a&nbsp;jeho řízení</p>
+        <h3>Elektrické stroje a&nbsp;pohony</h3>
+        <p>Principy, vlastnosti a&nbsp;řízení elektromotorů, jejich rozběh a&nbsp;chování při zatížení. Navazuje sem otázka, zda zvolený motor poskytne potřebný moment a&nbsp;jak se jeho otáčky mění s&nbsp;provozními podmínkami. Součástí výuky jsou laboratorní měření.</p>
+        <p class="predmet-odkaz"><a href="https://kos.fs.cvut.cz/synopsis/2141505" target="_blank" rel="noopener">Anotace předmětu ↗</a></p>
+      </article>
+      <article class="predmet">
+        <p class="predmet-stupen">Regulace a&nbsp;změny zatížení</p>
+        <h3>Automatické řízení</h3>
+        <p>Zpětná vazba, regulátory, jejich seřizování a&nbsp;stabilita. Zde se rozvíjí otázka, jak po dopadu balíčku obnovit otáčky a&nbsp;jak řídit rozběh pásu. Návrhy se ověřují v&nbsp;Matlabu/Simulinku i&nbsp;na experimentálních úlohách.</p>
+        <p class="predmet-odkaz"><a href="https://kos.fs.cvut.cz/synopsis/course/2371047" target="_blank" rel="noopener">Anotace předmětu ↗</a></p>
+      </article>
+    </div>
+  </section>
+  <p class="paticka"><a href="../index.html">← Zpět na rozcestník</a></p>
+</main>
+
+<script src="../assets/js/spolecne.js"></script>
+<script>
+(function () {
+  'use strict';
+  const MOTORY=[
+    {id:'A',n:2800,p:90,m:0.31},{id:'B',n:1400,p:120,m:0.82},{id:'C',n:1400,p:180,m:1.23},
+    {id:'D',n:900,p:120,m:1.27},{id:'E',n:2800,p:370,m:1.26},{id:'F',n:900,p:250,m:2.65}
+  ];
+  const PREVODY=[
+    {id:'P1',typ:'čelní',i:10,eta:.96,kg:6,cena:8500,h:'rovnobezne'},
+    {id:'P2',typ:'čelní dvoustupňová',i:20,eta:.94,kg:7.5,cena:10500,h:'rovnobezne'},
+    {id:'P3',typ:'kuželo-čelní',i:25,eta:.92,kg:8,cena:13000,h:'kolme'},
+    {id:'P4',typ:'čelní třístupňová',i:30,eta:.91,kg:9,cena:12500,h:'rovnobezne'},
+    {id:'P5',typ:'šneková',i:40,eta:.78,kg:6.5,cena:9000,h:'kolme'},
+    {id:'P6',typ:'kuželo-čelní',i:40,eta:.90,kg:9.5,cena:15500,h:'kolme'},
+    {id:'P7',typ:'šneková',i:50,eta:.72,kg:7,cena:9500,h:'kolme'}
+  ];
+  const VYCHOZI={motor:2,prevod:1,hmotnost:25,sklon:10,prumer:160,hridele:'libovolne'};
+  const P={...VYCHOZI}; let poloha=.35,vysledek;
+  const motorEl=document.getElementById('motor'),prevodEl=document.getElementById('prevodovka');
+  MOTORY.forEach((m,i)=>motorEl.add(new Option(`Motor ${m.id} — ${m.n} ot/min, ${m.p} W, ${m.m.toLocaleString('cs-CZ')} Nm`,i)));
+  PREVODY.forEach((p,i)=>prevodEl.add(new Option(`${p.id} — ${p.typ}, 1:${p.i}, ${Math.round(p.eta*100)} %`,i)));
+
+  function nastavHmotnost(v) {
+    P.hmotnost = v;
+    ['hmotnost', 'dopad-hmotnost', 'rezim-hmotnost'].forEach(id => {
+      document.getElementById(id).value = v;
+      document.getElementById(id + '-hodnota').textContent = v + ' kg';
+    });
+  }
+  function spocitej(){
+    nastavHmotnost(P.hmotnost);
+    const m=MOTORY[P.motor],q=PREVODY[P.prevod],d=P.prumer/1000,a=P.sklon*Math.PI/180;
+    const otacky=m.n/q.i,rychlost=Math.PI*d*otacky/60,sila=P.hmotnost*9.81*(Math.sin(a)+.05*Math.cos(a));
+    const potrebny=sila*d/2,moment=m.m*q.i*q.eta,rychlostOk=rychlost>=.5,momentOk=moment>=potrebny;
+    const hrideleOk=P.hridele==='libovolne'||P.hridele===q.h;
+    vysledek={m,q,d,otacky,rychlost,sila,potrebny,moment,rychlostOk,momentOk,hrideleOk,ok:rychlostOk&&momentOk&&hrideleOk};
+    obnov(); kresli(); obnovPrevod(); naplanujDopad(); naplanujRezim();
+  }
+  function stav(id,text,ok){const el=document.getElementById(id);el.textContent=text;el.className=ok?'splneno':'nesplneno';}
+  function obnov(){
+    const v=vysledek,q=v.q; stav('rychlost',v.rychlost.toLocaleString('cs-CZ',{minimumFractionDigits:3,maximumFractionDigits:3})+' m/s',v.rychlostOk);
+    stav('rychlost-stav',v.rychlostOk?'splněno':'nesplněno',v.rychlostOk); stav('moment',v.moment.toLocaleString('cs-CZ',{maximumFractionDigits:1})+' Nm',v.momentOk);
+    document.getElementById('potrebny').textContent=v.potrebny.toLocaleString('cs-CZ',{maximumFractionDigits:1})+' Nm';
+    stav('hridele-stav',q.h==='kolme'?'kolmé':'rovnoběžné',v.hrideleOk); document.getElementById('cena').textContent=q.cena.toLocaleString('cs-CZ')+' Kč / '+q.kg.toLocaleString('cs-CZ')+' kg';
+    const s=document.getElementById('souhrn');s.textContent=v.ok?'Návrh splňuje všechny zvolené požadavky.':'Návrh nevyhovuje: '+[!v.rychlostOk&&'pás je pomalý',!v.momentOk&&'moment nestačí',!v.hrideleOk&&'nevyhovující hřídele'].filter(Boolean).join(', ');
+  }
+  const plocha=Kurz.platno(document.getElementById('platno'),()=>kresli());
+  function kresli(){
+    const c=plocha.ctx,w=plocha.sirka,h=plocha.vyska;if(!c||!w||!vysledek)return;c.clearRect(0,0,w,h);c.fillStyle='#fff';c.fillRect(0,0,w,h);
+    const a=P.sklon*Math.PI/180,x1=w*.27,y1=h*.78,len=Math.min(w*.62,h*.68/Math.max(.42,Math.sin(a)+.25)),x2=x1+len*Math.cos(a),y2=y1-len*Math.sin(a);
+    c.lineCap='round';c.strokeStyle='#0d1218';c.lineWidth=34;c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke();c.strokeStyle='#dfe5ef';c.lineWidth=25;c.setLineDash([18,10]);c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke();c.setLineDash([]);
+    [[x1,y1],[x2,y2]].forEach(([x,y])=>{c.fillStyle='#fff';c.strokeStyle='#0d1218';c.lineWidth=4;c.beginPath();c.arc(x,y,22,0,Math.PI*2);c.fill();c.stroke();});
+    const t=.18+.66*poloha,bx=x1+(x2-x1)*t,by=y1+(y2-y1)*t-30;c.save();c.translate(bx,by);c.rotate(-a);c.fillStyle=vysledek.ok?'#d97000':'#cc1233';c.strokeStyle='#0d1218';c.lineWidth=3;c.fillRect(-28,-18,56,36);c.strokeRect(-28,-18,56,36);c.restore();
+    c.fillStyle='#1145cf';c.strokeStyle='#0d1218';c.lineWidth=3;c.fillRect(14,h-108,86,65);c.strokeRect(14,h-108,86,65);c.fillStyle='#fff';c.font='700 14px Segoe UI';c.textAlign='center';c.fillText('motor',58,h-70);
+    c.fillStyle='#eef1f6';c.strokeStyle='#0d1218';c.fillRect(118,h-102,88,55);c.strokeRect(118,h-102,88,55);c.fillStyle='#0d1218';c.font='700 13px Segoe UI';c.fillText(vysledek.q.id+'  1:'+vysledek.q.i,162,h-75);
+    c.fillStyle='#4a5768';c.textAlign='left';c.font='13px Segoe UI';c.fillText('výstup '+vysledek.otacky.toLocaleString('cs-CZ',{maximumFractionDigits:1})+' ot/min',14,24);c.fillText('síla proti pohybu '+vysledek.sila.toLocaleString('cs-CZ',{maximumFractionDigits:1})+' N',14,44);c.fillText('moment '+vysledek.moment.toLocaleString('cs-CZ',{maximumFractionDigits:1})+' Nm',14,64);
+    c.fillStyle=vysledek.ok?'#0a7d38':'#cc1233';c.font='700 15px Segoe UI';c.fillText(vysledek.ok?'Pohon vyhovuje':'Pohon nevyhovuje',14,88);
+  }
+  const smycka=Kurz.smycka(dt=>{if(vysledek.momentOk&&vysledek.hrideleOk)poloha=(poloha+dt*Math.min(1,vysledek.rychlost)*.35)%1;kresli();});
+  function zastav(){smycka.stop();document.getElementById('spustit').textContent='Spustit';}
+  document.getElementById('spustit').addEventListener('click',e=>{if(smycka.bezi)zastav();else{smycka.start();e.currentTarget.textContent='Zastavit';}});
+  function vyber(){P.motor=Number(motorEl.value);P.prevod=Number(prevodEl.value);spocitej();}
+  motorEl.addEventListener('change',vyber);prevodEl.addEventListener('change',vyber);document.getElementById('hridele').addEventListener('change',e=>{P.hridele=e.target.value;spocitej();});
+  Kurz.posuvnik('hmotnost',v=>{P.hmotnost=v;spocitej();},v=>v+' kg');Kurz.posuvnik('sklon',v=>{P.sklon=v;spocitej();},v=>v+'°');Kurz.posuvnik('prumer',v=>{P.prumer=v;spocitej();},v=>v+' mm');
+  document.getElementById('reset').addEventListener('click',()=>{zastav();resetPrevod();resetDopad();resetRezim();poloha=.35;Object.assign(P,VYCHOZI);motorEl.value=P.motor;prevodEl.value=P.prevod;document.getElementById('hmotnost').value=P.hmotnost;document.getElementById('sklon').value=P.sklon;document.getElementById('prumer').value=P.prumer;document.getElementById('hridele').value=P.hridele;['hmotnost','sklon','prumer'].forEach(id=>{document.getElementById(id+'-hodnota').textContent=P[id]+(id==='hmotnost'?' kg':id==='sklon'?'°':' mm');});spocitej();});
+
+  // Rozvinutá schémata: úhly odpovídají převodu, geometrie je ilustrační.
+  const prevodKresba = document.getElementById('prevod-kresba');
+  const prevodSvg = document.getElementById('prevod-schema');
+  const prevodStart = document.getElementById('prevod-spustit');
+  const zpomaleni = document.getElementById('prevod-zpomaleni');
+  let vstupOtacky = 0, kreslenyPrevod = null, rotory = [], snekVlakna = [];
+  const formatPrevod = (n, mist = 2) => n.toLocaleString('cs-CZ', {maximumFractionDigits: mist});
+
+  function svgPrvek(tag, atributy = {}, rodic = prevodKresba, text) {
+    const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    Object.entries(atributy).forEach(([k, v]) => el.setAttribute(k, v));
+    if (text !== undefined) el.textContent = text;
+    rodic.appendChild(el);
+    return el;
+  }
+  function popis(x, y, text, maly = false) {
+    return svgPrvek('text', {x, y, 'text-anchor': 'middle', class: maly ? 'maly-popis' : ''}, prevodKresba, text);
+  }
+  function hridel(x1, y1, x2, y2) {
+    svgPrvek('line', {x1, y1, x2, y2, class: 'hridel'});
+  }
+  function kolo(x, y, r, pomer, barva, projekce = '') {
+    const umisteni = svgPrvek('g', {transform: 'translate(' + x + ' ' + y + ') ' + projekce});
+    const rotor = svgPrvek('g', {}, umisteni);
+    const zuby = r > 40 ? 24 : 12, body = [];
+    for (let j = 0; j < zuby * 4; j++) {
+      const u = j / (zuby * 4) * Math.PI * 2;
+      const polomer = r + (j % 4 === 1 || j % 4 === 2 ? 3 : -3);
+      body.push((Math.cos(u) * polomer) + ',' + (Math.sin(u) * polomer));
+    }
+    svgPrvek('polygon', {points: body.join(' '), fill: 'var(--shluk-' + barva + ')', class: 'kolo'}, rotor);
+    svgPrvek('line', {x1: 0, y1: 0, x2: r - 7, y2: 0, class: 'znacka'}, rotor);
+    svgPrvek('circle', {cx: r - 10, cy: 0, r: 4, fill: 'var(--text)'}, rotor);
+    svgPrvek('circle', {r: 7, class: 'stred'}, umisteni);
+    rotory.push({el: rotor, pomer});
+  }
+
+  function celniStupen(x, pomerVstup, prevod, cislo, posledni) {
+    popis(x + 100, 35, cislo + '. stupeň · 1 : ' + formatPrevod(prevod));
+    hridel(x + 25, 120, x + 25, 72);
+    hridel(x + 111, 120, x + 111, 192);
+    kolo(x + 25, 120, 27, pomerVstup, cislo === 1 ? 1 : 6);
+    kolo(x + 111, 120, 59, -pomerVstup / prevod, posledni ? 4 : 6);
+    popis(x + 25, 64, pomerVstup > 0 ? '↻' : '↺');
+    popis(x + 111, 213, pomerVstup > 0 ? '↺' : '↻');
+    if (cislo === 1) popis(x + 25, 235, 'vstup', true);
+    if (posledni) popis(x + 111, 235, 'výstup', true);
+    if (!posledni) {
+      // Přerušovaná spojnice značí tutéž hřídel v rozvinutém schématu.
+      svgPrvek('path', {d: 'M' + (x + 111) + ' 192 V242 H' + (x + 270) + ' V72', class: 'spojeni'});
+      popis(x + 185, 266, 'společná hřídel', true);
+    }
+  }
+
+  function kuzelovyStupen() {
+    popis(180, 35, '1. stupeň · 1 : 2');
+    // Bokorys dvou kuželů, čelní plochy jsou promítnuté elipsy.
+    hridel(50, 120, 168, 120);
+    hridel(250, 170, 250, 228);
+    svgPrvek('path', {d: 'M122 91 L226 132 L226 148 L122 149 Z', fill: 'var(--pozadi-zvyraz)', stroke: 'var(--text-slaby)'});
+    svgPrvek('path', {d: 'M212 136 L192 178 L308 178 L266 136 Z', fill: 'var(--pozadi-zvyraz)', stroke: 'var(--text-slaby)'});
+    kolo(150, 120, 31, 1, 1, 'scale(.45 1)');
+    kolo(250, 178, 58, -.5, 6, 'scale(1 .42)');
+    popis(83, 91, 'vstup ↻');
+    popis(285, 230, '↺');
+    svgPrvek('path', {d: 'M75 180 H95 V200', fill: 'none', stroke: 'var(--text-slaby)', 'stroke-width': 2});
+    popis(105, 226, 'osy pod úhlem 90°', true);
+    svgPrvek('path', {d: 'M250 228 V242 H455 V72', class: 'spojeni'});
+    popis(350, 266, 'společná hřídel', true);
+  }
+
+  function snekoveSchema(q) {
+    popis(380, 32, 'Šnek a šnekové kolo · 1 : ' + q.i);
+    hridel(70, 112, 510, 112);
+    hridel(425, 205, 555, 255);
+    kolo(425, 205, 66, -1 / q.i, 4);
+    svgPrvek('rect', {x: 145, y: 89, width: 330, height: 46, rx: 18, fill: 'var(--pozadi-panel)', stroke: 'var(--text-slaby)', 'stroke-width': 2});
+    const defs = svgPrvek('defs');
+    const clip = svgPrvek('clipPath', {id: 'prevod-snek-orez'}, defs);
+    svgPrvek('rect', {x: 145, y: 89, width: 330, height: 46, rx: 18}, clip);
+    const zavit = svgPrvek('g', {'clip-path': 'url(#prevod-snek-orez)'});
+    for (let j = -1; j < 7; j++) {
+      snekVlakna.push({j, el: svgPrvek('path', {fill: 'none', stroke: 'var(--shluk-1)', 'stroke-width': 8, 'stroke-linecap': 'round'}, zavit)});
+    }
+    popis(180, 70, 'vstup → šnek ↻');
+    popis(590, 177, 'šnekové kolo ↺');
+    popis(590, 200, '→ výstup');
+    popis(380, 271, 'Mimoběžné osy: kolmé směry, osy se neprotínají.', true);
+    popis(380, 292, 'Jeden závit šneku; jedna otáčka posune kolo o jeden zub.', true);
+  }
+
+  function sestavPrevod() {
+    const q = vysledek.q;
+    kreslenyPrevod = q.id;
+    prevodKresba.replaceChildren(); rotory = []; snekVlakna = [];
+    let vysvetleni;
+    if (q.typ === 'šneková') {
+      snekoveSchema(q);
+      vysvetleni = 'Šnek se otáčí jako šroub a postupně posouvá zuby kola. Výstup se otáčí mnohem pomaleji než vstup. Hřídele mají kolmé směry, ale jejich osy se neprotínají.';
+    } else if (q.typ === 'kuželo-čelní') {
+      kuzelovyStupen();
+      celniStupen(430, -.5, q.i / 2, 2, true);
+      vysvetleni = 'Kuželová kola přenesou pohyb mezi osami pod úhlem 90°. Následuje čelní soukolí. Přerušovaná spojnice označuje společnou hřídel: obě její kola se otáčejí společně.';
+    } else {
+      const prevody = q.id === 'P1' ? [10] : q.id === 'P2' ? [4, 5] : [3, 2, 5];
+      const pocet = prevody.length, zacatek = pocet === 1 ? 265 : pocet === 2 ? 145 : 25;
+      let pomer = 1;
+      prevody.forEach((prevod, j) => {
+        celniStupen(zacatek + j * 245, pomer, prevod, j + 1, j === pocet - 1);
+        pomer = -pomer / prevod;
+      });
+      vysvetleni = pocet === 1
+        ? 'Malé čelní kolo pohání větší. Kola se otáčejí opačnými směry a jejich osy jsou rovnoběžné.'
+        : 'Každá dvojice čelních kol obrátí směr a sníží otáčky. Přerušované spojnice označují společné hřídele: výstup jednoho stupně a vstup dalšího se otáčejí společně. Celkový převod je součinem převodů jednotlivých stupňů.';
+    }
+    document.getElementById('prevod-popis').textContent = q.id + ' — ' + q.typ + '. ' + vysvetleni;
+    document.getElementById('prevod-svg-popis').textContent = vysvetleni;
+    prevodSvg.setAttribute('data-prevod', q.id);
+  }
+
+  function kresliPrevod() {
+    rotory.forEach(({el, pomer}) => el.setAttribute('transform', 'rotate(' + ((vstupOtacky * pomer * 360) % 360) + ')'));
+    snekVlakna.forEach(({j, el}) => {
+      const body = [];
+      for (let k = 0; k <= 24; k++) {
+        const u = k / 24 * Math.PI;
+        const x = 145 + (j - (vstupOtacky % 1) + k / 24) * 66;
+        body.push((k ? 'L' : 'M') + x + ' ' + (112 - 20 * Math.cos(u)));
+      }
+      el.setAttribute('d', body.join(' '));
+    });
+    document.getElementById('prevod-otacky-vstup').textContent = formatPrevod(vstupOtacky, 3);
+    document.getElementById('prevod-otacky-vystup').textContent = formatPrevod(vstupOtacky / vysledek.q.i, 4);
+  }
+  function obnovPrevod() {
+    if (kreslenyPrevod !== vysledek.q.id) {
+      zastavPrevod(); vstupOtacky = 0; sestavPrevod();
+    }
+    document.getElementById('prevod-vstup').textContent = formatPrevod(vysledek.m.n) + ' ot/min';
+    document.getElementById('prevod-vystup').textContent = formatPrevod(vysledek.otacky) + ' ot/min';
+    document.getElementById('prevod-moment').textContent = formatPrevod(vysledek.moment) + ' Nm';
+    kresliPrevod();
+  }
+  const prevodSmycka = Kurz.smycka(dt => {
+    vstupOtacky += dt * vysledek.m.n / 60 / Number(zpomaleni.value);
+    kresliPrevod();
+  });
+  function zastavPrevod() {
+    prevodSmycka.stop(); prevodStart.textContent = 'Spustit soukolí';
+  }
+  function resetPrevod() {
+    zastavPrevod(); vstupOtacky = 0; zpomaleni.value = '60'; kresliPrevod();
+  }
+  prevodStart.addEventListener('click', () => {
+    if (prevodSmycka.bezi) zastavPrevod();
+    else { prevodSmycka.start(); prevodStart.textContent = 'Zastavit soukolí'; }
+  });
+  document.getElementById('prevod-krok').addEventListener('click', () => {
+    zastavPrevod(); vstupOtacky += .25; kresliPrevod();
+  });
+  document.getElementById('prevod-reset').addEventListener('click', resetPrevod);
+
+
+  // Náhlé zatížení má vlastní časovou osu; schéma soukolí zůstává nezávislé.
+  const dopadEl = id => document.getElementById('dopad-' + id);
+  const dopadStart = dopadEl('spustit'), dopadCas = dopadEl('cas');
+  const dopadVyska = dopadEl('vyska'), dopadReakce = dopadEl('reakce');
+  let dopadData = [], dopadT = 0, dopadTermin = 2, dopadParametry;
+  let dopadPodpis = '', dopadFrame = null, dopadGrafy = [], dopadStav = '';
+  const dopadFormat = (n, mist = 2) => n.toLocaleString('cs-CZ', {maximumFractionDigits: mist});
+
+  // Dva pohyby spojené třením: buben s pásem a balíček.
+  // Pevný krok odděluje výpočet od frekvence obrazovky.
+  function spoctiDopad(p) {
+    const dt = .002, trvani = 10, r = p.prumer / 2000;
+    const alfa = p.sklon * Math.PI / 180, omega0 = p.otacky * Math.PI / 30;
+    const J = .08 + 20 * r * r + .0002 * p.prevod * p.prevod;
+    const odpor = p.hmotnost * 9.81 * (Math.sin(alfa) + .05 * Math.cos(alfa));
+    const zaklad = .4, limit = p.limit, kp = 5, ki = 10;
+    let omega = omega0, moment = zaklad, integral = 0, u = 0, draha = 0, pas = 0;
+    const data = [];
+    for (let k = 0; k <= Math.round(trvani / dt); k++) {
+      const t = k * dt, poDopadu = t >= p.dopad;
+      const chyba = omega0 - omega;
+      const pozadavek = zaklad + kp * chyba + ki * integral;
+      // Omezovač integrátoru při nedostatku momentu.
+      if ((pozadavek < limit || chyba < 0) && (pozadavek > 0 || chyba > 0)) integral += chyba * dt;
+      const cil = Math.max(0, Math.min(limit, zaklad + kp * chyba + ki * integral));
+      moment += (cil - moment) * dt / p.reakce;
+      let sila = 0;
+      if (poDopadu) {
+        const naraz = p.hmotnost * Math.sqrt(2 * 9.81 * p.vyska) / .10 * Math.exp(-(t - p.dopad) / .10);
+        const maxTreni = .65 * (p.hmotnost * 9.81 * Math.cos(alfa) + naraz);
+        sila = maxTreni * Math.tanh((omega * r - u) / .12);
+      }
+      const zatez = zaklad + sila * r;
+      // Zpětný chod ani odskočení balíčku tento model nepopisuje.
+      omega = Math.max(0, omega + (moment - zatez) / J * dt);
+      if (poDopadu) { u = Math.max(0, u + (sila - odpor) / p.hmotnost * dt); draha += u * dt; }
+      pas += omega * r * dt;
+      if (k % 5 === 0) data.push({t, n: omega * 30 / Math.PI, motor: moment, zatez, draha, pas});
+    }
+    return data;
+  }
+
+  function dopadParam() {
+    return {prumer: P.prumer, sklon: P.sklon, hmotnost: P.hmotnost,
+      otacky: vysledek.otacky, prevod: vysledek.q.i, limit: vysledek.moment,
+      vyska: Number(dopadVyska.value), reakce: Number(dopadReakce.value), dopad: dopadTermin};
+  }
+  function zastavDopad() {
+    dopadSmycka.stop(); dopadStart.textContent = 'Spustit pokus';
+  }
+  function naplanujDopad(vynutit = false) {
+    const podpis = JSON.stringify([P.motor, P.prevod, P.hmotnost, P.sklon, P.prumer, dopadVyska.value, dopadReakce.value]);
+    if (!vynutit && podpis === dopadPodpis) return;
+    dopadPodpis = podpis;
+    zastavDopad(); dopadT = 0; dopadTermin = 2;
+    if (dopadFrame !== null) cancelAnimationFrame(dopadFrame);
+    dopadFrame = requestAnimationFrame(() => {
+      dopadFrame = null;
+      pripravDopad();
+    });
+  }
+  function pripravDopad() {
+    dopadParametry = dopadParam();
+    dopadData = spoctiDopad(dopadParametry);
+    dopadEl('konfigurace').textContent = 'Motor ' + vysledek.m.id + ', ' + vysledek.q.id
+      + ' · zásilka ' + P.hmotnost + ' kg · sklon ' + P.sklon + '° · buben ' + P.prumer
+      + ' mm · limit momentu ' + dopadFormat(vysledek.moment) + ' Nm.';
+    dopadGrafy = [
+      dopadGraf('graf-otacky', 'Otáčky bubnu [ot/min]', ['n'], vysledek.otacky),
+      dopadGraf('graf-moment', 'Moment na bubnu [Nm]', ['motor', 'zatez'], vysledek.moment)
+    ];
+    kresliDopad();
+  }
+  function dopadGraf(id, nadpis, klice, reference) {
+    const svg = dopadEl(id); svg.replaceChildren();
+    const hodnoty = dopadData.flatMap(s => klice.map(k => s[k]));
+    const min = Math.min(0, ...hodnoty), max = Math.max(reference, ...hodnoty);
+    const dolni = min < 0 ? min * 1.15 : 0, horni = Math.max(1, max * 1.15);
+    const x = t => 64 + t / 10 * 668, y = v => 174 - (v - dolni) / (horni - dolni) * 128;
+    const prvek = (tag, attrs, text) => svgPrvek(tag, attrs, svg, text);
+    prvek('text', {x: 64, y: 25}, nadpis);
+    for (let j = 0; j <= 4; j++) {
+      const v = dolni + (horni - dolni) * j / 4, yy = y(v);
+      prvek('line', {x1: 64, x2: 732, y1: yy, y2: yy, class: 'osa'});
+      prvek('text', {x: 55, y: yy + 5, 'text-anchor': 'end'}, dopadFormat(v, 1));
+    }
+    for (let t = 0; t <= 10; t += 2) {
+      prvek('text', {x: x(t), y: 197, 'text-anchor': 'middle'}, String(t));
+    }
+    prvek('text', {x: 732, y: 216, 'text-anchor': 'end'}, 'Čas [s]');
+    prvek('line', {x1: 64, x2: 732, y1: y(reference), y2: y(reference), class: 'reference'});
+    prvek('line', {x1: x(dopadTermin), x2: x(dopadTermin), y1: 46, y2: 174, class: 'udalost'});
+    prvek('text', {x: x(dopadTermin) + 5, y: 43}, 'dopad');
+    const cesty = klice.map(k => prvek('path', {class: 'prubeh' + (k === 'zatez' ? ' zatez' : '')}));
+    const kurzor = prvek('line', {x1: 64, x2: 64, y1: 46, y2: 174, class: 'kurzor'});
+    return {x, y, klice, cesty, kurzor};
+  }
+  function kresliDopad() {
+    if (!dopadData.length) return;
+    const index = Math.min(dopadData.length - 1, Math.round(dopadT * 100));
+    const s = dopadData[index], p = dopadParametry;
+    dopadCas.value = dopadT;
+    dopadEl('cas-hodnota').textContent = dopadFormat(dopadT) + ' s';
+    dopadEl('otacky').textContent = dopadFormat(s.n, 1) + ' ot/min';
+    dopadEl('motor').textContent = dopadFormat(s.motor) + ' Nm';
+    dopadEl('zatez').textContent = dopadFormat(s.zatez) + ' Nm';
+    const delkaPadu = Math.sqrt(2 * p.vyska / 9.81);
+    const zacatekPadu = dopadTermin - delkaPadu;
+    const pada = dopadT >= zacatekPadu && dopadT < dopadTermin;
+    const dopadl = dopadT >= dopadTermin;
+    const faze = !dopadl ? (pada ? 'Balíček padá.' : 'Pás běží naprázdno.')
+      : s.n < p.otacky * .15 ? 'Pohon je silně přetížený; pás se téměř zastavil.'
+      : dopadT - dopadTermin < .3 ? 'Dopad: pás zachycuje balíček.'
+      : Math.abs(s.n - p.otacky) > p.otacky * .03 ? 'Pohon vyrovnává změnu zatížení.'
+      : 'Balíček jede s pásem; otáčky se ustálily.';
+    dopadEl('faze').textContent = faze;
+    if (dopadStav !== faze) { dopadEl('stav').textContent = faze; dopadStav = faze; }
+    dopadEl('shodit').disabled = dopadT >= zacatekPadu || dopadT >= 9;
+    const a = p.sklon * Math.PI / 180;
+    dopadEl('sklon').setAttribute('transform', 'translate(40 253) rotate(' + (-p.sklon) + ')');
+    dopadEl('pas').setAttribute('stroke-dashoffset', -s.pas * 80);
+    const x = 100 + Math.min(4.7, s.draha) * 80;
+    const z = dopadl ? 0 : p.vyska * 100 * (1 - (pada ? Math.pow((dopadT - zacatekPadu) / delkaPadu, 2) : 0));
+    // Svislý pád převedený do souřadnic nakloněného pásu.
+    dopadEl('balik').setAttribute('transform', 'translate(' + (x + z * Math.sin(a)) + ' ' + (-z * Math.cos(a)) + ')');
+    dopadEl('pohled').textContent = s.draha > 4.7
+      ? 'Pohled sleduje balíček na dlouhém pásu; dráha není v měřítku.'
+      : 'Výřez dlouhého pásu; dráha není v měřítku.';
+    const vzorky = dopadData.slice(0, index + 1);
+    dopadGrafy.forEach(g => {
+      g.klice.forEach((k, j) => g.cesty[j].setAttribute('d', vzorky.map((v, i) => (i ? 'L' : 'M') + g.x(v.t).toFixed(2) + ' ' + g.y(v[k]).toFixed(2)).join(' ')));
+      g.kurzor.setAttribute('x1', g.x(dopadT)); g.kurzor.setAttribute('x2', g.x(dopadT));
+    });
+  }
+  const dopadSmycka = Kurz.smycka(dt => {
+    dopadT = Math.min(10, dopadT + dt);
+    kresliDopad();
+    if (dopadT >= 10) zastavDopad();
+  });
+  dopadStart.addEventListener('click', () => {
+    if (dopadFrame !== null) return;
+    if (dopadSmycka.bezi) zastavDopad();
+    else {
+      if (dopadT >= 10) { dopadT = 0; kresliDopad(); }
+      dopadSmycka.start(); dopadStart.textContent = 'Zastavit pokus';
+    }
+  });
+  dopadEl('krok').addEventListener('click', () => {
+    if (dopadFrame !== null) return;
+    zastavDopad(); dopadT = Math.min(10, dopadT + .05); kresliDopad();
+  });
+  dopadCas.addEventListener('input', () => {
+    if (dopadFrame !== null) return;
+    zastavDopad(); dopadT = Number(dopadCas.value); kresliDopad();
+  });
+  dopadEl('shodit').addEventListener('click', () => {
+    if (dopadFrame !== null || dopadEl('shodit').disabled) return;
+    dopadTermin = dopadT + Math.sqrt(2 * Number(dopadVyska.value) / 9.81);
+    pripravDopad();
+    dopadSmycka.start(); dopadStart.textContent = 'Zastavit pokus';
+  });
+  function resetDopad() {
+    nastavHmotnost(VYCHOZI.hmotnost); spocitej();
+    dopadVyska.value = '.4'; dopadReakce.value = '.12';
+    dopadEl('vyska-hodnota').textContent = '0,4 m';
+    dopadEl('reakce-hodnota').textContent = '0,12 s';
+    naplanujDopad(true);
+  }
+  Kurz.posuvnik('dopad-hmotnost', v => { nastavHmotnost(v); spocitej(); }, v => v + ' kg');
+  Kurz.posuvnik('dopad-vyska', () => naplanujDopad(), v => dopadFormat(v) + ' m');
+  Kurz.posuvnik('dopad-reakce', () => naplanujDopad(), v => dopadFormat(v) + ' s');
+  dopadEl('reset').addEventListener('click', resetDopad);
+
+
+  const rezimEl = id => document.getElementById('rezim-' + id);
+  const rezimStart = rezimEl('spustit'), rezimCas = rezimEl('cas');
+  let rezimData = [], rezimT = 0, rezimP, rezimGrafy = [];
+  let rezimPodpis = '', rezimFrame = null;
+
+  function spoctiUspornyRezim(p, zastavit) {
+    const dt = .002, r = p.prumer / 2000, omega0 = p.otacky * Math.PI / 30;
+    const J = .08 + 20 * r * r + .0002 * p.prevod * p.prevod;
+    const alfa = p.sklon * Math.PI / 180;
+    const odpor = p.hmotnost * 9.81 * (Math.sin(alfa) + .05 * Math.cos(alfa));
+    const limit = p.limit, kp = 5, ki = 10, reakce = .12;
+    const klid = zastavit ? 0 : p.podil;
+    const prechod = t => { const s = Math.max(0, Math.min(1, t)); return s * s * (3 - 2 * s); };
+    let omega = omega0, moment = .4, integral = 0, u = 0, draha = 0, pas = 0;
+    const data = [];
+    for (let k = 0; k <= 7000; k++) {
+      const t = k * dt;
+      // Oba režimy mají stejnou sekundovou rampu změny žádaných otáček.
+      const cilOtacek = omega0 * (1 - (1 - klid) * prechod(t - 1)
+        + (1 - klid) * prechod(t - (p.prichod - p.predstih)));
+      const chyba = cilOtacek - omega;
+      const pozadavek = .4 * Math.tanh(cilOtacek / .2) + kp * chyba + ki * integral;
+      if ((pozadavek < limit || chyba < 0) && (pozadavek > -limit || chyba > 0)) integral += chyba * dt;
+      const cilMomentu = Math.max(-limit, Math.min(limit,
+        .4 * Math.tanh(cilOtacek / .2) + kp * chyba + ki * integral));
+      moment += (cilMomentu - moment) * dt / reakce;
+      let sila = 0;
+      if (t >= p.prichod) {
+        const naraz = p.hmotnost * Math.sqrt(2 * 9.81 * .4) / .1 * Math.exp(-(t - p.prichod) / .1);
+        const normalova = p.hmotnost * 9.81 * Math.cos(alfa) + naraz;
+        sila = .65 * normalova * Math.tanh((omega * r - u) / .12);
+      }
+      const zatez = .4 * Math.tanh(omega / .2) + sila * r;
+      omega = Math.max(0, omega + (moment - zatez) / J * dt);
+      // Po zastavení prázdného pásu není třeba dál vyvíjet brzdný moment.
+      if (cilOtacek === 0 && omega < .01 && t < p.prichod) {
+        omega = 0; moment = 0; integral = 0;
+      }
+      if (t >= p.prichod) {
+        u = Math.max(0, u + (sila - odpor) / p.hmotnost * dt);
+        draha += u * dt;
+      }
+      pas += omega * r * dt;
+      if (k % 5 === 0) data.push({t, n: omega * 30 / Math.PI,
+        cil: cilOtacek * 30 / Math.PI, motor: moment, zatez, draha, pas});
+    }
+    return data;
+  }
+
+  function zastavRezim() {
+    rezimSmycka.stop(); rezimStart.textContent = 'Spustit porovnání';
+  }
+  function naplanujRezim(vynutit = false) {
+    const podpis = JSON.stringify([P.motor, P.prevod, P.hmotnost, P.sklon, P.prumer,
+      rezimEl('podil').value, rezimEl('prichod').value, rezimEl('predstih').value]);
+    if (!vynutit && podpis === rezimPodpis) return;
+    rezimPodpis = podpis; zastavRezim(); rezimT = 0;
+    if (rezimFrame !== null) cancelAnimationFrame(rezimFrame);
+    rezimFrame = requestAnimationFrame(() => {
+      rezimFrame = null;
+      rezimP = {prumer: P.prumer, sklon: P.sklon, hmotnost: P.hmotnost,
+        otacky: vysledek.otacky, prevod: vysledek.q.i, limit: vysledek.moment,
+        podil: Number(rezimEl('podil').value) / 100, prichod: Number(rezimEl('prichod').value),
+        predstih: Number(rezimEl('predstih').value)};
+      rezimData = [spoctiUspornyRezim(rezimP, false), spoctiUspornyRezim(rezimP, true)];
+      rezimEl('konfigurace').textContent = 'Motor ' + vysledek.m.id + ', ' + vysledek.q.id
+        + ' · zásilka ' + P.hmotnost + ' kg · sklon ' + P.sklon + '° · buben ' + P.prumer
+        + ' mm · provozní otáčky ' + dopadFormat(rezimP.otacky) + ' ot/min'
+        + ' · pokyn k rozběhu v ' + dopadFormat(rezimP.prichod - rezimP.predstih) + ' s.';
+      rezimGrafy = [
+        vytvorRezimGraf('graf-otacky', 'Otáčky bubnu [ot/min]', 'n', [rezimP.otacky]),
+        vytvorRezimGraf('graf-motor', 'Moment pohonu na bubnu [Nm]', 'motor', [-rezimP.limit, rezimP.limit]),
+        vytvorRezimGraf('graf-zatez', 'Zatěžovací moment na bubnu [Nm]', 'zatez', [])
+      ];
+      kresliRezim();
+    });
+  }
+  function vytvorRezimGraf(id, nadpis, klic, reference) {
+    const svg = rezimEl(id); svg.replaceChildren();
+    const hodnoty = rezimData.flatMap(data => data.map(s => s[klic]));
+    const dolni = Math.min(0, ...hodnoty, ...reference) * 1.15;
+    const horni = Math.max(1, Math.max(...hodnoty, ...reference) * 1.15);
+    const x = t => 64 + t / 14 * 668;
+    const y = v => 180 - (v - dolni) / (horni - dolni) * 116;
+    const prvek = (tag, attrs, text) => svgPrvek(tag, attrs, svg, text);
+    prvek('text', {x: 64, y: 24}, nadpis);
+    for (let j = 0; j <= 4; j++) {
+      const v = dolni + (horni - dolni) * j / 4, yy = y(v);
+      prvek('line', {x1: 64, x2: 732, y1: yy, y2: yy, class: 'osa'});
+      prvek('text', {x: 55, y: yy + 5, 'text-anchor': 'end'}, dopadFormat(v, 1));
+    }
+    for (let t = 0; t <= 14; t += 2) {
+      prvek('text', {x: x(t), y: 203, 'text-anchor': 'middle'}, String(t));
+    }
+    prvek('text', {x: 732, y: 225, 'text-anchor': 'end'}, 'Čas [s]');
+    if (dolni < 0) prvek('line', {x1: 64, x2: 732, y1: y(0), y2: y(0), class: 'kurzor'});
+    reference.forEach(v => prvek('line', {x1: 64, x2: 732, y1: y(v), y2: y(v), class: 'reference'}));
+    [1, rezimP.prichod - rezimP.predstih, rezimP.prichod].forEach((t, i) => {
+      prvek('line', {x1: x(t), x2: x(t), y1: 64, y2: 180, class: i === 1 ? 'reference' : 'udalost'});
+    });
+    prvek('text', {x: x(1) + 4, y: 46}, 'čekání');
+    prvek('text', {x: x(rezimP.prichod - rezimP.predstih) - 4, y: 46, 'text-anchor': 'end'}, 'rozběh');
+    prvek('text', {x: x(rezimP.prichod) + 4, y: 60}, 'balíček');
+    const cesty = [0, 1].map(i => prvek('path', {class: 'prubeh' + (i ? ' rezim-b' : '')}));
+    const kurzor = prvek('line', {x1: 64, x2: 64, y1: 64, y2: 180, class: 'kurzor'});
+    return {x, y, klic, cesty, kurzor};
+  }
+  function kresliRezim() {
+    if (!rezimData.length) return;
+    const index = Math.min(1400, Math.round(rezimT * 100)), p = rezimP;
+    rezimCas.value = rezimT;
+    rezimEl('cas-hodnota').textContent = dopadFormat(rezimT) + ' s';
+    const padTrvani = Math.sqrt(2 * .4 / 9.81), padZacatek = p.prichod - padTrvani;
+    rezimData.forEach((data, i) => {
+      const s = data[index], y = i ? 312 : 140;
+      const faze = rezimT < 1 ? 'Běží původní rychlostí.'
+        : rezimT >= p.prichod ? (s.n < p.otacky * .15 ? 'Nízké otáčky při zatížení.' : 'Jízda se zásilkou.')
+        : rezimT >= p.prichod - p.predstih ? 'Rozbíhá se pro nový balíček.'
+        : s.n < .1 ? 'Stojí a čeká.'
+        : rezimT < 2.5 ? 'Snižuje otáčky.'
+        : 'Běží pomalu a čeká.';
+      rezimEl('faze-' + i).textContent = faze;
+      ['n', 'motor', 'zatez'].forEach(k => { rezimEl(k + '-' + i).textContent = dopadFormat(s[k], 2); });
+      rezimEl('pas-' + i).setAttribute('stroke-dashoffset', -s.pas * 75);
+      rezimEl('rotor-' + i).setAttribute('transform', 'rotate('
+        + ((s.pas / (p.prumer / 2000) * 180 / Math.PI) % 360) + ' 48 ' + y + ')');
+      const pada = rezimT >= padZacatek && rezimT < p.prichod;
+      const vyska = rezimT >= p.prichod ? 0 : 65 * (1 - (pada ? Math.pow((rezimT - padZacatek) / padTrvani, 2) : 0));
+      const balik = rezimEl('balik-' + i);
+      balik.setAttribute('transform', 'translate(' + (380 + Math.min(4, s.draha) * 65) + ' ' + (y - vyska) + ')');
+      balik.setAttribute('opacity', rezimT < padZacatek ? '.25' : '1');
+    });
+    rezimGrafy.forEach(g => {
+      rezimData.forEach((data, i) => {
+        const path = data.slice(0, index + 1).map((s, j) => (j ? 'L' : 'M')
+          + g.x(s.t).toFixed(2) + ' ' + g.y(s[g.klic]).toFixed(2)).join(' ');
+        g.cesty[i].setAttribute('d', path);
+      });
+      g.kurzor.setAttribute('x1', g.x(rezimT)); g.kurzor.setAttribute('x2', g.x(rezimT));
+    });
+  }
+  const rezimSmycka = Kurz.smycka(dt => {
+    rezimT = Math.min(14, rezimT + dt); kresliRezim();
+    if (rezimT >= 14) zastavRezim();
+  });
+  rezimStart.addEventListener('click', () => {
+    if (rezimFrame !== null) return;
+    if (rezimSmycka.bezi) zastavRezim();
+    else {
+      if (rezimT >= 14) { rezimT = 0; kresliRezim(); }
+      rezimSmycka.start(); rezimStart.textContent = 'Zastavit porovnání';
+    }
+  });
+  rezimEl('krok').addEventListener('click', () => {
+    if (rezimFrame !== null) return;
+    zastavRezim(); rezimT = Math.min(14, rezimT + .05); kresliRezim();
+  });
+  rezimCas.addEventListener('input', () => {
+    if (rezimFrame !== null) return;
+    zastavRezim(); rezimT = Number(rezimCas.value); kresliRezim();
+  });
+  function resetRezim() {
+    const vychozi = {podil: 35, prichod: 6, predstih: .5};
+    Object.entries(vychozi).forEach(([k, v]) => {
+      rezimEl(k).value = v;
+      rezimEl(k + '-hodnota').textContent = dopadFormat(v) + (k === 'podil' ? ' % provozní rychlosti' : ' s');
+    });
+    nastavHmotnost(VYCHOZI.hmotnost); spocitej(); naplanujRezim(true);
+  }
+  Kurz.posuvnik('rezim-hmotnost', v => { nastavHmotnost(v); spocitej(); }, v => v + ' kg');
+  Kurz.posuvnik('rezim-podil', () => naplanujRezim(), v => v + ' % provozní rychlosti');
+  Kurz.posuvnik('rezim-prichod', () => naplanujRezim(), v => dopadFormat(v) + ' s');
+  Kurz.posuvnik('rezim-predstih', () => naplanujRezim(), v => dopadFormat(v) + ' s');
+  rezimEl('reset').addEventListener('click', resetRezim);
+
+  motorEl.value=P.motor;prevodEl.value=P.prevod;spocitej();
+})();
+</script>
+</body>
+</html>
