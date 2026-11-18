@@ -112,7 +112,7 @@ window.LEKCE = [
     popis: 'Vyzkoušejte si aplikace optických elementů pro měření rozměrů a rychlosti zásilky',
     soubor: 'ulohy/13-triangulace-opticke-brany.html',
     verejna: false,
-    tema: 'Skluzavka jako dopravník',
-    okruh: 'mechanika'
+    tema: 'Triangulace a optické brány',
+    okruh: 'optika'
   }
 ];
