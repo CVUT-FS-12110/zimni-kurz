@@ -82,7 +82,7 @@ window.LEKCE = [
     verejna: false,
     tema: 'Optická triangulace a světelná brána',
     okruh: 'měření'
-  }
+  },
      {
     nazev: 'Lekce 11 — Doprava pomocí skluzavky',
     popis: 'Dimenzujte rozměry a charakteristické vlastnosti skluzavky, aby jste doručili balíček do žádané pozice',
@@ -90,7 +90,7 @@ window.LEKCE = [
     verejna: false,
     tema: 'Skluzavka jako dopravník',
     okruh: 'mechanika'
-  }
+  },
      {
     nazev: 'Lekce 12 — Převodovky a pásový dopravník',
     popis: 'Vyzkoušejte si integraci převodovek do systémů s požadavkem na moment a minimální rychlost balíčku na páse',
@@ -98,7 +98,7 @@ window.LEKCE = [
     verejna: false,
     tema: 'Pohon dopravníku',
     okruh: 'mechanika'
-  }
+  },
      {
     nazev: 'Lekce 13 — Kamery pro sledování zásilek',
     popis: 'Vyzkoušejte si návrh kamery pro sledování vaší zásilky a detailů na ní',
@@ -106,7 +106,7 @@ window.LEKCE = [
     verejna: false,
     tema: 'Kamery pro sledování zásilek',
     okruh: 'optika'
-  }
+  },
      {
     nazev: 'Lekce 14 — Triangulace a optické brány',
     popis: 'Vyzkoušejte si aplikace optických elementů pro měření rozměrů a rychlosti zásilky',
@@ -114,5 +114,5 @@ window.LEKCE = [
     verejna: false,
     tema: 'Triangulace a optické brány',
     okruh: 'optika'
-  }
+  },
 ];
