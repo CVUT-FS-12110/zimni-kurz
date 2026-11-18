@@ -95,7 +95,7 @@ window.LEKCE = [
     nazev: 'Lekce 12 — Převodovky a pásový dopravník',
     popis: 'Vyzkoušejte si integraci převodovek do systémů s požadavkem na moment a minimální rychlost balíčku na páse',
     soubor: 'ulohy/14-pohon-dopravniku2.html',
-    verejna: false,
+    verejna: true,
     tema: 'Pohon dopravníku',
     okruh: 'mechanika'
   }
