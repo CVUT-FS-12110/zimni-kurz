@@ -114,5 +114,5 @@ window.LEKCE = [
     verejna: false,
     tema: 'Triangulace a optické brány',
     okruh: 'optika'
-  },
+  }
 ];
