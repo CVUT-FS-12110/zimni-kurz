@@ -52,8 +52,63 @@
   .slozitost th, .slozitost td { padding: 0.5rem 0.65rem; border: 1px solid var(--ram); text-align: right; }
   .slozitost th:first-child, .slozitost td:first-child { text-align: left; }
   .slozitost thead { background: var(--pozadi-panel); }
-  .prazdny-blok { min-height: 5rem; }
+  .postup-o { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; align-items: stretch; gap: 0.4rem; max-width: 960px; margin: 0.8rem 0 1.2rem; }
+  .postup-karta { min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 0.35rem; padding: 0.7rem; text-align: center; border: 2px solid var(--ram); border-radius: var(--radius); background: var(--pozadi-panel); }
+  .postup-cislo { display: grid; place-items: center; width: 1.7rem; height: 1.7rem; border-radius: 50%; background: var(--akcent); color: var(--akcent-text); font-weight: 800; }
+  .postup-ukazka { margin-top: auto; font: 700 1rem ui-monospace, Consolas, monospace; }
+  .postup-ukazka s { color: var(--text-slaby); }
+  .postup-ukazka b { color: var(--akcent); }
+  .mini-cas { padding: 0.1rem 0.35rem; border: 2px solid var(--ram-silny); border-radius: 4px; background: #e8efff; }
+  .postup-schody { display: flex; align-items: end; gap: 3px; height: 34px; }
+  .postup-schody i { width: 14px; height: calc(var(--v) * 8px); background: var(--shluk-2); border: 1px solid var(--ram-silny); }
+  .postup-sipka { align-self: center; color: var(--akcent); font-size: 1.5rem; font-weight: 900; }
+  .viz-slozitost { max-width: 960px; padding: 1rem; border: 2px solid var(--ram); border-radius: var(--radius); background: var(--pozadi-panel); }
+  .viz-ovladac { max-width: 360px; }
+  .viz-dvojice { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-top: 0.6rem; }
+  .viz-obr { margin: 0; padding: 0.6rem; border: 1px solid var(--ram); border-radius: calc(var(--radius) - 2px); background: #fff; }
+  .viz-obr figcaption { margin-bottom: 0.4rem; font-weight: 700; font-size: 0.9rem; }
+  .viz-obr svg { display: block; width: 100%; height: auto; }
+  .viz-vzorec { margin: 0.4rem 0 0; font: 0.9rem ui-monospace, Consolas, monospace; text-align: center; }
+  .znacka-b { color: var(--shluk-2); }
+  .znacka-m { color: var(--shluk-1); }
+  .viz-pruhy { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 0.35rem 0.6rem; margin: 0.8rem 0; font-size: 0.9rem; }
+  .viz-pruh { height: 18px; border: 1px solid var(--ram-silny); border-radius: 3px; transition: width .2s ease; }
+  .viz-pruh.b { background: repeating-linear-gradient(45deg, var(--shluk-2) 0 6px, #e0566d 6px 12px); }
+  .viz-pruh.m { background: var(--shluk-1); }
+  .viz-pruhy strong { font-variant-numeric: tabular-nums; }
+  .viz-graf { margin-top: 0.8rem; }
+  .viz-pozn { max-width: 960px; color: var(--text-slaby); }
+  .sv-b { fill: #fbd5dc; stroke: var(--shluk-2); stroke-width: 1; }
+  .sv-prazdna { fill: none; stroke: var(--ram); stroke-width: 1; stroke-dasharray: 3 3; }
+  .sv-ctverec { fill: none; stroke: var(--ram-silny); stroke-width: 1.5; stroke-dasharray: 6 4; }
+  .sv-blok { fill: #dbe7ff; stroke: var(--shluk-1); stroke-width: 1.5; }
+  .sv-delic { stroke: #9fb6ea; stroke-width: 1; }
+  .sv-text { fill: var(--text); font: 600 13px "Segoe UI", sans-serif; }
+  .sv-slaby { fill: var(--text-slaby); font: 12px "Segoe UI", sans-serif; }
+  .sv-osa { stroke: var(--ram-silny); stroke-width: 1.2; }
+  .sv-mrizka { stroke: #d7dce4; stroke-width: 1; }
+  .sv-krivka-b { fill: none; stroke: var(--shluk-2); stroke-width: 3; stroke-dasharray: 8 5; }
+  .sv-krivka-m { fill: none; stroke: var(--shluk-1); stroke-width: 3; }
+  .sv-znacka { stroke: var(--text-slaby); stroke-width: 1; stroke-dasharray: 4 3; }
+  .sv-bod-b { fill: var(--shluk-2); stroke: #fff; stroke-width: 1.5; }
+  .sv-bod-m { fill: var(--shluk-1); stroke: #fff; stroke-width: 1.5; }
+  .tabulka-obal { max-width: 100%; overflow-x: auto; }
+  .algoritmy-tabulka { max-width: 960px; font-size: 0.9rem; }
+  .algoritmy-tabulka th, .algoritmy-tabulka td { padding: 0.4rem 0.45rem; text-align: center; }
+  .algoritmy-tabulka td { white-space: nowrap; }
+  .algoritmy-tabulka td:first-child { white-space: normal; }
+  .tabulka-pozn { display: block; color: var(--text-slaby); font-size: 0.78rem; }
+  .predmety { min-height: 5rem; }
+  .predmety-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem; max-width: 960px; }
+  .predmet { padding: 0.8rem; border: 2px solid var(--ram); border-radius: var(--radius); background: var(--pozadi-panel); }
+  .predmet h3 { margin: 0 0 0.35rem; font-size: 1.05rem; }
+  .predmet p { margin: 0; color: var(--text-slaby); }
   @media (max-width: 760px) {
+    .predmety-grid, .viz-dvojice { grid-template-columns: 1fr; }
+    .postup-o { grid-template-columns: 1fr; }
+    .algoritmy-tabulka { font-size: 0.78rem; }
+    .algoritmy-tabulka th, .algoritmy-tabulka td { padding: 0.35rem 0.25rem; }
+    .postup-sipka { display: none; }
     .porovnani { grid-template-columns: 1fr; }
     .algoritmus .platno-ram { min-height: 320px; }
     .pas-schema { gap: 0.25rem; }
@@ -219,9 +274,8 @@
 7:55 > 7:28  → [7:15, 7:42, 7:28, 7:55]
 7:42 > 7:28  → [7:15, 7:28, 7:42, 7:55]</pre>
     <p>
-      Postup se snadno programuje a u téměř seřazených dat může skončit brzy. V nejhorším
-      případě ale udělá přibližně <em>n</em> průchodů, v každém až <em>n</em> porovnání.
-      Časová náročnost se proto zapisuje <strong>O(n²)</strong>.
+      Postup se snadno programuje a u téměř seřazených dat může skončit brzy.
+      Kolik práce stojí v nejhorším případě, ukazuje obrázek níže.
     </p>
 
     <h3>Merge sort: rozděl a panuj</h3>
@@ -237,22 +291,86 @@
 slučování: [15, 42]  [28, 55]
            [15, 28, 42, 55]</pre>
     <p>
-      Na každé úrovni projde dohromady všech <em>n</em> prvků. Úrovní je jen tolik,
-      kolikrát lze počet prvků rozpůlit, tedy přibližně <em>log₂ n</em>. Proto má merge
-      sort časovou náročnost <strong>O(n log n)</strong>. Platí za to pomocnou pamětí,
-      do které při slučování dočasně ukládá prvky.
+      Rychlost má svou cenu: při slučování potřebuje pomocnou paměť pro dočasně uložené prvky.
     </p>
 
-    <h3>Co znamená časová náročnost</h3>
-    <p>
-      Zápis O neříká přesný počet milisekund. Popisuje, jak rychle roste množství práce,
-      když zvětšujeme vstup. Konstantní drobnosti zanedbáváme, protože u velkých dat
-      rozhoduje hlavně tvar růstu.
+    <h3>Jak se náročnost počítá</h3>
+    <p>Zápis O neříká milisekundy. Říká, jak rychle roste práce, když přibývá zásilek. Počet zásilek značíme <em>n</em>.</p>
+    <div class="postup-o" aria-label="Tři kroky výpočtu časové náročnosti">
+      <div class="postup-karta"><span class="postup-cislo">1</span><strong>Počítáme porovnání</strong><span class="postup-ukazka"><span class="mini-cas">7:42</span> ? <span class="mini-cas">7:15</span></span></div>
+      <div class="postup-sipka" aria-hidden="true">→</div>
+      <div class="postup-karta"><span class="postup-cislo">2</span><strong>Bereme nejhorší pořadí</strong><span class="postup-ukazka postup-schody" aria-hidden="true"><i style="--v:4"></i><i style="--v:3"></i><i style="--v:2"></i><i style="--v:1"></i></span></div>
+      <div class="postup-sipka" aria-hidden="true">→</div>
+      <div class="postup-karta"><span class="postup-cislo">3</span><strong>Necháme jen to, co roste nejrychleji</strong><span class="postup-ukazka"><s>½</s>·n² <s>− ½·n</s> → <b>O(n²)</b></span></div>
+    </div>
+
+    <div class="viz-slozitost">
+      <div class="ovladac viz-ovladac"><label for="viz-n"><span>Počet zásilek (n)</span> <output id="viz-n-hodnota"></output></label><input type="range" id="viz-n" min="4" max="32" step="1" value="8"></div>
+      <div class="viz-dvojice">
+        <figure class="viz-obr">
+          <figcaption><span class="znacka-b" aria-hidden="true">■</span> Bublinkové řazení: každý řádek je jeden průchod</figcaption>
+          <svg id="viz-bubliny" role="img" aria-label="Trojúhelník porovnání bublinkového řazení"></svg>
+          <p class="viz-vzorec" id="viz-bubliny-vzorec"></p>
+        </figure>
+        <figure class="viz-obr">
+          <figcaption><span class="znacka-m" aria-hidden="true">●</span> Merge sort: řada se půlí, každá úroveň se slučuje</figcaption>
+          <svg id="viz-merge" role="img" aria-label="Úrovně půlení řady v merge sortu"></svg>
+          <p class="viz-vzorec" id="viz-merge-vzorec"></p>
+        </figure>
+      </div>
+      <div class="viz-pruhy" id="viz-pruhy" aria-live="polite"></div>
+      <figure class="viz-obr viz-graf">
+        <figcaption>Jak roste nejhorší počet porovnání</figcaption>
+        <svg id="viz-rust" viewBox="0 0 620 270" role="img" aria-label="Graf počtu porovnání pro n od 1 do 64"></svg>
+      </figure>
+    </div>
+    <p class="viz-pozn">
+      <strong>Trojúhelník</strong> zabírá zhruba polovinu čtverce <em>n</em> × <em>n</em>, proto O(n²).
+      <strong>Strom</strong> má jen log₂ <em>n</em> úrovní (kolikrát lze <em>n</em> půlit: 8 → 4 → 2 → 1 jsou 3 úrovně)
+      a každá stojí nejvýše <em>n</em> porovnání, proto O(n log n).
+      Hodnotu pro 24 zásilek lze ověřit v interaktivní úloze s obráceným pořadím.
     </p>
+
+    <h4>Srovnání v číslech</h4>
     <table class="slozitost">
       <thead><tr><th>Počet zásilek <em>n</em></th><th><em>n²</em></th><th><em>n log₂ n</em></th></tr></thead>
       <tbody><tr><td>10</td><td>100</td><td>asi 33</td></tr><tr><td>100</td><td>10 000</td><td>asi 664</td></tr><tr><td>1 000</td><td>1 000 000</td><td>asi 9 966</td></tr><tr><td>1 000 000</td><td>1 000 000 000 000</td><td>asi 19 931 569</td></tr></tbody>
     </table>
+    <p>
+      Při miliardě porovnání za sekundu seřadí merge sort milion zásilek za setiny sekundy,
+      bublinkové řazení v nejhorším případě asi za 8 minut.
+    </p>
+
+    <h4>Další známé algoritmy řazení</h4>
+    <p>
+      Bublinkové řazení a merge sort nejsou jediné možnosti. Tabulka shrnuje několik
+      často používaných algoritmů. <strong>Stabilní</strong> algoritmus zachová vzájemné pořadí
+      zásilek se stejným časem příchodu. Sloupec <strong>paměť navíc</strong> udává, kolik
+      pomocného místa algoritmus potřebuje kromě samotné řady.
+    </p>
+    <div class="tabulka-obal">
+      <table class="slozitost algoritmy-tabulka">
+        <thead><tr><th>Algoritmus</th><th>Nejlepší případ</th><th>Průměrně</th><th>Nejhorší případ</th><th>Paměť navíc</th><th>Stabilní</th></tr></thead>
+        <tbody>
+          <tr><td>Bublinkové řazení <span class="tabulka-pozn">(bubble sort)</span></td><td>O(n)</td><td>O(n²)</td><td>O(n²)</td><td>O(1)</td><td>ano</td></tr>
+          <tr><td>Řazení vkládáním <span class="tabulka-pozn">(insertion sort)</span></td><td>O(n)</td><td>O(n²)</td><td>O(n²)</td><td>O(1)</td><td>ano</td></tr>
+          <tr><td>Řazení výběrem <span class="tabulka-pozn">(selection sort)</span></td><td>O(n²)</td><td>O(n²)</td><td>O(n²)</td><td>O(1)</td><td>ne</td></tr>
+          <tr><td>Merge sort <span class="tabulka-pozn">(řazení sléváním)</span></td><td>O(n log n)</td><td>O(n log n)</td><td>O(n log n)</td><td>O(n)</td><td>ano</td></tr>
+          <tr><td>Quicksort <span class="tabulka-pozn">(rychlé řazení)</span></td><td>O(n log n)</td><td>O(n log n)</td><td>O(n²)</td><td>O(log n)</td><td>ne</td></tr>
+          <tr><td>Heapsort <span class="tabulka-pozn">(řazení haldou)</span></td><td>O(n log n)</td><td>O(n log n)</td><td>O(n log n)</td><td>O(1)</td><td>ne</td></tr>
+          <tr><td>Timsort <span class="tabulka-pozn">(Python, Java)</span></td><td>O(n)</td><td>O(n log n)</td><td>O(n log n)</td><td>O(n)</td><td>ano</td></tr>
+          <tr><td>Řazení počítáním <span class="tabulka-pozn">(counting sort)</span></td><td>O(n + k)</td><td>O(n + k)</td><td>O(n + k)</td><td>O(n + k)</td><td>ano</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Zápis O(1) znamená, že pomocná paměť nezávisí na počtu zásilek. Quicksort je v praxi
+      často nejrychlejší, ale při nešťastné volbě dělicího prvku může spadnout až na O(n²).
+      Timsort kombinuje řazení vkládáním s merge sortem a využívá už seřazené úseky dat,
+      proto ho používají standardní knihovny. Řazení počítáním vůbec neporovnává:
+      pro každou možnou hodnotu spočítá, kolikrát se vyskytuje. Písmeno <em>k</em> je počet
+      možných hodnot, například 100 minut směny. Funguje jen tehdy, když je <em>k</em> malé.
+    </p>
 
     <div class="pointa">
       <h2>Proč je to těžké</h2>
@@ -267,10 +385,38 @@ slučování: [15, 42]  [28, 55]
         pořadí zásilek se stejným časem příchodu. Časová náročnost je způsob, jak o těchto rozdílech
         uvažovat dřív, než program spustíme na milionu položek.
       </p>
+      <p>
+        Merge sort navíc nelze libovolně zrychlovat. Lze dokázat, že každý algoritmus, který
+        pořadí zjišťuje jen porovnáváním dvojic, potřebuje v nejhorším případě řádově
+        <em>n</em> log <em>n</em> porovnání. Rychleji to jde jen tehdy, když algoritmus
+        využije další znalost o datech, například že časy mají jen sto možných hodnot.
+      </p>
     </div>
   </section>
 
-  <section class="sekce prazdny-blok"><h2>4. Kde se to učí</h2></section>
+  <section class="sekce predmety">
+    <h2>4. Kde se to učí</h2>
+    <p>Řazení a posuzování časové náročnosti se přímo probírají v předmětu <strong>Algoritmy a datové struktury</strong>. Myšlenka „rozděl a panuj“ i odhad, jak program poroste s velikostí dat, se potom vracejí i v dalších předmětech.</p>
+    <div class="predmety-grid">
+      <article class="predmet">
+        <h3>Algoritmy a datové struktury</h3>
+        <p>Algoritmy řazení, metoda rozděl a panuj, halda a prioritní fronta a výpočet časové a paměťové složitosti algoritmů.</p>
+      </article>
+      <article class="predmet">
+        <h3>Paralelní programování</h3>
+        <p>Merge sort se přirozeně dělí na nezávislé části. Každou polovinu může řadit jiný procesor a výsledky se nakonec sloučí.</p>
+      </article>
+      <article class="predmet">
+        <h3>Počítačové sítě a kybernetická bezpečnost</h3>
+        <p>Pakety přicházejí po síti v různém pořadí. Příjemce je musí podle pořadových čísel znovu seřadit, stejně jako zásilky podle času příchodu.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="sekce" aria-labelledby="literatura-nadpis">
+    <h2 id="literatura-nadpis">Doporučená literatura</h2>
+    <p><a href="https://www.nic.cz/files/edice/pruvodce_labyrintem_algoritmu.pdf"><strong>Průvodce labyrintem algoritmů</strong> (PDF)</a> — kniha pro další seznámení s algoritmickým myšlením, řazením a časovou složitostí.</p>
+  </section>
   <p class="paticka"><a href="../index.html">← Zpět na rozcestník</a></p>
 </main>
 
@@ -523,6 +669,116 @@ slučování: [15, 42]  [28, 55]
   document.getElementById('usporadani').addEventListener('change',e=>{P.usporadani=e.target.value;novaData();});
   Kurz.posuvnik('pocet',v=>{P.n=v;novaData();});Kurz.posuvnik('rychlost-razeni',v=>{P.rychlost=v;},v=>(v/1000).toLocaleString('cs-CZ',{maximumFractionDigits:2})+' s');
   novaData();
+})();
+
+(function () {
+  'use strict';
+  /* Obrázky k výpočtu náročnosti: trojúhelník porovnání, strom půlení a graf růstu. */
+  const NS = 'http://www.w3.org/2000/svg';
+  function el(rodic, nazev, atributy, text) {
+    const e = document.createElementNS(NS, nazev);
+    for (const k in atributy) e.setAttribute(k, atributy[k]);
+    if (text !== undefined) e.textContent = text;
+    rodic.appendChild(e);
+    return e;
+  }
+  const cislo = x => x.toLocaleString('cs-CZ');
+  const bublinyPorovnani = n => n * (n - 1) / 2;
+  const mergeNejhur = n => n <= 1 ? 0 : mergeNejhur(Math.floor(n / 2)) + mergeNejhur(Math.ceil(n / 2)) + n - 1;
+  function urovne(n) {
+    const vysledek = [[[0, n]]];
+    while (vysledek[vysledek.length - 1].some(([lo, hi]) => hi - lo > 1)) {
+      const dalsi = [];
+      vysledek[vysledek.length - 1].forEach(([lo, hi]) => {
+        if (hi - lo <= 1) { dalsi.push([lo, hi]); return; }
+        const mid = Math.floor((lo + hi) / 2);
+        dalsi.push([lo, mid], [mid, hi]);
+      });
+      vysledek.push(dalsi);
+    }
+    return vysledek;
+  }
+
+  const svgB = document.getElementById('viz-bubliny');
+  const svgM = document.getElementById('viz-merge');
+  const svgR = document.getElementById('viz-rust');
+
+  function kresliBubliny(n) {
+    svgB.replaceChildren();
+    const W = 320, okraj = 26, c = (W - okraj - 34) / n;
+    const H = okraj + n * c + 6;
+    svgB.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    el(svgB, 'text', {x: okraj, y: 16, class: 'sv-slaby'}, 'porovnání v průchodu →');
+    el(svgB, 'text', {x: 12, y: okraj + 4, class: 'sv-slaby', transform: 'rotate(90 12 ' + (okraj + 4) + ')'}, 'průchody →');
+    el(svgB, 'rect', {x: okraj, y: okraj, width: (n - 1) * c, height: (n - 1) * c, class: 'sv-ctverec'});
+    for (let r = 0; r < n - 1; r++) {
+      const plne = n - 1 - r;
+      for (let s = 0; s < n - 1; s++) {
+        el(svgB, 'rect', {x: okraj + s * c + 1, y: okraj + r * c + 1, width: c - 2, height: c - 2, class: s < plne ? 'sv-b' : 'sv-prazdna'});
+      }
+      if (n <= 16) el(svgB, 'text', {x: okraj + n * c + 4, y: okraj + r * c + c / 2 + 4, class: 'sv-slaby'}, plne);
+    }
+    el(svgB, 'text', {x: okraj + (n - 1) * c - 4, y: okraj + (n - 1) * c - 6, class: 'sv-slaby', 'text-anchor': 'end'}, 'čtverec ≈ n × n');
+    const radky = n <= 6 ? Array.from({length: n - 1}, (_, i) => n - 1 - i).join(' + ') : (n - 1) + ' + ' + (n - 2) + ' + … + 1';
+    document.getElementById('viz-bubliny-vzorec').textContent = radky + ' = ' + cislo(bublinyPorovnani(n)) + ' ≈ ½ · n²';
+  }
+
+  function kresliMerge(n) {
+    svgM.replaceChildren();
+    const u = urovne(n), W = 320, levy = 62, pravy = 50, c = (W - levy - pravy) / n, rh = 34;
+    const H = u.length * rh + 4;
+    svgM.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    u.forEach((bloky, i) => {
+      const y = i * rh + 4;
+      el(svgM, 'text', {x: 0, y: y + 16, class: 'sv-slaby'}, i === 0 ? 'celá řada' : i + '. půlení');
+      bloky.forEach(([lo, hi]) => {
+        const mezera = Math.min(3, c * 0.3);
+        el(svgM, 'rect', {x: levy + lo * c + mezera / 2, y, width: (hi - lo) * c - mezera, height: 22, rx: 3, class: 'sv-blok'});
+        if (c >= 6) for (let k = lo + 1; k < hi; k++) el(svgM, 'line', {x1: levy + k * c, x2: levy + k * c, y1: y + 3, y2: y + 19, class: 'sv-delic'});
+      });
+      if (i > 0) el(svgM, 'text', {x: W - pravy + 6, y: y + 4, class: 'sv-text'}, '≤ ' + n);
+    });
+    const L = u.length - 1;
+    el(svgM, 'text', {x: W - pravy + 6, y: H - 2, class: 'sv-slaby'}, L + ' úr.');
+    const odhad = n * L, presne = mergeNejhur(n);
+    document.getElementById('viz-merge-vzorec').textContent = L + ' úrovní × ≤ ' + n + ' = ' + cislo(odhad) + ' (přesně nejvýše ' + cislo(presne) + ')';
+  }
+
+  function kresliPruhy(n) {
+    const b = bublinyPorovnani(n), m = mergeNejhur(n), max = Math.max(b, m, 1);
+    const cil = document.getElementById('viz-pruhy');
+    cil.innerHTML =
+      '<span>Bublinkové řazení</span><div><div class="viz-pruh b" style="width:' + (100 * b / max) + '%"></div></div><strong>' + cislo(b) + '</strong>' +
+      '<span>Merge sort</span><div><div class="viz-pruh m" style="width:' + (100 * m / max) + '%"></div></div><strong>' + cislo(m) + '</strong>';
+  }
+
+  const G = {x: 52, y: 14, w: 470, h: 210, nMax: 64, yMax: bublinyPorovnani(64)};
+  const gx = n => G.x + n / G.nMax * G.w;
+  const gy = v => G.y + G.h - v / G.yMax * G.h;
+  function kresliRust(n) {
+    svgR.replaceChildren();
+    for (let v = 0; v <= 2000; v += 500) {
+      el(svgR, 'line', {x1: G.x, x2: G.x + G.w, y1: gy(v), y2: gy(v), class: 'sv-mrizka'});
+      el(svgR, 'text', {x: G.x - 6, y: gy(v) + 4, class: 'sv-slaby', 'text-anchor': 'end'}, cislo(v));
+    }
+    for (let k = 0; k <= 64; k += 16) el(svgR, 'text', {x: gx(k), y: G.y + G.h + 16, class: 'sv-slaby', 'text-anchor': 'middle'}, k);
+    el(svgR, 'text', {x: G.x + G.w, y: G.y + G.h + 32, class: 'sv-slaby', 'text-anchor': 'end'}, 'počet zásilek n →');
+    el(svgR, 'line', {x1: G.x, x2: G.x, y1: G.y, y2: G.y + G.h, class: 'sv-osa'});
+    el(svgR, 'line', {x1: G.x, x2: G.x + G.w, y1: G.y + G.h, y2: G.y + G.h, class: 'sv-osa'});
+    const body = f => Array.from({length: G.nMax}, (_, i) => gx(i + 1) + ',' + gy(f(i + 1))).join(' ');
+    el(svgR, 'polyline', {points: body(bublinyPorovnani), class: 'sv-krivka-b'});
+    el(svgR, 'polyline', {points: body(mergeNejhur), class: 'sv-krivka-m'});
+    el(svgR, 'text', {x: gx(64) + 6, y: gy(bublinyPorovnani(64)) + 4, class: 'sv-text'}, 'O(n²)');
+    el(svgR, 'text', {x: gx(64) + 6, y: gy(mergeNejhur(64)) + 4, class: 'sv-text'}, 'O(n log n)');
+    el(svgR, 'line', {x1: gx(n), x2: gx(n), y1: G.y, y2: G.y + G.h, class: 'sv-znacka'});
+    el(svgR, 'rect', {x: gx(n) - 5, y: gy(bublinyPorovnani(n)) - 5, width: 10, height: 10, class: 'sv-bod-b'});
+    el(svgR, 'circle', {cx: gx(n), cy: gy(mergeNejhur(n)), r: 5.5, class: 'sv-bod-m'});
+    el(svgR, 'text', {x: gx(n) + 8, y: G.y + 12, class: 'sv-text'}, 'n = ' + n);
+  }
+
+  function vse(n) { kresliBubliny(n); kresliMerge(n); kresliPruhy(n); kresliRust(n); }
+  Kurz.posuvnik('viz-n', vse);
+  vse(Number(document.getElementById('viz-n').value));
 })();
 </script>
 </body>

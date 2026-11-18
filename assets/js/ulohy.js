@@ -63,7 +63,7 @@ window.LEKCE = [
     nazev: 'Lekce 7 — Která zásilka přišla první?',
     popis: 'Zásilky je potřeba vyřídit podle času příchodu. Dva postupy je seřadí správně, ale proč jednomu s rostoucím počtem dat dochází dech?',
     soubor: 'ulohy/04-razeni-zasilek.html',
-    verejna: false,
+    verejna: true,
     tema: 'Řazení podle času příchodu',
     okruh: 'programování a algoritmy'
   },
