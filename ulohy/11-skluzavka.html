@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skluzavka pro balíček – Zimní kurz</title>
+<link rel="stylesheet" href="../assets/css/styl.css">
+<style>
+.krok { margin:1.2rem 0; padding:1rem; border:2px solid var(--ram-silny); border-radius:var(--radius); background:var(--pozadi-panel); }
+.krok h3 { margin-top:0; }
+.schema { display:block; width:100%; height:auto; background:var(--pozadi); border:1px solid var(--ram); border-radius:var(--radius); }
+.schema text { fill:var(--text); font:15px "Segoe UI",system-ui,sans-serif; }
+.ovladani,.udaje { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:.6rem 1rem; margin:.8rem 0; }
+.udaj { padding:.6rem; border:1px solid var(--ram); background:var(--pozadi); border-radius:var(--radius); }
+.udaj span,.udaj strong { display:block; }
+output,strong { font-variant-numeric:tabular-nums; }
+.dvojice { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:1rem; }
+.rovnice { white-space:pre-line; overflow-wrap:anywhere; padding:.8rem; background:var(--pozadi-panel); border:1px solid var(--ram); font:.94rem/1.8 ui-monospace,Consolas,monospace; }
+.energie { display:grid; grid-template-columns:6rem minmax(0,1fr) 7rem; align-items:center; gap:.4rem; }
+progress { width:100%; accent-color:var(--shluk-1); }
+#Ek { accent-color:var(--shluk-3); } #Q { accent-color:var(--shluk-4); }
+.stav { min-height:3.2rem; }
+.legenda { display:flex; flex-wrap:wrap; gap:.5rem 1.5rem; }
+.znacka { display:inline-block; width:1.6rem; border-top:3px solid var(--shluk-1); vertical-align:middle; margin-right:.3rem; }
+table { width:100%; border-collapse:collapse; background:var(--pozadi); }
+th,td { text-align:left; padding:.5rem; border-bottom:1px solid var(--ram); }
+.tabulka { overflow-x:auto; }
+@media(max-width:700px) { .dvojice { grid-template-columns:minmax(0,1fr); } .krok { padding:.6rem; } .energie { grid-template-columns:4rem minmax(0,1fr) 5rem; } }
+</style>
+</head>
+<body>
+<main class="stranka">
+<a class="zpet" href="../index.html">← Zpět na rozcestník</a>
+<p class="pod-nadpisem">Lekce 9 – Doprava vlastní vahou</p>
+<h1>Navrhněte skluzavku pro balíček</h1>
+<section class="sekce">
+<h2>1. Z dopravníku k místu nakládky</h2>
+<p class="uvod">V distribučním centru opustí balíček třídicí dopravník a má se dostat k níže položenému místu nakládky. Skluzavka nepotřebuje vlastní motor: pohyb umožní gravitace. Jak ale zajistit, aby zásilka neuvázla a na konci nejela příliš rychle?</p>
+<svg class="schema" viewBox="0 0 800 300" role="img" aria-label="Dopravník předává balíček na hladkou skluzavku s vodorovným začátkem a koncem. Následují zóny zrychlení, zpomalení a vodorovný výjezd k nakládce. Vzdálenost L a výškový rozdíl H jsou vstupy návrhu.">
+<path d="M25 62 H155 C300 62 380 230 600 230 H770" fill="none" stroke="var(--shluk-1)" stroke-width="7"/>
+<rect x="90" y="33" width="42" height="27" fill="var(--shluk-4)" stroke="var(--text)" stroke-width="2"/>
+<path d="M145 35 H205 l-10 -6 m10 6 l-10 6" fill="none" stroke="var(--text)" stroke-width="2"/>
+<text x="25" y="22">Třídicí dopravník → v₀</text><text x="34" y="100">Vyčkávací prostor</text>
+<text x="208" y="152">Zóna zrychlení</text><text x="425" y="188">Zóna zpomalení</text>
+<text x="610" y="268">Zóna zastavení</text><text x="640" y="210">Nakládka</text>
+<path d="M15 62 V230 M155 282 H600" fill="none" stroke="var(--text-slaby)" stroke-dasharray="5 4"/>
+<text x="20" y="178">H</text><text x="370" y="277">L</text>
+</svg>
+<p><strong>Prostá skluzavka</strong> má pevný povrch a balíček po něm klouže; tření část energie mění v teplo. <strong>Válečkový skluz</strong> podpírá zásilku otáčejícími se válečky. Mívá menší odpor, takže pro něj může být důležitý i tvar nejrychlejší dráhy.</p>
+<p>Nejprve navrhněte hladkou skluzavku s třením a vodorovným vstupem i výstupem. V bonusu porovnáte dva jiné požadavky: <strong>nejkratší čas jízdy</strong> a <strong>stejný čas dojezdu z různých míst</strong>. Každý z nich vede k jiné otázce.</p>
+</section>
+
+<section aria-labelledby="interakce">
+<h2 id="interakce">2. Vyzkoušejte tvar, tření a čas jízdy</h2>
+<div class="krok">
+<h3>2.1 Hladká skluzavka s třením</h3>
+<p>Balíček přijíždí z dopravníku rychlostí v₀. Začátek i konec hladké dráhy jsou vodorovné. Změňte rozměry, průběh klesání a povrch tak, aby balíček dojel k výstupu rychlostí nejvýše 1,5&nbsp;m/s. Jde o výukový požadavek pro tuto úlohu.</p>
+<div class="ovladani">
+<div class="ovladac"><label for="tvar">Tvar dráhy</label><select id="tvar"><option value="hladka">Hladká – vodorovné konce</option><option value="prima">Přímá – pro porovnání</option></select></div>
+<div class="ovladac"><label for="L">Vodorovná vzdálenost L <output id="L-hodnota"></output></label><input id="L" type="range" min="3" max="10" step=".1" value="6"></div>
+<div class="ovladac"><label for="H">Výškový rozdíl H <output id="H-hodnota"></output></label><input id="H" type="range" min=".5" max="3" step=".1" value="2"></div>
+<div class="ovladac"><label for="k">Rozložení poklesu k <output id="k-hodnota"></output></label><input id="k" type="range" min="-2" max="2" step=".1" value="0"></div>
+<div class="ovladac"><label for="mu">Smykové tření μₖ <output id="mu-hodnota"></output></label><input id="mu" type="range" min="0" max=".5" step=".01" value=".18"></div>
+<div class="ovladac"><label for="v0">Vstupní rychlost v₀ <output id="v0-hodnota"></output></label><input id="v0" type="range" min="0" max="3" step=".1" value="1.5"></div>
+<div class="ovladac"><label for="m">Hmotnost m <output id="m-hodnota"></output></label><input id="m" type="range" min="1" max="30" step="1" value="10"></div>
+</div>
+<p class="poznamka">Záporné k přesouvá pokles blíž ke vstupu, kladné ke konci. Pro přímou dráhu se k nepoužívá. Klidové tření má v modelu součinitel μₛ = μₖ + 0,08; tento rozdíl není univerzální vlastnost materiálů.</p>
+<svg id="scena" class="schema" viewBox="0 0 800 330" role="img" aria-label="Aktuální návrh skluzavky s polohou balíčku, vstupem A a výstupem B"></svg>
+<div class="tlacitka"><button type="button" class="akce hlavni" id="spustit">Spustit</button><button type="button" class="akce" id="krok">Krok: 0,05 s</button><button type="button" class="akce" id="zpet">Zpět: 0,05 s</button><button type="button" class="akce" id="reset">Reset</button></div>
+<div class="ovladac"><label for="cas">Čas t <output id="cas-hodnota"></output></label><input id="cas" type="range" min="0" max="5" step=".001" value="0"></div>
+<p id="vysledek" class="stav" aria-live="polite"></p>
+<div class="udaje">
+<div class="udaj"><span>Rychlost při vstupu do B</span><strong id="cil-rychlost"></strong></div>
+<div class="udaj"><span>Čas do výstupu / ukončení pohybu</span><strong id="konec-cas"></strong></div>
+<div class="udaj"><span>Ujetá dráha po povrchu</span><strong id="konec-draha"></strong></div>
+<div class="udaj"><span>Aktuální zóna</span><strong id="zona"></strong></div>
+<div class="udaj"><span>Okamžitá rychlost v</span><strong id="rychlost"></strong></div>
+<div class="udaj"><span>Tečné zrychlení a</span><strong id="zrychleni"></strong></div>
+<div class="udaj"><span>Tíha po povrchu G∥ / reakce N</span><strong id="sily"></strong></div>
+<div class="udaj"><span>Aktuální tření Fₜ / klidové maximum</span><strong id="treni"></strong></div>
+</div>
+<div class="dvojice"><svg id="graf-v" class="schema" viewBox="0 0 600 240" role="img" aria-label="Rychlost podle času, přerušovaně aktuální čas"></svg><svg id="graf-s" class="schema" viewBox="0 0 600 240" role="img" aria-label="Ujetá dráha po povrchu podle času, přerušovaně aktuální čas"></svg></div>
+<p class="poznamka">Grafy i hodnocení ukazují celý předem vypočtený pokus. Posuvník času mění aktuální stav. Model počítá i změnu přítlaku v zakřivení; pokud by balíček ztratil kontakt, jízdu ukončí. Let, převrácení, deformace a rozměry zásilky neřeší. Přímá dráha nezahrnuje napojení na vodorovné dopravníky.</p>
+<h4>Co si zkuste</h4>
+<ul><li>Nastavte v₀ = 0. Proč se balíček na vodorovném začátku nerozjede? Porovnejte s přímou dráhou.</li><li>Vraťte výchozí nastavení a měňte tření. Najděte rozdíl mezi příliš rychlým příjezdem a zastavením před výstupem.</li><li>Změňte k a sledujte zóny zrychlení a zpomalení. Je největší rychlost až na konci?</li><li>Zvyšte hmotnost z 5 na 20&nbsp;kg. Porovnejte síly, rychlost a čas.</li></ul>
+<h3>Kam se poděla energie?</h3>
+<div class="energie">
+<label for="Ep">Eₚ</label><progress id="Ep" max="1" value="1"></progress><output id="Ep-hodnota"></output>
+<label for="Ek">Eₖ</label><progress id="Ek" max="1" value="0"></progress><output id="Ek-hodnota"></output>
+<label for="Q">Q – tření</label><progress id="Q" max="1" value="0"></progress><output id="Q-hodnota"></output>
+</div>
+<p id="energie-soucet"></p>
+<p>Polohová energie Eₚ ubývá při klesání. Pohybová Eₖ může růst i klesat; rozptýlená energie Q při skluzu přibývá. Zpomalení samo o sobě neznamená návrat do kopce: na konci této dráhy ubývá Eₖ třením.</p>
+<h4>Co si zkuste</h4>
+<ul><li>Vynulujte tření a projeďte čas posuvníkem. Co se děje se součtem Eₚ + Eₖ?</li><li>Obnovte tření a sledujte konec jízdy. Kam přechází pohybová energie v zóně zpomalení?</li></ul>
+</div>
+
+<div class="krok">
+<h3>2.2 Bonus: nejkratší dráha, nebo nejkratší čas?</h3>
+<p>Všechny tři dráhy spojují stejný vstup A a cíl B. Balíčky se uvolní současně z klidu. Zkuste nejprve odhadnout vítěze: přímka je nejkratší, parabola a cykloida získají větší rychlost prudkým začátkem.</p>
+<p class="poznamka">Zde používáme jiný model: bodové těleso bez tření a bez energie roztáčení válečků. Vedení drží těleso na dráze z obou stran. Bonus představuje ideální mezní případ malých odporů, nikoli přesný model válečkového dopravníku. Nastavení tření z první ukázky sem nepřechází.</p>
+<div class="ovladani">
+<div class="ovladac"><label for="raceL">Vodorovná vzdálenost L <output id="raceL-hodnota"></output></label><input id="raceL" type="range" min="2" max="8" step=".1" value="6"></div>
+<div class="ovladac"><label for="raceH">Pokles do cíle H <output id="raceH-hodnota"></output></label><input id="raceH" type="range" min="1" max="4" step=".1" value="2"></div>
+</div>
+<svg id="zavod" class="schema" viewBox="0 0 800 350" role="img" aria-label="Závod po přímce, parabole a cykloidě mezi stejnými body A a B"></svg>
+<p class="legenda"><span><i class="znacka"></i>1 – přímka</span><span><i class="znacka" style="border-color:var(--shluk-4);border-top-style:dashed"></i>2 – parabola</span><span><i class="znacka" style="border-color:var(--shluk-5);border-top-style:dotted"></i>3 – cykloida</span></p>
+<div class="tlacitka"><button type="button" id="raceStart" class="akce hlavni">Spustit závod</button><button type="button" id="raceReset" class="akce">Reset závodu</button></div>
+<div class="ovladac"><label for="raceTime">Čas závodu <output id="raceTime-hodnota"></output></label><input id="raceTime" type="range" min="0" max="3" step=".001" value="0"></div>
+<div class="tabulka"><table><thead><tr><th>Dráha</th><th>Délka po dráze</th><th>Čas do B</th><th>Rychlost v B</th></tr></thead><tbody id="raceTable"></tbody></table></div>
+<p id="raceStatus" aria-live="polite"></p>
+<h4>Co si zkuste</h4>
+<ul><li>Spusťte závod a porovnejte pořadí v cíli s délkami drah.</li><li>Měňte vzdálenost L při stejném H. Všimněte si, že cykloida může klesnout pod cíl a pak se k němu vrátit do kopce.</li><li>Porovnejte rychlosti v B. Proč se časy liší, když jsou koncové rychlosti stejné?</li></ul>
+</div>
+
+<div class="krok">
+<h3>2.3 Bonus: různá místa startu, stejný čas dojezdu</h3>
+<p>Tři balíčky stojí na různých místech stejné cykloidy. Uvolní se současně z klidu a dojedou do jejího nejnižšího bodu B. Blízký start znamená kratší cestu, ale také menší zrychlení. Vyrovnají se tyto dva vlivy přesně?</p>
+<div class="ovladani">
+<div class="ovladac"><label for="tauR">Velikost cykloidy R <output id="tauR-hodnota"></output></label><input id="tauR" type="range" min=".5" max="2" step=".1" value="1"></div>
+<div class="ovladac"><label for="tauAngle">Poloha třetího startu θ₀ <output id="tauAngle-hodnota"></output></label><input id="tauAngle" type="range" min="15" max="170" step="1" value="125"></div>
+</div>
+<svg id="tauto" class="schema" viewBox="0 0 800 340" role="img" aria-label="Tři tělesa z různých výšek na stejné cykloidě dojíždějí současně do nejnižšího bodu B"></svg>
+<div class="tlacitka"><button type="button" id="tauStart" class="akce hlavni">Uvolnit současně</button><button type="button" id="tauReset" class="akce">Reset ukázky</button></div>
+<div class="ovladac"><label for="tauTime">Čas od uvolnění <output id="tauTime-hodnota"></output></label><input id="tauTime" type="range" min="0" max="2" step=".001" value="0"></div>
+<p id="tauStatus" aria-live="polite"></p>
+<p class="poznamka">Platí stejné ideální předpoklady jako v závodě: žádné tření, žádné roztáčení, uvolnění z klidu a vedení po dráze. Po prvním dojezdu animaci ukončujeme; bez tlumení by tělesa v oboustranné cykloidě pokračovala a kmitala.</p>
+<h4>Co si zkuste</h4>
+<ul><li>Posuňte třetí start blízko k cíli a znovu uvolněte všechny balíčky. Porovnejte dojezd i průběžné polohy.</li><li>Zvětšete R. Zůstane čas stejný pro různé starty? Zůstane stejný i vůči předchozí velikosti dráhy?</li></ul>
+</div>
+</section>
+
+<section class="sekce">
+<h2>3. Jak propojit tvar, síly, pohyb a energii</h2>
+<h3>3.1 Čtyři zóny a vodorovné konce</h3>
+<p>Vyčkávací prostor navazuje na dopravník. V zóně zrychlení převládá složka tíhy po povrchu nad třením. V zóně zpomalení převládá tření, ale balíček stále jede vpřed. Zóna zastavení je vodorovný dojezd, kde tření může odebrat zbývající pohybovou energii.</p>
+<p>V hlavní ukázce počítáme po vstup do B; další vodorovnou plochu za B už nesimulujeme. Při rychlosti 1,5&nbsp;m/s a μₖ = 0,18 by ideální vodorovné dojetí do klidu potřebovalo ještě asi 0,64&nbsp;m. Pomalý vstup do B tedy není totéž jako zastavení přesně v B.</p>
+<p>Přímka nemůže spojit dvě různé výšky a být současně na obou koncích vodorovná. Proto použijeme polynom: součet několika mocnin polohy. Pro základní tvar k = 0 stačí třetí stupeň:</p>
+<div class="rovnice">u = x/L
+h = H · (1 − 3u² + 2u³)
+S úpravou tvaru: h = H · [1 − 3u² + 2u³ + k · u²(1 − u)²]</div>
+<p>x je vodorovná vzdálenost od vstupu, L celková vzdálenost, H výškový rozdíl a h výška nad výstupem. Bezrozměrná poloha u roste od 0 do 1. Parametr k přesouvá klesání; přidaný člen zachová výšky i vodorovné tečny na koncích. Například pro L = 6&nbsp;m, H = 2&nbsp;m, k = 0 je při x = 3&nbsp;m hodnota u = 0,5 a h = 1&nbsp;m.</p>
+
+<h3>3.2 Statika a dynamika: rozjezd není samozřejmost</h3>
+<p>Tíha G = mg působí svisle dolů. Hmotnost m měříme v kg, gravitační zrychlení je g = 9,81&nbsp;m/s². Při místním sklonu α má tíha složku G∥ = mg sin α ve směru klesání. Reakce N je síla, kterou povrch tlačí na balíček kolmo k dráze.</p>
+<div class="rovnice">V klidu: Fₜ ≤ μₛN
+Rozjezd z klidu: mg sin α &gt; μₛN
+Při skluzu: Fₜ = μₖN
+Zákon síly ve směru jízdy: ma = mg sin α − Fₜ</div>
+<p>Součinitel klidového tření μₛ určuje největší možné tření za klidu; skutečná síla může být menší. Součinitel smykového tření μₖ popisuje skluz. Síly jsou v newtonech (N), tečné zrychlení a v m/s². Na vodorovném vstupu je α = 0, a proto zde gravitace balíček z klidu nerozjede. Počáteční rychlost mu dodá příjezd z dopravníku.</p>
+<p>Na přímce je N = mg cos α. Na hladké křivce navíc záleží na rychlosti a zakřivení: v dolním oblouku povrch tlačí více, v horním méně. Při poloměru zakřivení r přibývá nebo ubývá člen mv²/r. Když by výpočet vyžadoval záporné N, povrch by musel balíček přitahovat; prostá skluzavka to neumí a kontakt se ztratí.</p>
+<p>Hmotnost násobí všechny síly stejně, takže se při výpočtu zrychlení vykrátí. Zvětšení hmotnosti v tomto modelu změní síly a energie, ale nezmění rychlost ani čas.</p>
+
+<h3>3.3 Kinematika: od zrychlení k času jízdy</h3>
+<p>Rychlost v udává, kolik metrů po dráze balíček ujede za sekundu. Zrychlení říká, jak se tato rychlost mění. Kladná rychlost a záporné zrychlení znamenají jízdu vpřed se zpomalováním. Pro krátký úsek s přibližně stálým zrychlením platí:</p>
+<div class="rovnice">vₒ² = vᵢ² + 2a · Δs
+Δt = 2Δs/(vᵢ + vₒ)
+s = součet ujetých délek Δs; t = součet časů Δt</div>
+<p>vᵢ je vstupní a vₒ výstupní rychlost krátkého úseku, Δs jeho délka po povrchu a Δt čas průjezdu. Hladkou dráhu výpočet rozdělí na malé části a průběžně aktualizuje sklon, přítlak i tření. Při dosažení nulové rychlosti pohyb ukončí a znovu platí podmínka klidového tření. Dráha zde stále klesá, takže balíček nezačne couvat.</p>
+
+<h3>3.4 Celý výpočet na přímé dráze</h3>
+<p>Pro přehledný příklad zvolte přímou dráhu, L = 6&nbsp;m, H = 2&nbsp;m, μₖ = 0,18, m = 10&nbsp;kg a v₀ = 1,5&nbsp;m/s. Délka po povrchu je přibližně 6,325&nbsp;m, sin α ≈ 0,316 a cos α ≈ 0,949.</p>
+<div class="rovnice">G∥ ≈ 31,02 N; N ≈ 93,07 N
+Fₜ = 0,18 · 93,07 ≈ 16,75 N
+a = (31,02 − 16,75)/10 ≈ 1,427 m/s²
+v v B = √(1,5² + 2 · 1,427 · 6,325) ≈ 4,506 m/s
+t = 2 · 6,325/(1,5 + 4,506) ≈ 2,106 s</div>
+<p>Balíček dojede, ale požadavek nejvýše 1,5&nbsp;m/s nesplní. Celý postup lze ověřit i energií. Nulovou výšku volíme v B; energie měříme v joulech (J):</p>
+<div class="rovnice">E₀ = mgH + ½mv₀² = 207,45 J
+Eₚ = mgh; Eₖ = ½mv²
+Q na přímce = μₖmgL = 105,948 J
+V B: Eₖ = E₀ − Q = 101,502 J
+Kontrola v každém čase: Eₚ + Eₖ + Q = E₀</div>
+<p>Q je energie rozptýlená třením. Na zakřivené dráze už kvůli proměnnému přítlaku nelze obecně použít jednoduchý vztah Q = μₖmgL. Simulace počítá třecí práci po malých úsecích.</p>
+
+<h3>3.5 Brachistochrona: nejrychleji mezi dvěma body</h3>
+<p>Johann Bernoulli v roce 1696 položil otázku, po jaké dráze těleso působením gravitace dorazí mezi dvěma body nejrychleji. Bez tření, z klidu a v rovnoměrném gravitačním poli je řešením část <strong>cykloidy</strong>: křivky, kterou kreslí bod na obvodu odvalujícího se kruhu.</p>
+<p>Prudší začátek získá rychlost dříve. Delší cesta proto může zabrat kratší čas. Tvar vítěze se mění podle polohy cíle a může vést i pod něj. V závodě jsou koncové rychlosti stejné, protože závisejí pouze na celkovém poklesu H: v = √(2gH).</p>
+<div class="rovnice">Cykloida: x = R(θ − sin θ), d = R(1 − cos θ)
+Z klidu na cykloidě: t = θ · √(R/g)</div>
+<p>d je pokles od vstupu, R poloměr tvořícího kruhu a θ úhel jeho otočení v radiánech. Úhel jednoho půlobratu je π. Z rozměrů L a H se vybere koncový úhel a velikost R. Pro R = 1&nbsp;m a θ = π je cíl při L = π&nbsp;m, H = 2&nbsp;m. Cykloida měří 4&nbsp;m a jízda trvá asi 1,003&nbsp;s; kratší přímka měří asi 3,724&nbsp;m, ale jízda trvá asi 1,189&nbsp;s.</p>
+
+<h3>3.6 Tautochrona: stejně dlouho z různých startů</h3>
+<p>Jinou otázkou se zabýval Christiaan Huygens: po jaké dráze trvá sjezd z klidu do nejnižšího bodu stejně dlouho z různých míst? Řešením je opět cykloida, tentokrát její část končící v nejnižším bodě. Této vlastnosti říkáme <strong>tautochronnost</strong>, tedy stejná doba jízdy.</p>
+<div class="rovnice">Čas do nejnižšího bodu: T = π · √(R/g)
+Pro R = 1 m: T ≈ 1,003 s</div>
+<p>Výsledek platí pro různá místa startu na téže dráze, uvolnění z klidu a nulové tření. Nezávisí na výšce startu, ale závisí na velikosti R. Start přímo v cíli je výjimka: těleso už v cíli je. Tautochrona tedy znamená stejný čas, nikoli nejkratší čas.</p>
+<div class="tabulka"><table><thead><tr><th>Požadavek</th><th>Co volíme</th><th>Co zaručuje model</th></tr></thead><tbody>
+<tr><td>Pomalý příjezd s třením</td><td>Rozměry, hladký tvar, povrch a vstupní rychlost</td><td>Výsledek konkrétního návrhu; dojezd se musí ověřit</td></tr>
+<tr><td>Brachistochrona</td><td>Dráhu mezi pevnými body</td><td>Nejkratší čas za ideálních předpokladů</td></tr>
+<tr><td>Tautochrona</td><td>Různé starty na téže cykloidě</td><td>Stejný čas do nejnižšího bodu za ideálních předpokladů</td></tr>
+</tbody></table></div>
+<p class="poznamka">K bonusům: <a href="https://www.maths.ed.ac.uk/~jmf/Teaching/Lectures/CoV.pdf">University of Edinburgh – brachistochrona</a> a <a href="https://math.montana.edu/malo/172f16/Tautochrone.pdf">Montana State University – cykloida a doba sjezdu</a>.</p>
+<div class="pointa"><h2>Proč je to těžké</h2>
+<p>Vodorovný vstup vyhovuje napojení na dopravník, ale z klidu nerozjíždí. Prudší střed přidá rychlost; plochý konec umožní brzdit, ale při velkém tření může zásilka uváznout ještě před ním. Zakřivení navíc mění přítlak a tím i třecí sílu.</p>
+<p>Nejkratší dráha nezaručuje nejkratší čas. Nejrychlejší dráha zase nezaručuje pomalý příjezd, vodorovný vstup ani stejný čas z jiných startů. Jedna „nejlepší skluzavka“ bez určení požadavků neexistuje.</p>
+<p>Najít vítěze mezi třemi křivkami lze pokusem. Dokázat, že žádná jiná křivka nemůže být rychlejší, vyžaduje obecnější matematický postup. Přidání tření, roztáčení válečků a omezení přítlaku navíc mění samotné zadání, takže vlastnosti ideální cykloidy nelze automaticky převzít do konstrukce.</p>
+</div>
+</section>
+<section class="sekce"><h2>Kde se to učí</h2></section>
+<p class="paticka"><a href="../index.html">← Zpět na rozcestník</a></p>
+</main>
+<script src="../assets/js/spolecne.js"></script>
+<script>
+(function(){
+'use strict';
+const G=9.81, LIMIT=1.5, DEFAULT={L:6,H:2,k:0,mu:.18,v0:1.5,m:10};
+const el=id=>document.getElementById(id);
+const fmt=(v,n=3)=>v.toLocaleString('cs-CZ',{maximumFractionDigits:n});
+function svg(tag,attrs,parent,txt){
+  const e=document.createElementNS('http://www.w3.org/2000/svg',tag);
+  for(const [k,v] of Object.entries(attrs))e.setAttribute(k,v);
+  if(txt!==undefined)e.textContent=txt;
+  parent.appendChild(e);return e;
+}
+function path(points,X,Y){return points.map((p,i)=>(i?'L':'M')+X(p.x).toFixed(3)+' '+Y(p.h).toFixed(3)).join(' ');}
+function geometry(p,x){
+  const u=x/p.L;
+  if(p.tvar==='prima')return {h:p.H*(1-u),slope:-p.H/p.L,curv:0};
+  const d=-6*u+6*u*u+p.k*(2*u-6*u*u+4*u*u*u);
+  const dd=-6+12*u+p.k*(2-12*u+12*u*u);
+  const slope=p.H/p.L*d;
+  return {h:p.H*(1-3*u*u+2*u*u*u+p.k*u*u*(1-u)*(1-u)),slope,
+    curv:p.H/(p.L*p.L)*dd/Math.pow(1+slope*slope,1.5)};
+}
+// Piecewise chord geometry, with local curvature and exact kinetic-energy
+// evolution for constant chord slope and curvature coefficient on each piece.
+function calculate(p,count=1600){
+  const points=[],E0=p.m*(G*p.H+.5*p.v0*p.v0);
+  let t=0,s=0,q=p.v0*p.v0,Q=0,reason='cil';
+  function sample(x,h){
+    const geo=geometry(p,x),cos=1/Math.hypot(1,geo.slope),sin=-geo.slope*cos;
+    const N=p.m*(G*cos+geo.curv*q),Fg=p.m*G*sin;
+    const still=q<1e-12 && Fg<=(p.mu+.08)*N+1e-10;
+    const Ft=still?Fg:p.mu*Math.max(0,N);
+    return {x,h,t,s,v:Math.sqrt(Math.max(0,q)),Q,N,Fg,Ft,a:still?0:(Fg-Ft)/p.m,slope:geo.slope};
+  }
+  points.push(sample(0,p.H));
+  if(q===0 && points[0].a===0)return {points,T:0,S:0,v:0,reason:'klid',E0};
+  for(let i=1;i<=count;i++){
+    const prev=points[points.length-1],x=p.L*i/count,geo=geometry(p,x);
+    const dx=x-prev.x,dh=prev.h-geo.h,ds=Math.hypot(dx,dh);
+    const mid=geometry(p,(x+prev.x)/2),cos=dx/ds;
+    const b=2*p.mu*mid.curv/cos,A=2*G*(dh/dx-p.mu);
+    const qAt=f=>Math.abs(b)<1e-12?q+A*dx*f:q*Math.exp(-b*dx*f)+A*(-Math.expm1(-b*dx*f))/b;
+    let fraction=1,q1=qAt(1);
+    if(q1<=0){
+      let lo=0,hi=1;for(let j=0;j<45;j++){const m=(lo+hi)/2;if(qAt(m)>0)lo=m;else hi=m;}
+      fraction=(lo+hi)/2;q1=0;reason=i===count && fraction>1-1e-8?'cil':'zastaveni';
+    }
+    // Contact is unilateral: N cannot become negative. Stop at its first zero.
+    const contact=f=>{const xx=prev.x+dx*f,g=geometry(p,xx);return G/Math.hypot(1,g.slope)+g.curv*Math.max(0,qAt(f));};
+    if(contact(0)<0 || contact(fraction)<0){
+      let lo=0,hi=fraction;
+      for(let j=0;j<45;j++){const m=(lo+hi)/2;if(contact(m)>0)lo=m;else hi=m;}
+      fraction=(lo+hi)/2;q1=Math.max(0,qAt(fraction));reason='kontakt';
+    }
+    const v1=Math.sqrt(q1),used=ds*fraction;
+    if(Math.sqrt(q)+v1===0){reason='zastaveni';break;}
+    t+=2*used/(Math.sqrt(q)+v1);s+=used;
+    Q+=p.m*(G*dh*fraction+.5*(q-q1));q=q1;
+    points.push(sample(prev.x+dx*fraction,prev.h-dh*fraction));
+    if(reason!=='cil')break;
+  }
+  const last=points[points.length-1];
+  if(reason==='zastaveni'||reason==='klid'){last.a=0;last.Ft=last.Fg;}
+  return {points,T:t,S:s,v:Math.sqrt(q),reason,E0};
+}
+function at(points,t){
+  if(t<=0)return points[0];
+  if(t>=points[points.length-1].t)return points[points.length-1];
+  let lo=0,hi=points.length-1;
+  while(hi-lo>1){const m=(lo+hi)>>1;if(points[m].t<=t)lo=m;else hi=m;}
+  const a=points[lo],b=points[hi],u=(t-a.t)/(b.t-a.t),o={};
+  for(const k of Object.keys(a))o[k]=a[k]+(b[k]-a[k])*u;
+  return o;
+}
+let p={...DEFAULT,tvar:'hladka'},model,time=0,pending=null,packageEl,X,Y,graphs=[];
+function stop(){loop.stop();el('spustit').textContent='Spustit';}
+function labels(){
+  const units={L:' m',H:' m',k:'',mu:'',v0:' m/s',m:' kg'};
+  for(const k of Object.keys(DEFAULT))el(k+'-hodnota').textContent=fmt(p[k],2)+units[k];
+  el('k').disabled=p.tvar==='prima';
+}
+function plan(){
+  stop();time=0;labels();if(pending!==null)return;
+  pending=requestAnimationFrame(()=>{pending=null;prepare();});
+}
+function graph(id,key,title){
+  const root=el(id);root.replaceChildren();
+  const max=Math.max(1,...model.points.map(o=>o[key]),key==='v'?LIMIT:0)*1.12;
+  const T=Math.max(1,model.T),xx=t=>60+t/T*510,yy=v=>185-v/max*120;
+  svg('text',{x:60,y:25},root,title);
+  for(let i=0;i<=4;i++){
+    const y=yy(max*i/4);svg('line',{x1:60,x2:570,y1:y,y2:y,stroke:'var(--ram)'},root);
+    svg('text',{x:52,y:y+5,'text-anchor':'end'},root,fmt(max*i/4,1));
+    svg('text',{x:xx(T*i/4),y:208,'text-anchor':'middle'},root,fmt(T*i/4,2));
+  }
+  if(key==='v')svg('line',{x1:60,x2:570,y1:yy(LIMIT),y2:yy(LIMIT),stroke:'var(--shluk-2)','stroke-dasharray':'6 4'},root);
+  svg('text',{x:570,y:231,'text-anchor':'end'},root,'Čas t [s]');
+  const pts=model.points.map(o=>({x:o.t,h:o[key]}));
+  svg('path',{d:path(pts,xx,yy),fill:'none',stroke:'var(--shluk-1)','stroke-width':2.5},root);
+  const cursor=svg('line',{x1:60,x2:60,y1:60,y2:185,stroke:'var(--text)','stroke-dasharray':'4 3'},root);
+  return {xx,cursor};
+}
+function prepare(){
+  model=calculate(p);
+  const root=el('scena');root.replaceChildren();
+  const scale=Math.min(650/p.L,205/p.H);X=x=>65+x*scale;Y=h=>260-h*scale;
+  const track=Array.from({length:201},(_,i)=>({x:p.L*i/200,h:geometry(p,p.L*i/200).h}));
+  svg('path',{d:path(track,X,Y),fill:'none',stroke:'var(--shluk-1)','stroke-width':5},root);
+  svg('path',{d:'M20 '+Y(p.H)+' V260 M65 300 H'+X(p.L),fill:'none',stroke:'var(--ram)','stroke-dasharray':'5 4'},root);
+  svg('text',{x:25,y:(Y(p.H)+260)/2},root,'H');
+  svg('text',{x:(65+X(p.L))/2,y:323,'text-anchor':'middle'},root,'L = '+fmt(p.L)+' m');
+  svg('text',{x:65,y:Y(p.H)-12},root,'A – vstup');
+  svg('text',{x:X(p.L),y:284,'text-anchor':'end'},root,'B – výstup');
+  packageEl=svg('g',{},root);
+  svg('rect',{x:-15,y:-23,width:30,height:23,rx:2,fill:'var(--shluk-4)',stroke:'var(--text)','stroke-width':2},packageEl);
+  svg('path',{d:'M0 -22 V-1',stroke:'var(--pozadi)','stroke-width':3},packageEl);
+  const arrived=model.reason==='cil';
+  el('vysledek').textContent=model.reason==='klid'?'Balíček zůstane v klidu: na vstupu jej drží klidové tření.'
+    :model.reason==='zastaveni'?'Návrh nevyhovuje: balíček se zastaví před výstupem B.'
+    :model.reason==='kontakt'?'Návrh nevyhovuje: balíček ztrácí kontakt s povrchem. Výpočet končí v tomto místě.'
+    :model.v>LIMIT?'Balíček dojede, ale příliš rychle: '+fmt(model.v)+' m/s. Limit v B je 1,5 m/s.'
+    :'Návrh v modelu vyhovuje: balíček dojede do B rychlostí '+fmt(model.v)+' m/s.';
+  el('cil-rychlost').textContent=arrived?fmt(model.v)+' m/s':'Výstupu nedosáhne';
+  el('konec-cas').textContent=fmt(model.T)+' s';el('konec-draha').textContent=fmt(model.S)+' m';
+  el('cas').max=model.T||.001;
+  for(const id of ['spustit','krok','zpet','cas'])el(id).disabled=model.T===0;
+  graphs=[graph('graf-v','v','Rychlost v [m/s]; čárkovaně limit v B'),graph('graf-s','s','Dráha po povrchu s [m]')];
+  show();
+}
+function show(){
+  const o=at(model.points,time),end=time>=model.T,still=o.v<1e-8&&end;
+  packageEl.setAttribute('transform','translate('+X(o.x)+' '+Y(o.h)+') rotate('+(-Math.atan(o.slope)*180/Math.PI)+')');
+  el('cas').value=time;el('cas-hodnota').textContent=fmt(time)+' s';
+  el('zona').textContent=model.reason==='kontakt'&&end?'Ztráta kontaktu':still?'Klid / zastavení'
+    :o.x/p.L<.08?'Vstupní prostor':o.x/p.L>.92?'Zóna zastavení / výjezd':o.a>0?'Zóna zrychlení':'Zóna zpomalení';
+  el('rychlost').textContent=fmt(o.v)+' m/s';el('zrychleni').textContent=fmt(o.a)+' m/s²';
+  el('sily').textContent=fmt(o.Fg,2)+' N / '+fmt(Math.max(0,o.N),2)+' N';
+  el('treni').textContent=fmt(o.Ft,2)+' N / '+fmt((p.mu+.08)*Math.max(0,o.N),2)+' N';
+  const vals={Ep:p.m*G*o.h,Ek:.5*p.m*o.v*o.v,Q:o.Q};
+  for(const [k,v] of Object.entries(vals)){el(k).max=model.E0;el(k).value=Math.max(0,v);el(k+'-hodnota').textContent=fmt(v,2)+' J';}
+  el('energie-soucet').textContent='Eₚ + Eₖ + Q = '+fmt(vals.Ep+vals.Ek+vals.Q,2)+' J; vstupní E₀ = '+fmt(model.E0,2)+' J.';
+  for(const g of graphs){g.cursor.setAttribute('x1',g.xx(time));g.cursor.setAttribute('x2',g.xx(time));}
+}
+const loop=Kurz.smycka(dt=>{time=Math.min(model.T,time+dt);show();if(time>=model.T)stop();});
+for(const k of Object.keys(DEFAULT))el(k).addEventListener('input',()=>{p[k]=Number(el(k).value);plan();});
+el('tvar').addEventListener('change',()=>{p.tvar=el('tvar').value;plan();});
+el('spustit').addEventListener('click',()=>{
+  if(pending!==null||!model.T)return;
+  if(loop.bezi)stop();else{if(time>=model.T)time=0;loop.start();el('spustit').textContent='Zastavit';}
+});
+function shift(dt){if(pending!==null)return;stop();time=Math.max(0,Math.min(model.T,time+dt));show();}
+el('krok').addEventListener('click',()=>shift(.05));el('zpet').addEventListener('click',()=>shift(-.05));
+el('cas').addEventListener('input',()=>{if(pending!==null)return;stop();time=Math.min(model.T,Number(el('cas').value));show();});
+el('reset').addEventListener('click',()=>{
+  stop();if(pending!==null){cancelAnimationFrame(pending);pending=null;}
+  p={...DEFAULT,tvar:'hladka'};time=0;for(const k of Object.keys(DEFAULT))el(k).value=p[k];
+  el('tvar').value=p.tvar;labels();prepare();
+});
+
+// Frictionless race. The cycloid uses its exact time parametrisation;
+// the parabola uses short chords and mean endpoint speed.
+function raceModels(L,H,n=1800){
+  let lo=.0001,hi=2*Math.PI-.0001;
+  for(let i=0;i<65;i++){const m=(lo+hi)/2;if((m-Math.sin(m))/(1-Math.cos(m))<L/H)lo=m;else hi=m;}
+  const theta=(lo+hi)/2,R=H/(1-Math.cos(theta));
+  return ['Přímka','Parabola','Cykloida'].map((name,index)=>{
+    let t=0,s=0;const points=[];
+    for(let i=0;i<=n;i++){
+      const u=i/n,a=theta*u;
+      const x=index===0?L*u:index===1?L*u*u:R*(a-Math.sin(a));
+      const d=index<2?H*u:R*(1-Math.cos(a)),v=Math.sqrt(2*G*d);
+      if(i){const prev=points[i-1],ds=Math.hypot(x-prev.x,d-prev.d);s+=ds;t+=2*ds/(prev.v+v);}
+      if(index===2){t=a*Math.sqrt(R/G);s=4*R*(1-Math.cos(a/2));}
+      points.push({x,h:H-d,d,v,t,s});
+    }
+    return {name,points,T:t,S:s};
+  });
+}
+let racers=[],raceTime=0,racePending=null,raceDots=[],raceX,raceY;
+function raceStop(){raceLoop.stop();el('raceStart').textContent='Spustit závod';}
+function racePrepare(){
+  raceStop();raceTime=0;
+  const L=Number(el('raceL').value),H=Number(el('raceH').value);
+  el('raceL-hodnota').textContent=fmt(L)+' m';el('raceH-hodnota').textContent=fmt(H)+' m';
+  racers=raceModels(L,H);const depth=Math.max(...racers.flatMap(r=>r.points.map(o=>o.d)));
+  const scale=Math.min(650/L,245/depth);raceX=x=>65+x*scale;raceY=h=>60+(H-h)*scale;
+  const root=el('zavod');root.replaceChildren();raceDots=[];
+  const colors=['var(--shluk-1)','var(--shluk-4)','var(--shluk-5)'];
+  racers.forEach((r,i)=>{
+    svg('path',{d:path(r.points,raceX,raceY),fill:'none',stroke:colors[i],'stroke-width':3,'stroke-dasharray':['none','9 5','2 5'][i]},root);
+    const g=svg('g',{},root);svg('circle',{r:12,fill:'var(--pozadi)',stroke:colors[i],'stroke-width':3},g);
+    svg('text',{x:0,y:5,'text-anchor':'middle'},g,i+1);raceDots.push(g);
+  });
+  svg('text',{x:45,y:35},root,'A');svg('text',{x:raceX(L)+14,y:raceY(0)+5},root,'B');
+  const body=el('raceTable');body.replaceChildren();
+  for(const r of racers){const row=svgRow(body);for(const val of [r.name,fmt(r.S)+' m',fmt(r.T)+' s',fmt(r.points.at(-1).v)+' m/s']){const td=document.createElement('td');td.textContent=val;row.appendChild(td);}}
+  el('raceTime').max=Math.max(...racers.map(r=>r.T));raceShow();
+}
+function svgRow(body){const row=document.createElement('tr');body.appendChild(row);return row;}
+function raceShow(){
+  racers.forEach((r,i)=>{const o=at(r.points,raceTime);raceDots[i].setAttribute('transform','translate('+raceX(o.x)+' '+raceY(o.h)+')');});
+  el('raceTime').value=raceTime;el('raceTime-hodnota').textContent=fmt(raceTime)+' s';
+  const done=racers.filter(r=>raceTime>=r.T).map(r=>r.name.toLowerCase());
+  el('raceStatus').textContent=done.length?'V cíli: '+done.join(', ')+'.':'Všechny balíčky jsou na cestě nebo čekají na start.';
+}
+const raceLoop=Kurz.smycka(dt=>{const T=Math.max(...racers.map(r=>r.T));raceTime=Math.min(T,raceTime+dt);raceShow();if(raceTime>=T)raceStop();});
+for(const id of ['raceL','raceH'])el(id).addEventListener('input',()=>{raceStop();if(racePending!==null)return;racePending=requestAnimationFrame(()=>{racePending=null;racePrepare();});});
+el('raceStart').addEventListener('click',()=>{if(racePending!==null)return;if(raceLoop.bezi)raceStop();else{if(raceTime>=Number(el('raceTime').max))raceTime=0;raceLoop.start();el('raceStart').textContent='Zastavit závod';}});
+el('raceReset').addEventListener('click',()=>{if(racePending!==null){cancelAnimationFrame(racePending);racePending=null;}el('raceL').value=6;el('raceH').value=2;racePrepare();});
+el('raceTime').addEventListener('input',()=>{if(racePending!==null)return;raceStop();raceTime=Number(el('raceTime').value);raceShow();});
+
+// Distance from the bottom along a cycloid is proportional to cos(theta/2).
+// In time it follows a harmonic cosine. This includes release from rest exactly.
+let tauTime=0,tauR=1,tauT=0,tauStarts=[],tauDots=[],tauX,tauY;
+function tauPoint(theta){return {x:tauR*(theta-Math.sin(theta)),h:tauR*(1+Math.cos(theta))};}
+function tauStop(){tauLoop.stop();el('tauStart').textContent='Uvolnit současně';}
+function tauPrepare(){
+  tauStop();tauTime=0;tauR=Number(el('tauR').value);tauT=Math.PI*Math.sqrt(tauR/G);
+  tauStarts=[20,75,Number(el('tauAngle').value)].map(d=>d*Math.PI/180);
+  el('tauR-hodnota').textContent=fmt(tauR)+' m';el('tauAngle-hodnota').textContent=el('tauAngle').value+'°';
+  const root=el('tauto');root.replaceChildren();const scale=Math.min(650/(Math.PI*tauR),240/(2*tauR));
+  tauX=x=>65+x*scale;tauY=h=>285-h*scale;
+  const pts=Array.from({length:301},(_,i)=>tauPoint(Math.PI*i/300));
+  svg('path',{d:path(pts,tauX,tauY),fill:'none',stroke:'var(--shluk-1)','stroke-width':4},root);
+  svg('text',{x:tauX(Math.PI*tauR)+15,y:289},root,'B');
+  tauDots=tauStarts.map((a,i)=>{
+    const start=tauPoint(a);svg('text',{x:tauX(start.x)+13,y:tauY(start.h)-14},root,'Start '+(i+1));
+    const g=svg('g',{},root);svg('circle',{r:11,fill:'var(--pozadi)',stroke:'var(--shluk-'+(i+2)+')','stroke-width':3},g);
+    svg('text',{x:0,y:5,'text-anchor':'middle'},g,i+1);return g;
+  });
+  el('tauTime').max=tauT;tauShow();
+}
+function tauShow(){
+  const factor=Math.cos(Math.min(tauTime,tauT)*Math.sqrt(G/(4*tauR)));
+  tauStarts.forEach((a,i)=>{
+    const theta=2*Math.acos(Math.max(0,Math.min(1,Math.cos(a/2)*factor))),o=tauPoint(theta);
+    // Small screen-space offset at the common endpoint keeps the three numbers visible.
+    tauDots[i].setAttribute('transform','translate('+tauX(o.x)+' '+(tauY(o.h)-(i-1)*25)+')');
+  });
+  el('tauTime').value=tauTime;el('tauTime-hodnota').textContent=fmt(tauTime)+' s';
+  el('tauStatus').textContent='Čas do B pro všechny tři starty: '+fmt(tauT)+' s. '+(tauTime>=tauT?'Všechny tři balíčky právě dojely.':'Značky jsou pro čitelnost mírně posunuty kolmo na obraz; jedou po stejné dráze.');
+}
+const tauLoop=Kurz.smycka(dt=>{tauTime=Math.min(tauT,tauTime+dt);tauShow();if(tauTime>=tauT)tauStop();});
+for(const id of ['tauR','tauAngle'])el(id).addEventListener('input',tauPrepare);
+el('tauStart').addEventListener('click',()=>{if(tauLoop.bezi)tauStop();else{if(tauTime>=tauT)tauTime=0;tauLoop.start();el('tauStart').textContent='Zastavit';}});
+el('tauReset').addEventListener('click',()=>{el('tauR').value=1;el('tauAngle').value=125;tauPrepare();});
+el('tauTime').addEventListener('input',()=>{tauStop();tauTime=Number(el('tauTime').value);tauShow();});
+labels();prepare();racePrepare();tauPrepare();
+})();
+</script>
+</body>
+</html>
